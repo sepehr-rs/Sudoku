@@ -1,1 +1,1 @@
-i18n.gettext('sudoku', preset: 'glib')
+i18n.gettext('gsudoku', preset: 'glib')

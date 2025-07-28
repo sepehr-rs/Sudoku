@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="sudoku">
-	<schema id="io.github.sepehr_rs.Sudoku" path="/io/github/sepehr_rs/Sudoku/">
-	</schema>
-</schemalist>

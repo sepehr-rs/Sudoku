@@ -1,9 +1,9 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
-moduledir = join_paths(pkgdatadir, 'sudoku')
+moduledir = join_paths(pkgdatadir, 'gsudoku')
 gnome = import('gnome')
 
-gnome.compile_resources('sudoku',
-  'sudoku.gresource.xml',
+gnome.compile_resources('gsudoku',
+  'gsudoku.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -18,8 +18,8 @@ conf.set('localedir', join_paths(get_option('prefix'), get_option('localedir')))
 conf.set('pkgdatadir', pkgdatadir)
 
 configure_file(
-  input: 'sudoku.in',
-  output: 'sudoku',
+  input: 'gsudoku.in',
+  output: 'gsudoku',
   configuration: conf,
   install: true,
   install_dir: get_option('bindir')
