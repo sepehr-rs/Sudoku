@@ -1,9 +1,9 @@
 {
-    "app-id" : "io.github.sepehr_rs.Sudoku",
+    "app-id" : "io.github.sepehr_rs.GSudoku",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "master",
     "sdk" : "org.gnome.Sdk",
-    "command" : "sudoku",
+    "command" : "gsudoku",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
@@ -24,7 +24,7 @@
     ],
     "modules" : [
         {
-            "name" : "sudoku",
+            "name" : "gsudoku",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [

@@ -1,0 +1,41 @@
+{
+  "id": "io.github.sepehr_rs.GSudoku.Devel",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "45",
+  "sdk": "org.gnome.Sdk",
+  "command": "gsudoku",
+  "finish-args": [
+    "--share=network",
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--device=dri",
+    "--filesystem=home",
+    "--own-name=io.github.sepehr_rs.GSudoku"
+  ],
+  "modules": [
+    {
+      "name": "py-sudoku",
+      "buildsystem": "simple",
+      "build-commands": [
+        "pip3 install --prefix=/app --no-warn-script-location py_sudoku-2.0.0-py3-none-any.whl"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "path": "sources/py_sudoku-2.0.0-py3-none-any.whl"
+        }
+      ]
+    },
+    {
+      "name": "gsudoku",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}
