@@ -31,11 +31,12 @@ class SudokuApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.sepehr_rs.Sudoku',
+        super().__init__(application_id='io.github.sepehr_rs.GSudoku',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.create_action('quit', self.quit, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
+        #self.create_action('on_new_game_clicked',self.on_new_game_clicked)
 
     def do_activate(self):
         """Called when the application is activated.
@@ -77,6 +78,7 @@ class SudokuApplication(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
+
 
 
 def main(version):
