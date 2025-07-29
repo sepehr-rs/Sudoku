@@ -46,11 +46,13 @@
 .entry-cell.highlight, .clue-cell.highlight {
     background-color: rgba(100, 149, 237, 0.25); /* light cornflower blue */
     transition: background-color 0.8s ease;
+
 }
 
 /* Feedback colors for user input */
 .entry-cell.correct {
     background-color: rgba(144, 238, 144, 0.5); /* light green */
+    transition: background-color 0.5s ease;
 }
 
 .entry-cell.wrong {
