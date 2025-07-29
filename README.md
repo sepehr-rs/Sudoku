@@ -1,3 +1,3 @@
 # gsudoku
 
-A description of this project.
+Alpha version build
