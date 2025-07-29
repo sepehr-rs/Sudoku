@@ -17,19 +17,20 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gdk
+from gi.repository import Adw, Gtk, Gdk, GLib
 from sudoku import Sudoku as PySudoku
+from functools import partial
 
 SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
 
-@Gtk.Template(resource_path='/io/github/sepehr_rs/GSudoku/window.ui')
+
+@Gtk.Template(resource_path="/io/github/sepehr_rs/GSudoku/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
-    __gtype_name__ = 'SudokuWindow'
+    __gtype_name__ = "SudokuWindow"
 
     stack = Gtk.Template.Child()
     continue_button = Gtk.Template.Child()
     new_game_button = Gtk.Template.Child()
-
     main_menu_box = Gtk.Template.Child()
     game_view_box = Gtk.Template.Child()
 
@@ -41,14 +42,37 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.continue_button.set_sensitive(self._has_saved_game())
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
+        self.key_map = {
+            Gdk.KEY_1: "1",
+            Gdk.KEY_2: "2",
+            Gdk.KEY_3: "3",
+            Gdk.KEY_4: "4",
+            Gdk.KEY_5: "5",
+            Gdk.KEY_6: "6",
+            Gdk.KEY_7: "7",
+            Gdk.KEY_8: "8",
+            Gdk.KEY_9: "9",
+            Gdk.KEY_KP_1: "1",
+            Gdk.KEY_KP_2: "2",
+            Gdk.KEY_KP_3: "3",
+            Gdk.KEY_KP_4: "4",
+            Gdk.KEY_KP_5: "5",
+            Gdk.KEY_KP_6: "6",
+            Gdk.KEY_KP_7: "7",
+            Gdk.KEY_KP_8: "8",
+            Gdk.KEY_KP_9: "9",
+        }
+        self.remove_cell_keybindings = (
+            Gdk.KEY_BackSpace,
+            Gdk.KEY_Delete,
+            Gdk.KEY_KP_Delete,
+        )
 
     def _load_css(self):
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_resource('/io/github/sepehr_rs/GSudoku/styles.css')
+        css_provider.load_from_resource("/io/github/sepehr_rs/GSudoku/styles.css")
         Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER
+            Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
     def on_continue_clicked(self, button):
@@ -59,8 +83,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         return False
 
     def on_new_game_clicked(self, action):
-        dialog = Gtk.Dialog(title="Select Difficulty", transient_for=self, modal=True)
-        dialog.set_default_size(300, 150)
+        dialog = Gtk.Dialog(
+            title="Select Difficulty",
+            transient_for=self,
+            modal=True,
+        )
+        dialog.set_default_size(400, 170)
 
         box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
@@ -68,38 +96,26 @@ class SudokuWindow(Adw.ApplicationWindow):
             margin_top=24,
             margin_bottom=24,
             margin_start=24,
-            margin_end=24
+            margin_end=24,
         )
         dialog.get_content_area().append(box)
 
         difficulties = [
-            ("Easy", self.on_new_game_easy),
-            ("Medium", self.on_new_game_medium),
-            ("Hard", self.on_new_game_hard),
-            ("Extreme", self.on_new_game_extreme),
+            ("Easy", 0.2),
+            ("Medium", 0.4),
+            ("Hard", 0.6),
+            ("Extreme", 0.8),
         ]
 
-        for label, handler in difficulties:
+        for label, difficulty in difficulties:
             button = Gtk.Button(label=label)
-            button.connect("clicked", handler)
+            button.connect("clicked", partial(self.on_new_game, difficulty))
             box.append(button)
 
         dialog.show()
 
-    def on_new_game_easy(self, button, *_):
-        self.start_game(0.2)
-        button.get_root().destroy()
-
-    def on_new_game_medium(self, button, *_):
-        self.start_game(0.5)
-        button.get_root().destroy()
-
-    def on_new_game_hard(self, button, *_):
-        self.start_game(0.7)
-        button.get_root().destroy()
-
-    def on_new_game_extreme(self, button, *_):
-        self.start_game(0.9)
+    def on_new_game(self, difficulty, button):
+        self.start_game(difficulty)
         button.get_root().destroy()
 
     def start_game(self, difficulty: float):
@@ -113,14 +129,14 @@ class SudokuWindow(Adw.ApplicationWindow):
         puzzle = sudoku.board
 
         # Clear previous game content
-        while (child := self.game_view_box.get_first_child()):
+        while child := self.game_view_box.get_first_child():
             self.game_view_box.remove(child)
 
         grid = Gtk.Grid(
             row_spacing=0.4,
             column_spacing=0.4,
             column_homogeneous=True,
-            row_homogeneous=True
+            row_homogeneous=True,
         )
 
         self.cell_buttons = [[None for _ in range(9)] for _ in range(9)]
@@ -141,7 +157,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.game_view_box.append(frame)
         self.highlight_related_cells(0, 0)
         frame.show()
-
 
     def _clear_highlights(self):
         for row in range(9):
@@ -175,11 +190,11 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         if value is None:
             cell.set_label("")
-            cell.get_style_context().add_class('entry-cell')
+            cell.get_style_context().add_class("entry-cell")
             cell.editable = True
         else:
             cell.set_label(str(value))
-            cell.get_style_context().add_class('clue-cell')
+            cell.get_style_context().add_class("clue-cell")
             cell.editable = False
 
         # Use 'button-press-event' to get event info (mouse button, modifiers)
@@ -204,11 +219,14 @@ class SudokuWindow(Adw.ApplicationWindow):
         if (row + 1) % 3 == 0:
             context.add_class("bottom-border")
 
+    def _clear_feedback_classes(self, context):
+        context.remove_class("correct")
+        context.remove_class("wrong")
+
     def on_clear_selected(self, clear_button, target_cell, popover):
         target_cell.set_label("")
         context = target_cell.get_style_context()
-        context.remove_class("correct")
-        context.remove_class("wrong")
+        self._clear_feedback_classes(context)
         popover.popdown()
 
     def _show_popover(self, button):
@@ -225,7 +243,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         for i in range(1, 10):
             num_button = Gtk.Button(label=str(i))
             num_button.set_size_request(40, 40)
-            num_button.connect("clicked", self.on_number_selected, button, popover)
+            num_button.connect(
+                "clicked",
+                self.on_number_selected,
+                button,
+                popover,
+            )
             grid.attach(num_button, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = num_button
 
@@ -238,21 +261,13 @@ class SudokuWindow(Adw.ApplicationWindow):
         grid.add_controller(key_controller)
 
         def on_key_pressed(controller, keyval, keycode, state):
-            key_map = {
-                Gdk.KEY_1: '1', Gdk.KEY_2: '2', Gdk.KEY_3: '3',
-                Gdk.KEY_4: '4', Gdk.KEY_5: '5', Gdk.KEY_6: '6',
-                Gdk.KEY_7: '7', Gdk.KEY_8: '8', Gdk.KEY_9: '9',
-                Gdk.KEY_KP_1: '1', Gdk.KEY_KP_2: '2', Gdk.KEY_KP_3: '3',
-                Gdk.KEY_KP_4: '4', Gdk.KEY_KP_5: '5', Gdk.KEY_KP_6: '6',
-                Gdk.KEY_KP_7: '7', Gdk.KEY_KP_8: '8', Gdk.KEY_KP_9: '9',
-            }
 
-            if keyval in key_map:
-                num_str = key_map[keyval]
+            if keyval in self.key_map:
+                num_str = self.key_map[keyval]
                 if num_str in num_buttons:
                     num_buttons[num_str].emit("clicked")
                     return True
-            elif keyval in (Gdk.KEY_BackSpace, Gdk.KEY_Delete, Gdk.KEY_KP_Delete):
+            elif keyval in self.remove_cell_keybindings:
                 clear_button.emit("clicked")
                 return True
 
@@ -264,8 +279,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         grid.grab_focus()
 
         popover.show()
-
-
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell):
         self.highlight_related_cells(cell.row, cell.col)
@@ -279,7 +292,17 @@ class SudokuWindow(Adw.ApplicationWindow):
         else:
             cell.grab_focus()
 
+    def _specify_cell_correctness(self, context, number, correct, cell):
+        def remove_class(name):
+            context.remove_class(name)
+            return False  # Don't repeat the timeout
 
+        if number == correct:
+            setattr(cell, "editable", False)
+            context.add_class("correct")
+            GLib.timeout_add(2000, lambda: remove_class("correct"))
+        else:
+            context.add_class("wrong")
 
     def on_number_selected(self, num_button, target_cell, popover):
         number = num_button.get_label()
@@ -290,20 +313,14 @@ class SudokuWindow(Adw.ApplicationWindow):
         correct = str(self.solution[row][col])
 
         context = target_cell.get_style_context()
-        context.remove_class("correct")
-        context.remove_class("wrong")
-
-        if number == correct:
-            context.add_class("correct")
-        else:
-            context.add_class("wrong")
-
+        self._clear_feedback_classes(context)
+        self._specify_cell_correctness(context, number, correct, target_cell)
 
     def on_key_pressed(self, controller, keyval, keycode, state, row, col):
         directions = {
-            Gdk.KEY_Up:    (-1, 0),
-            Gdk.KEY_Down:  (1, 0),
-            Gdk.KEY_Left:  (0, -1),
+            Gdk.KEY_Up: (-1, 0),
+            Gdk.KEY_Down: (1, 0),
+            Gdk.KEY_Left: (0, -1),
             Gdk.KEY_Right: (0, 1),
         }
 
@@ -322,46 +339,27 @@ class SudokuWindow(Adw.ApplicationWindow):
                 self._show_popover(cell)
                 return True
 
-        key_map = {
-            Gdk.KEY_1: '1', Gdk.KEY_2: '2', Gdk.KEY_3: '3',
-            Gdk.KEY_4: '4', Gdk.KEY_5: '5', Gdk.KEY_6: '6',
-            Gdk.KEY_7: '7', Gdk.KEY_8: '8', Gdk.KEY_9: '9',
-            Gdk.KEY_KP_1: '1', Gdk.KEY_KP_2: '2', Gdk.KEY_KP_3: '3',
-            Gdk.KEY_KP_4: '4', Gdk.KEY_KP_5: '5', Gdk.KEY_KP_6: '6',
-            Gdk.KEY_KP_7: '7', Gdk.KEY_KP_8: '8', Gdk.KEY_KP_9: '9',
-        }
-
-        if keyval in key_map:
-            num = key_map[keyval]
+        if keyval in self.key_map:
+            num = self.key_map[keyval]
             cell = self.cell_buttons[row][col]
             if getattr(cell, "editable", False):
                 cell.set_label(num)
-
                 correct = str(self.solution[row][col])
                 context = cell.get_style_context()
-                context.remove_class("correct")
-                context.remove_class("wrong")
-                if num == correct:
-                    context.add_class("correct")
-                else:
-                    context.add_class("wrong")
-        if keyval in (Gdk.KEY_BackSpace, Gdk.KEY_Delete, Gdk.KEY_KP_Delete):
+                self._clear_feedback_classes(context)
+                self._specify_cell_correctness(context, num, correct, cell)
+
+        if keyval in self.remove_cell_keybindings:
             cell = self.cell_buttons[row][col]
             if getattr(cell, "editable", False):
                 cell.set_label("")
                 context = cell.get_style_context()
-                context.remove_class("correct")
-                context.remove_class("wrong")
+                self._clear_feedback_classes(context)
         return True
-
-
-
 
     def _has_saved_game(self):
         try:
-            with open(SAVE_PATH, 'r'):
+            with open(SAVE_PATH, "r"):
                 return True
         except Exception:
             return False
-
-
