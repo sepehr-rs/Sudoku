@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+
+  <template class="GameWindow" parent="AdwApplicationWindow">
+    <property name="default-width">600</property>
+    <property name="default-height">600</property>
+    <property name="title" translatable="yes">Sudoku Puzzle</property>
+    <property name="content">
+      <object class="GtkBox" id="sudoku_grid_box" />
+    </property>
+  </template>
+</interface>  
