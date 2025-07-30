@@ -24,7 +24,7 @@ from functools import partial
 SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/GSudoku/window.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/LibreSudoku/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
     __gtype_name__ = "SudokuWindow"
 
@@ -70,7 +70,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _load_css(self):
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_resource("/io/github/sepehr_rs/GSudoku/styles.css")
+        css_provider.load_from_resource("/io/github/sepehr_rs/LibreSudoku/styles.css")
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )

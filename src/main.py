@@ -31,7 +31,7 @@ class SudokuApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.sepehr_rs.GSudoku',
+        super().__init__(application_id='io.github.sepehr_rs.LibreSudoku',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.create_action('quit', self.quit, ['<primary>q'])
         self.create_action('about', self.on_about_action)
@@ -53,7 +53,7 @@ class SudokuApplication(Adw.Application):
         """Callback for the app.about action."""
         about = Adw.AboutWindow(transient_for=self.props.active_window,
                                 application_name='sudoku',
-                                application_icon='io.github.sepehr_rs.Sudoku',
+                                application_icon='io.github.sepehr_rs.LibreSudoku',
                                 developer_name='sepehr',
                                 version='0.1.0',
                                 developers=['sepehr'],

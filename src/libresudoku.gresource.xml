@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/sepehr_rs/GSudoku">
+  <gresource prefix="/io/github/sepehr_rs/LibreSudoku">
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">game_window.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>

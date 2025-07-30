@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="libresudoku">
+	<schema id="io.github.sepehr_rs.LibreSudoku" path="/io/github/sepehr_rs/LibreSudoku/">
+	</schema>
+</schemalist>

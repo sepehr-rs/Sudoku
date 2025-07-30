@@ -1,9 +1,9 @@
 {
-  "id": "io.github.sepehr_rs.GSudoku.Devel",
+  "id": "io.github.sepehr_rs.LibreSudoku.Devel",
   "runtime": "org.gnome.Platform",
   "runtime-version": "45",
   "sdk": "org.gnome.Sdk",
-  "command": "gsudoku",
+  "command": "libresudoku",
   "finish-args": [
     "--share=network",
     "--share=ipc",
@@ -11,7 +11,7 @@
     "--socket=wayland",
     "--device=dri",
     "--filesystem=home",
-    "--own-name=io.github.sepehr_rs.GSudoku"
+    "--own-name=io.github.sepehr_rs.LibreSudoku"
   ],
   "modules": [
     {
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "name": "gsudoku",
+      "name": "libresudoku",
       "buildsystem": "meson",
       "sources": [
         {

@@ -1,6 +1,6 @@
-data/io.github.sepehr_rs.GSudoku.desktop.in
-data/io.github.sepehr_rs.GSudoku.appdata.xml.in
-data/io.github.sepehr_rs.GSudoku.gschema.xml
+data/io.github.sepehr_rs.LibreSudoku.desktop.in
+data/io.github.sepehr_rs.LibreSudoku.appdata.xml.in
+data/io.github.sepehr_rs.LibreSudoku.gschema.xml
 src/main.py
 src/window.py
 src/window.ui

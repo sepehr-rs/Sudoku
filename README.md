@@ -1,3 +1,3 @@
-# gsudoku
+# LibreSudoku
 
 Alpha version build
