@@ -22,29 +22,38 @@ from functools import partial
 
 SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
 
+GRID_SIZE = 9
+BLOCK_SIZE = 3
+EASY_DIFFICULTY = 0.2
+MEDIUM_DIFFICULTY = 0.5
+HARD_DIFFICULTY = 0.7
+EXTREME_DIFFICULTY = 0.9
+DIALOG_DEFAULT_WIDTH = 340
+DIALOG_DEFAULT_HEIGHT = 240
+
 
 class GameBoard:
-    def __init__(self, difficulty):
+    def __init__(self, difficulty: float):
         sudoku = PySudoku(3).difficulty(difficulty)
         self.puzzle = sudoku.board
         self.solution = sudoku.solve().board
-        self.user_inputs = [[None for _ in range(9)] for _ in range(9)]
+        self.user_inputs = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
-    def is_correct(self, row, col, value):
+    def is_correct(self, row: int, col: int, value: str):
         return str(self.solution[row][col]) == str(value)
 
-    def is_clue(self, row, col):
+    def is_clue(self, row: int, col: int):
         return self.puzzle[row][col] is not None
 
-    def set_input(self, row, col, value):
+    def set_input(self, row: int, col: int, value: str):
         self.user_inputs[row][col] = value
 
-    def get_input(self, row, col):
+    def get_input(self, row: int, col: int):
         return self.user_inputs[row][col]
 
 
 class SudokuCell(Gtk.Button):
-    def __init__(self, row, col, value, editable):
+    def __init__(self, row: int, col: int, value: str, editable: bool):
         super().__init__()
 
         self.row = row
@@ -65,21 +74,21 @@ class SudokuCell(Gtk.Button):
             self.set_label("")
             self.get_style_context().add_class("entry-cell")
 
-    def highlight(self, class_name):
+    def highlight(self, class_name: str):
         self.get_style_context().add_class(class_name)
 
-    def unhighlight(self, class_name):
+    def unhighlight(self, class_name: str):
         self.get_style_context().remove_class(class_name)
 
     def add_border_classes(self):
         context = self.get_style_context()
-        if self.row % 3 == 0:
+        if self.row % BLOCK_SIZE == 0:
             context.add_class("top-border")
-        if self.col % 3 == 0:
+        if self.col % BLOCK_SIZE == 0:
             context.add_class("left-border")
-        if (self.col + 1) % 3 == 0:
+        if (self.col + 1) % BLOCK_SIZE == 0:
             context.add_class("right-border")
-        if (self.row + 1) % 3 == 0:
+        if (self.row + 1) % BLOCK_SIZE == 0:
             context.add_class("bottom-border")
 
 
@@ -128,7 +137,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
-    def on_continue_clicked(self, button):
+    def on_continue_clicked(self, button: Gtk.Button):
         print("Continue Game clicked")
 
     def on_stack_page_changed(self, stack, param):
@@ -148,7 +157,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             transient_for=self,
             modal=True,
         )
-        dialog.set_default_size(400, 170)
+        dialog.set_default_size(DIALOG_DEFAULT_WIDTH, DIALOG_DEFAULT_HEIGHT)
 
         box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
@@ -161,10 +170,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         dialog.get_content_area().append(box)
 
         for label, difficulty in [
-            ("Easy", 0.2),
-            ("Medium", 0.5),
-            ("Hard", 0.7),
-            ("Extreme", 0.9),
+            ("Easy", EASY_DIFFICULTY),
+            ("Medium", MEDIUM_DIFFICULTY),
+            ("Hard", HARD_DIFFICULTY),
+            ("Extreme", EXTREME_DIFFICULTY),
         ]:
             button = Gtk.Button(label=label)
             button.connect("clicked", partial(self.on_new_game, difficulty))
@@ -172,7 +181,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         dialog.show()
 
-    def on_new_game(self, difficulty, button):
+    def on_new_game(self, difficulty: float, button: Gtk.Button):
         self.start_game(difficulty)
         button.get_root().destroy()
 
@@ -193,10 +202,10 @@ class SudokuWindow(Adw.ApplicationWindow):
             column_homogeneous=True,
             row_homogeneous=True,
         )
-        self.user_inputs = [[None for _ in range(9)] for _ in range(9)]
+        self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
 
-        for row in range(9):
-            for col in range(9):
+        for row in range(GRID_SIZE):
+            for col in range(GRID_SIZE):
                 value = self.game_board.puzzle[row][col]
                 editable = not self.game_board.is_clue(row, col)
                 cell = SudokuCell(row, col, value, editable)
@@ -208,7 +217,7 @@ class SudokuWindow(Adw.ApplicationWindow):
                 key_controller.connect("key-pressed", self.on_key_pressed, row, col)
                 cell.add_controller(key_controller)
 
-                self.user_inputs[row][col] = cell
+                self.cell_inputs[row][col] = cell
                 grid.attach(cell, col, row, 1, 1)
 
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
@@ -220,13 +229,13 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._focus_cell(0, 0)
         frame.show()
 
-    def _create_number_button(self, label, callback, *args):
+    def _create_number_button(self, label: str, callback, *args):
         button = Gtk.Button(label=label)
         button.set_size_request(40, 40)
         button.connect("clicked", callback, *args)
         return button
 
-    def _show_popover(self, button):
+    def _show_popover(self, button: Gtk.Button):
         popover = Gtk.Popover()
         popover.set_has_arrow(False)
         popover.set_position(Gtk.PositionType.BOTTOM)
@@ -265,44 +274,46 @@ class SudokuWindow(Adw.ApplicationWindow):
         grid.grab_focus()
         popover.show()
 
-    def on_clear_selected(self, clear_button, target_cell, popover):
+    def on_clear_selected(self, clear_button, target_cell: SudokuCell, popover):
         target_cell.set_label("")
         self._clear_feedback_classes(target_cell.get_style_context())
         popover.popdown()
 
-    def on_number_selected(self, num_button, target_cell, popover):
+    def on_number_selected(
+        self, num_button: Gtk.Button, target_cell: SudokuCell, popover
+    ):
         number = num_button.get_label()
         self._fill_cell(target_cell, number)
         popover.popdown()
 
-    def _clear_highlights(self, class_name):
+    def _clear_highlights(self, class_name: str):
         for row in range(9):
             for col in range(9):
-                self.user_inputs[row][col].unhighlight(class_name)
+                self.cell_inputs[row][col].unhighlight(class_name)
 
-    def _highlight_cell(self, row, col, class_name):
-        self.user_inputs[row][col].highlight(class_name)
+    def _highlight_cell(self, row: int, col: int, class_name: str):
+        self.cell_inputs[row][col].highlight(class_name)
 
-    def highlight_related_cells(self, row, col):
+    def highlight_related_cells(self, row: int, col: int):
         self._clear_highlights("highlight")
         for i in range(9):
             self._highlight_cell(row, i, "highlight")
             self._highlight_cell(i, col, "highlight")
 
-        block_row_start = (row // 3) * 3
-        block_col_start = (col // 3) * 3
-        for r in range(block_row_start, block_row_start + 3):
-            for c in range(block_col_start, block_col_start + 3):
+        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
+        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
+        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
+            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
                 self._highlight_cell(r, c, "highlight")
 
-    def on_cell_clicked(self, gesture, n_press, x, y, cell):
+    def on_cell_clicked(self, gesture, n_press, x: int, y: int, cell: SudokuCell):
         self.highlight_related_cells(cell.row, cell.col)
         if cell.editable and n_press == 1:
             self._show_popover(cell)
         else:
             cell.grab_focus()
 
-    def _fill_cell(self, cell, number):
+    def _fill_cell(self, cell: SudokuCell, number: int):
         self._clear_conflicts()
         cell.set_label(number)
         row, col = cell.row, cell.col
@@ -314,34 +325,34 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._clear_feedback_classes(context)
         self._specify_cell_correctness(context, number, correct, cell)
 
-    def _focus_cell(self, row, col):
-        self.user_inputs[row][col].grab_focus()
+    def _focus_cell(self, row: int, col: int):
+        self.cell_inputs[row][col].grab_focus()
         self.highlight_related_cells(row, col)
 
     def _clear_feedback_classes(self, context):
         context.remove_class("correct")
         context.remove_class("wrong")
 
-    def _highlight_conflicts(self, row, col, number_str):
+    def _highlight_conflicts(self, row: int, col: int, label: str):
         self.conflict_cells.clear()
-        for c in range(9):
-            cell = self.user_inputs[row][c]
-            if cell.get_label() == number_str and cell != self.user_inputs[row][col]:
+        for c in range(GRID_SIZE):
+            cell = self.cell_inputs[row][c]
+            if cell.get_label() == label and cell != self.cell_inputs[row][col]:
                 cell.highlight("conflict")
                 self.conflict_cells.append(cell)
-        for r in range(9):
-            cell = self.user_inputs[r][col]
-            if cell.get_label() == number_str and cell != self.user_inputs[row][col]:
+        for r in range(GRID_SIZE):
+            cell = self.cell_inputs[r][col]
+            if cell.get_label() == label and cell != self.cell_inputs[row][col]:
                 cell.highlight("conflict")
                 self.conflict_cells.append(cell)
-        block_row_start = (row // 3) * 3
-        block_col_start = (col // 3) * 3
-        for r in range(block_row_start, block_row_start + 3):
-            for c in range(block_col_start, block_col_start + 3):
-                cell = self.user_inputs[r][c]
+        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
+        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
+        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
+            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
+                cell = self.cell_inputs[r][c]
                 if (
-                    cell.get_label() == number_str
-                    and cell != self.user_inputs[row][col]
+                    cell.get_label() == label
+                    and cell != self.cell_inputs[row][col]
                 ):
                     cell.highlight("conflict")
                     self.conflict_cells.append(cell)
@@ -352,11 +363,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.conflict_cells.clear()
         return False
 
-    def _specify_cell_correctness(self, context, number, correct, cell):
-        def remove_class(name):
-            context.remove_class(name)
-            return False
-
+    def _specify_cell_correctness(
+        self, context, number: int, correct: int, cell: SudokuCell
+    ):
         if number == correct:
             cell.editable = False
             cell.highlight("correct")
@@ -366,7 +375,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             self._highlight_conflicts(cell.row, cell.col, number)
             GLib.timeout_add(2000, self._clear_conflicts)
 
-    def on_key_pressed(self, controller, keyval, keycode, state, row, col):
+    def on_key_pressed(self, controller, keyval, keycode, state, row: int, col: int):
         directions = {
             Gdk.KEY_Up: (-1, 0),
             Gdk.KEY_Down: (1, 0),
@@ -377,11 +386,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         if keyval in directions:
             d_row, d_col = directions[keyval]
             new_row, new_col = row + d_row, col + d_col
+            # Buggy line later on ?
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
             return True
 
-        cell = self.user_inputs[row][col]
+        cell = self.cell_inputs[row][col]
         if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter) and cell.editable:
             self._show_popover(cell)
             return True
