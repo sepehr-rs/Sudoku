@@ -19,11 +19,20 @@
                 </style>
               </object>
             </property>
+
+            <child type="end">
+              <object class="GtkMenuButton">
+                <property name="icon-name">open-menu-symbolic</property>
+                <property name="menu-model">main_menu</property>
+              </object>
+            </child>
           </object>
         </child>
 
         <property name="content">
           <object class="AdwViewStack" id="stack">
+
+            <!-- Main Menu Page -->
             <child>
               <object class="GtkBox" id="main_menu_box">
                 <property name="orientation">vertical</property>
@@ -70,24 +79,62 @@
               </object>
             </child>
 
+            <!-- Game View Page -->
             <child>
-              <object class="GtkBox" id="game_view_box" >
+              <object class="GtkBox" id="game_view_box">
                 <property name="orientation">vertical</property>
-                <property name="halign">fill</property>          <!-- change from center -->
+                <property name="halign">fill</property>
                 <property name="valign">fill</property>
-                <property name="hexpand">True</property>         <!-- add this -->
-                <property name="vexpand">True</property>         <!-- add this -->
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
                 <property name="spacing">12</property>
                 <property name="margin-top">24</property>
                 <property name="margin-bottom">24</property>
                 <property name="margin-start">24</property>
                 <property name="margin-end">24</property>
+
+                <child>
+                  <object class="GtkBox" id="grid_container">
+                    <property name="orientation">vertical</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                  </object>
+                </child>
               </object>
             </child>
+
           </object>
         </property>
       </object>
     </property>
   </template>
+
+  <!-- 🧭 Menu model for the hamburger -->
+  <menu id="main_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Back to Menu</attribute>
+        <attribute name="action">win.back-to-menu</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Preferences</attribute>
+        <attribute name="action">app.preferences</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+        <attribute name="action">win.show-help-overlay</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_About</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Quit</attribute>
+        <attribute name="action">app.quit</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>
 

@@ -36,7 +36,9 @@ class SudokuApplication(Adw.Application):
         self.create_action('quit', self.quit, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
-        #self.create_action('on_new_game_clicked',self.on_new_game_clicked)
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", lambda *args: self.quit())
+        self.add_action(quit_action)
 
     def do_activate(self):
         """Called when the application is activated.

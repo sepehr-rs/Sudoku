@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gdk, GLib
+from gi.repository import Adw, Gtk, Gdk, GLib,Gio
 from sudoku import Sudoku as PySudoku
 from functools import partial
 
@@ -33,6 +33,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     new_game_button = Gtk.Template.Child()
     main_menu_box = Gtk.Template.Child()
     game_view_box = Gtk.Template.Child()
+    grid_container = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -67,6 +68,12 @@ class SudokuWindow(Adw.ApplicationWindow):
             Gdk.KEY_Delete,
             Gdk.KEY_KP_Delete,
         )
+        back_action = Gio.SimpleAction.new("back-to-menu", None)
+        back_action.connect("activate", self.on_back_to_menu)
+        self.add_action(back_action)
+        self.back_action = back_action  # Save reference
+        self.stack.connect("notify::visible-child", self.on_stack_page_changed)
+        self.on_stack_page_changed(self.stack, None)  # Initial update
 
     def _load_css(self):
         css_provider = Gtk.CssProvider()
@@ -77,6 +84,13 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_continue_clicked(self, button):
         print("Continue Game clicked")
+
+    def on_stack_page_changed(self, stack, param):
+        is_game_page = stack.get_visible_child() != self.main_menu_box
+        self.lookup_action("back-to-menu").set_enabled(is_game_page)
+
+    def on_back_to_menu(self, action, parameter):
+        self.stack.set_visible_child(self.main_menu_box)
 
     def on_close_request(self, window):
         print("Close request signal received")
@@ -128,9 +142,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.solution = sudoku.solve().board
         puzzle = sudoku.board
 
-        # Clear previous game content
-        while child := self.game_view_box.get_first_child():
-            self.game_view_box.remove(child)
+        # Clear only the grid container
+        while child := self.grid_container.get_first_child():
+            self.grid_container.remove(child)
+
 
         grid = Gtk.Grid(
             row_spacing=0.4,
@@ -154,7 +169,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         frame.set_vexpand(True)
         frame.set_child(grid)
 
-        self.game_view_box.append(frame)
+        self.grid_container.append(frame)
         self.highlight_related_cells(0, 0)
         frame.show()
 
@@ -362,4 +377,4 @@ class SudokuWindow(Adw.ApplicationWindow):
             with open(SAVE_PATH, "r"):
                 return True
         except Exception:
-            return False
+            return False    
