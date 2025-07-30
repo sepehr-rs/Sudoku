@@ -59,3 +59,14 @@
     background-color: rgba(255, 99, 71, 0.4);   /* light red */
 }
 
+.conflict {
+  background-color: rgba(255, 0, 0, 0.2); /* light red */
+  animation: pulse 6s ease-in-out 3; /* longer duration, more pulses */
+}
+
+@keyframes pulse {
+  0%   { background-color: rgba(255, 0, 0, 0.2); }
+  50%  { background-color: rgba(255, 0, 0, 0.4); }
+  100% { background-color: rgba(255, 0, 0, 0.2); }
+}
+

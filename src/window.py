@@ -21,6 +21,7 @@ from gi.repository import Adw, Gtk, Gdk, GLib,Gio
 from sudoku import Sudoku as PySudoku
 from functools import partial
 
+#TODO: Remove local path
 SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
 
 
@@ -307,6 +308,40 @@ class SudokuWindow(Adw.ApplicationWindow):
         else:
             cell.grab_focus()
 
+    def _highlight_conflicts(self, row, col, number_str):
+        self.conflict_cells = []
+
+        # Check row
+        for c in range(9):
+            cell = self.cell_buttons[row][c]
+            if cell.get_label() == number_str and cell != self.cell_buttons[row][col]:
+                cell.get_style_context().add_class("conflict")
+                self.conflict_cells.append(cell)
+
+        # Check column
+        for r in range(9):
+            cell = self.cell_buttons[r][col]
+            if cell.get_label() == number_str and cell != self.cell_buttons[row][col]:
+                cell.get_style_context().add_class("conflict")
+                self.conflict_cells.append(cell)
+
+        # Check 3x3 block
+        block_row_start = (row // 3) * 3
+        block_col_start = (col // 3) * 3
+        for r in range(block_row_start, block_row_start + 3):
+            for c in range(block_col_start, block_col_start + 3):
+                cell = self.cell_buttons[r][c]
+                if cell.get_label() == number_str and cell != self.cell_buttons[row][col]:
+                    cell.get_style_context().add_class("conflict")
+                    self.conflict_cells.append(cell)
+
+    def _clear_conflicts(self):
+        for cell in getattr(self, "conflict_cells", []):
+            cell.get_style_context().remove_class("conflict")
+        self.conflict_cells = []
+        return False
+
+
     def _specify_cell_correctness(self, context, number, correct, cell):
         def remove_class(name):
             context.remove_class(name)
@@ -318,6 +353,9 @@ class SudokuWindow(Adw.ApplicationWindow):
             GLib.timeout_add(2000, lambda: remove_class("correct"))
         else:
             context.add_class("wrong")
+            #TODO: Add preference here.
+            self._highlight_conflicts(cell.row, cell.col, number)
+            GLib.timeout_add(7000, lambda: self._clear_conflicts())
 
     def on_number_selected(self, num_button, target_cell, popover):
         number = num_button.get_label()
