@@ -109,7 +109,6 @@
     </property>
   </template>
 
-  <!-- 🧭 Menu model for the hamburger -->
   <menu id="main_menu">
     <section>
       <item>

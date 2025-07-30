@@ -17,11 +17,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gdk, GLib,Gio
+from gi.repository import Adw, Gtk, Gdk, GLib, Gio
 from sudoku import Sudoku as PySudoku
 from functools import partial
 
-#TODO: Remove local path
+# TODO: Remove local path
 SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
 
 
@@ -40,41 +40,28 @@ class SudokuWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
 
         self._load_css()
+        self.conflict_cells = []
 
-        self.continue_button.set_sensitive(self._has_saved_game())
-        self.continue_button.connect("clicked", self.on_continue_clicked)
-        self.new_game_button.connect("clicked", self.on_new_game_clicked)
-        self.key_map = {
-            Gdk.KEY_1: "1",
-            Gdk.KEY_2: "2",
-            Gdk.KEY_3: "3",
-            Gdk.KEY_4: "4",
-            Gdk.KEY_5: "5",
-            Gdk.KEY_6: "6",
-            Gdk.KEY_7: "7",
-            Gdk.KEY_8: "8",
-            Gdk.KEY_9: "9",
-            Gdk.KEY_KP_1: "1",
-            Gdk.KEY_KP_2: "2",
-            Gdk.KEY_KP_3: "3",
-            Gdk.KEY_KP_4: "4",
-            Gdk.KEY_KP_5: "5",
-            Gdk.KEY_KP_6: "6",
-            Gdk.KEY_KP_7: "7",
-            Gdk.KEY_KP_8: "8",
-            Gdk.KEY_KP_9: "9",
-        }
+        self.key_map = {getattr(Gdk, f"KEY_{i}"): str(i) for i in range(1, 10)}
+        self.key_map.update({getattr(Gdk, f"KEY_KP_{i}"): str(i) for i in range(1, 10)})
+
         self.remove_cell_keybindings = (
             Gdk.KEY_BackSpace,
             Gdk.KEY_Delete,
             Gdk.KEY_KP_Delete,
         )
+
+        self.continue_button.set_sensitive(self._has_saved_game())
+        self.continue_button.connect("clicked", self.on_continue_clicked)
+        self.new_game_button.connect("clicked", self.on_new_game_clicked)
+
         back_action = Gio.SimpleAction.new("back-to-menu", None)
         back_action.connect("activate", self.on_back_to_menu)
         self.add_action(back_action)
-        self.back_action = back_action  # Save reference
+        self.back_action = back_action
+
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
-        self.on_stack_page_changed(self.stack, None)  # Initial update
+        self.on_stack_page_changed(self.stack, None)
 
     def _load_css(self):
         css_provider = Gtk.CssProvider()
@@ -115,14 +102,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         dialog.get_content_area().append(box)
 
-        difficulties = [
+        for label, difficulty in [
             ("Easy", 0.2),
             ("Medium", 0.4),
             ("Hard", 0.6),
             ("Extreme", 0.8),
-        ]
-
-        for label, difficulty in difficulties:
+        ]:
             button = Gtk.Button(label=label)
             button.connect("clicked", partial(self.on_new_game, difficulty))
             box.append(button)
@@ -143,10 +128,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.solution = sudoku.solve().board
         puzzle = sudoku.board
 
-        # Clear only the grid container
         while child := self.grid_container.get_first_child():
             self.grid_container.remove(child)
-
 
         grid = Gtk.Grid(
             row_spacing=0.4,
@@ -154,7 +137,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             column_homogeneous=True,
             row_homogeneous=True,
         )
-
         self.cell_buttons = [[None for _ in range(9)] for _ in range(9)]
 
         for row in range(9):
@@ -171,27 +153,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         frame.set_child(grid)
 
         self.grid_container.append(frame)
-        self.highlight_related_cells(0, 0)
+        self._focus_cell(0, 0)
         frame.show()
-
-    def _clear_highlights(self):
-        for row in range(9):
-            for col in range(9):
-                cell = self.cell_buttons[row][col]
-                cell.get_style_context().remove_class("highlight")
-
-    def highlight_related_cells(self, row, col):
-        self._clear_highlights()
-
-        for i in range(9):
-            self.cell_buttons[row][i].get_style_context().add_class("highlight")
-            self.cell_buttons[i][col].get_style_context().add_class("highlight")
-
-        block_row_start = (row // 3) * 3
-        block_col_start = (col // 3) * 3
-        for r in range(block_row_start, block_row_start + 3):
-            for c in range(block_col_start, block_col_start + 3):
-                self.cell_buttons[r][c].get_style_context().add_class("highlight")
 
     def _create_cell(self, row, col, value):
         cell = Gtk.Button()
@@ -213,7 +176,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             cell.get_style_context().add_class("clue-cell")
             cell.editable = False
 
-        # Use 'button-press-event' to get event info (mouse button, modifiers)
         gesture = Gtk.GestureClick.new()
         gesture.connect("pressed", self.on_cell_clicked, cell)
         cell.add_controller(gesture)
@@ -235,15 +197,40 @@ class SudokuWindow(Adw.ApplicationWindow):
         if (row + 1) % 3 == 0:
             context.add_class("bottom-border")
 
-    def _clear_feedback_classes(self, context):
-        context.remove_class("correct")
-        context.remove_class("wrong")
+    def _clear_highlights(self):
+        for row in range(9):
+            for col in range(9):
+                self.cell_buttons[row][col].get_style_context().remove_class(
+                    "highlight"
+                )
 
-    def on_clear_selected(self, clear_button, target_cell, popover):
-        target_cell.set_label("")
-        context = target_cell.get_style_context()
-        self._clear_feedback_classes(context)
-        popover.popdown()
+    def _highlight_cell(self, row, col):
+        self.cell_buttons[row][col].get_style_context().add_class("highlight")
+
+    def highlight_related_cells(self, row, col):
+        self._clear_highlights()
+        for i in range(9):
+            self._highlight_cell(row, i)
+            self._highlight_cell(i, col)
+
+        block_row_start = (row // 3) * 3
+        block_col_start = (col // 3) * 3
+        for r in range(block_row_start, block_row_start + 3):
+            for c in range(block_col_start, block_col_start + 3):
+                self._highlight_cell(r, c)
+
+    def on_cell_clicked(self, gesture, n_press, x, y, cell):
+        self.highlight_related_cells(cell.row, cell.col)
+        if getattr(cell, "editable", False) and n_press == 1:
+            self._show_popover(cell)
+        else:
+            cell.grab_focus()
+
+    def _create_number_button(self, label, callback, *args):
+        button = Gtk.Button(label=label)
+        button.set_size_request(40, 40)
+        button.connect("clicked", callback, *args)
+        return button
 
     def _show_popover(self, button):
         popover = Gtk.Popover()
@@ -255,119 +242,105 @@ class SudokuWindow(Adw.ApplicationWindow):
         popover.set_child(grid)
 
         num_buttons = {}
-
         for i in range(1, 10):
-            num_button = Gtk.Button(label=str(i))
-            num_button.set_size_request(40, 40)
-            num_button.connect(
-                "clicked",
-                self.on_number_selected,
-                button,
-                popover,
+            b = self._create_number_button(
+                str(i), self.on_number_selected, button, popover
             )
-            grid.attach(num_button, (i - 1) % 3, (i - 1) // 3, 1, 1)
-            num_buttons[str(i)] = num_button
+            grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
+            num_buttons[str(i)] = b
 
         clear_button = Gtk.Button(label="Clear")
         clear_button.set_size_request(40 * 3 + 10, 40)
         clear_button.connect("clicked", self.on_clear_selected, button, popover)
         grid.attach(clear_button, 0, 3, 3, 1)
 
-        key_controller = Gtk.EventControllerKey()
-        grid.add_controller(key_controller)
-
         def on_key_pressed(controller, keyval, keycode, state):
-
-            if keyval in self.key_map:
-                num_str = self.key_map[keyval]
-                if num_str in num_buttons:
-                    num_buttons[num_str].emit("clicked")
-                    return True
+            if keyval in self.key_map and (num := self.key_map[keyval]) in num_buttons:
+                num_buttons[num].emit("clicked")
+                return True
             elif keyval in self.remove_cell_keybindings:
                 clear_button.emit("clicked")
                 return True
-
             return False
 
+        key_controller = Gtk.EventControllerKey()
         key_controller.connect("key-pressed", on_key_pressed)
+        grid.add_controller(key_controller)
 
         grid.set_focus_on_click(True)
         grid.grab_focus()
-
         popover.show()
 
-    def on_cell_clicked(self, gesture, n_press, x, y, cell):
-        self.highlight_related_cells(cell.row, cell.col)
+    def on_clear_selected(self, clear_button, target_cell, popover):
+        target_cell.set_label("")
+        self._clear_feedback_classes(target_cell.get_style_context())
+        popover.popdown()
 
-        if not getattr(cell, "editable", False):
-            return
+    def on_number_selected(self, num_button, target_cell, popover):
+        number = num_button.get_label()
+        self._fill_cell(target_cell, number)
+        popover.popdown()
 
-        # Only respond to single left-clicks (n_press == 1)
-        if n_press == 1:
-            self._show_popover(cell)
-        else:
-            cell.grab_focus()
+    def _fill_cell(self, cell, number):
+        self._clear_conflicts()
+        cell.set_label(number)
+        row, col = cell.row, cell.col
+        correct = str(self.solution[row][col])
+        context = cell.get_style_context()
+        self._clear_feedback_classes(context)
+        self._specify_cell_correctness(context, number, correct, cell)
+
+    def _focus_cell(self, row, col):
+        self.cell_buttons[row][col].grab_focus()
+        self.highlight_related_cells(row, col)
+
+    def _clear_feedback_classes(self, context):
+        context.remove_class("correct")
+        context.remove_class("wrong")
 
     def _highlight_conflicts(self, row, col, number_str):
-        self.conflict_cells = []
-
-        # Check row
+        self.conflict_cells.clear()
         for c in range(9):
             cell = self.cell_buttons[row][c]
             if cell.get_label() == number_str and cell != self.cell_buttons[row][col]:
                 cell.get_style_context().add_class("conflict")
                 self.conflict_cells.append(cell)
-
-        # Check column
         for r in range(9):
             cell = self.cell_buttons[r][col]
             if cell.get_label() == number_str and cell != self.cell_buttons[row][col]:
                 cell.get_style_context().add_class("conflict")
                 self.conflict_cells.append(cell)
-
-        # Check 3x3 block
         block_row_start = (row // 3) * 3
         block_col_start = (col // 3) * 3
         for r in range(block_row_start, block_row_start + 3):
             for c in range(block_col_start, block_col_start + 3):
                 cell = self.cell_buttons[r][c]
-                if cell.get_label() == number_str and cell != self.cell_buttons[row][col]:
+                if (
+                    cell.get_label() == number_str
+                    and cell != self.cell_buttons[row][col]
+                ):
                     cell.get_style_context().add_class("conflict")
                     self.conflict_cells.append(cell)
 
     def _clear_conflicts(self):
-        for cell in getattr(self, "conflict_cells", []):
+        for cell in self.conflict_cells:
             cell.get_style_context().remove_class("conflict")
-        self.conflict_cells = []
+        self.conflict_cells.clear()
         return False
-
 
     def _specify_cell_correctness(self, context, number, correct, cell):
         def remove_class(name):
             context.remove_class(name)
-            return False  # Don't repeat the timeout
+            return False
 
         if number == correct:
-            setattr(cell, "editable", False)
+            cell.editable = False
             context.add_class("correct")
             GLib.timeout_add(2000, lambda: remove_class("correct"))
         else:
             context.add_class("wrong")
-            #TODO: Add preference here.
             self._highlight_conflicts(cell.row, cell.col, number)
-            GLib.timeout_add(7000, lambda: self._clear_conflicts())
-
-    def on_number_selected(self, num_button, target_cell, popover):
-        number = num_button.get_label()
-        target_cell.set_label(number)
-        popover.popdown()
-
-        row, col = target_cell.row, target_cell.col
-        correct = str(self.solution[row][col])
-
-        context = target_cell.get_style_context()
-        self._clear_feedback_classes(context)
-        self._specify_cell_correctness(context, number, correct, target_cell)
+            GLib.timeout_add(2000, self._clear_conflicts)
 
     def on_key_pressed(self, controller, keyval, keycode, state, row, col):
         directions = {
@@ -381,38 +354,30 @@ class SudokuWindow(Adw.ApplicationWindow):
             d_row, d_col = directions[keyval]
             new_row, new_col = row + d_row, col + d_col
             if 0 <= new_row < 9 and 0 <= new_col < 9:
-                next_cell = self.cell_buttons[new_row][new_col]
-                next_cell.grab_focus()
-                self.highlight_related_cells(new_row, new_col)
+                self._focus_cell(new_row, new_col)
             return True
 
-        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
-            cell = self.cell_buttons[row][col]
-            if getattr(cell, "editable", False):
-                self._show_popover(cell)
-                return True
+        cell = self.cell_buttons[row][col]
+        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter) and getattr(
+            cell, "editable", False
+        ):
+            self._show_popover(cell)
+            return True
 
-        if keyval in self.key_map:
-            num = self.key_map[keyval]
-            cell = self.cell_buttons[row][col]
-            if getattr(cell, "editable", False):
-                cell.set_label(num)
-                correct = str(self.solution[row][col])
-                context = cell.get_style_context()
-                self._clear_feedback_classes(context)
-                self._specify_cell_correctness(context, num, correct, cell)
+        if keyval in self.key_map and getattr(cell, "editable", False):
+            self._fill_cell(cell, self.key_map[keyval])
+            return True
 
-        if keyval in self.remove_cell_keybindings:
-            cell = self.cell_buttons[row][col]
-            if getattr(cell, "editable", False):
-                cell.set_label("")
-                context = cell.get_style_context()
-                self._clear_feedback_classes(context)
-        return True
+        if keyval in self.remove_cell_keybindings and getattr(cell, "editable", False):
+            cell.set_label("")
+            self._clear_feedback_classes(cell.get_style_context())
+            return True
+
+        return False
 
     def _has_saved_game(self):
         try:
             with open(SAVE_PATH, "r"):
                 return True
         except Exception:
-            return False    
+            return False

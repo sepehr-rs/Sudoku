@@ -61,7 +61,7 @@
 
 .conflict {
   background-color: rgba(255, 0, 0, 0.2); /* light red */
-  animation: pulse 2s ease-in-out 2; /* longer duration, more pulses */
+  animation: pulse 2s ease-in-out 1; /* longer duration, more pulses */
 }
 
 @keyframes pulse {
