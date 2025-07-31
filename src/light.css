@@ -96,3 +96,28 @@
   100% { background-color: rgba(255, 0, 0, 0.15); }
 }
 
+.notes-grid {
+    padding: 1px;
+}
+
+.note-cell-label {
+    font-size: 13px;
+    color: #777;
+    padding: 0.8px;
+}
+
+#pencil_toggle_button {
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+  -gtk-focus-ring-color: transparent;
+}
+
+#pencil_toggle_button:hover,
+#pencil_toggle_button:checked,
+#pencil_toggle_button:active {
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+}
+

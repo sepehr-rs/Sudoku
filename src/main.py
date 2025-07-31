@@ -39,6 +39,8 @@ class SudokuApplication(Adw.Application):
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda *args: self.quit())
         self.add_action(quit_action)
+        self.set_accels_for_action("win.toggle-pencil", ["<Ctrl>p"])
+
 
     def do_activate(self):
         """Called when the application is activated.

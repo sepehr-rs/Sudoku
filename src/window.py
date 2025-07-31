@@ -38,6 +38,7 @@ class GameBoard:
         self.puzzle = sudoku.board
         self.solution = sudoku.solve().board
         self.user_inputs = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+        self.notes = [[set() for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
     def is_correct(self, row: int, col: int, value: str):
         return str(self.solution[row][col]) == str(value)
@@ -51,6 +52,18 @@ class GameBoard:
     def get_input(self, row: int, col: int):
         return self.user_inputs[row][col]
 
+    def get_notes(self, row, col):
+        return self.notes[row][col]
+
+    def add_note(self, row, col, value):
+        self.notes[row][col].add(value)
+
+    def remove_note(self, row, col, value):
+        self.notes[row][col].discard(value)
+
+    def clear_notes(self, row, col):
+        self.notes[row][col].clear()
+
 
 class SudokuCell(Gtk.Button):
     def __init__(self, row: int, col: int, value: str, editable: bool):
@@ -60,6 +73,24 @@ class SudokuCell(Gtk.Button):
         self.col = col
         self.editable = editable
 
+        self.main_label = Gtk.Label()
+        self.notes_grid = Gtk.Grid(
+            row_spacing=0,
+            column_spacing=0,
+            column_homogeneous=True,
+            row_homogeneous=True
+        )
+        self.notes_grid.get_style_context().add_class("notes-grid")
+
+        self.note_labels = {}  # Store label widgets by number
+
+        # Overlay both main and note labels
+        overlay = Gtk.Overlay()
+        overlay.set_child(self.main_label)
+        overlay.add_overlay(self.notes_grid)
+
+        self.set_child(overlay)
+
         self.set_hexpand(True)
         self.set_vexpand(True)
         self.set_halign(Gtk.Align.FILL)
@@ -68,11 +99,54 @@ class SudokuCell(Gtk.Button):
         self.add_border_classes()
 
         if value is not None:
-            self.set_label(str(value))
+            self.set_value(str(value))
             self.get_style_context().add_class("clue-cell")
         else:
-            self.set_label("")
+            self.set_value("")
             self.get_style_context().add_class("entry-cell")
+
+        self.update_display()
+
+
+    def set_value(self, value: str):
+        self.main_label.set_text(value)
+        self.update_display()
+
+    def clear_value(self):
+        self.set_value("")
+
+    def update_notes(self, notes):
+        # Clear old labels
+        for child in list(self.notes_grid):
+            self.notes_grid.remove(child)
+
+        self.note_labels.clear()
+
+        if not notes or self.main_label.get_text():
+            return
+
+        sorted_notes = sorted(notes, key=int)
+
+        for n in sorted_notes:
+            note_label = Gtk.Label(label=n)
+            note_label.get_style_context().add_class("note-cell-label")
+            self.note_labels[n] = note_label
+
+            index = int(n) - 1
+            row = index // 3
+            col = index % 3
+
+            self.notes_grid.attach(note_label, col, row, 1, 1)
+
+        self.notes_grid.show()
+
+
+    def update_display(self):
+        if self.main_label.get_text():
+            for label in self.note_labels.values():
+                label.set_text("")
+        self.notes_grid.set_halign(Gtk.Align.FILL)
+        self.notes_grid.set_valign(Gtk.Align.FILL)
 
     def highlight(self, class_name: str):
         self.get_style_context().add_class(class_name)
@@ -102,6 +176,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     main_menu_box = Gtk.Template.Child()
     game_view_box = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
+    pencil_toggle_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -133,8 +208,14 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_action(back_action)
         self.back_action = back_action
 
+        self.pencil_mode = False
+        self.pencil_toggle_button.set_active(False)
+        self.pencil_toggle_button.connect("toggled", self.on_pencil_toggled)
+
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
+
+
 
     def _load_css(self, dark_mode: bool):
         css_path = self.dark_css_path if dark_mode else self.light_css_path
@@ -164,6 +245,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_stack_page_changed(self, stack, param):
         is_game_page = stack.get_visible_child() != self.main_menu_box
         self.lookup_action("back-to-menu").set_enabled(is_game_page)
+        self.pencil_toggle_button.set_visible(is_game_page)
 
     def on_back_to_menu(self, action, parameter):
         self.stack.set_visible_child(self.main_menu_box)
@@ -205,6 +287,11 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_new_game(self, difficulty: float, button: Gtk.Button):
         self.start_game(difficulty)
         button.get_root().destroy()
+
+    def on_pencil_toggled(self, button: Gtk.ToggleButton):
+        self.pencil_mode = button.get_active()
+        print("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
+
 
     def start_game(self, difficulty: float):
         print("Starting game with difficulty:", difficulty)
@@ -296,9 +383,16 @@ class SudokuWindow(Adw.ApplicationWindow):
         popover.show()
 
     def on_clear_selected(self, clear_button, target_cell: SudokuCell, popover):
-        target_cell.set_label("")
-        self._clear_feedback_classes(target_cell.get_style_context())
+        row, col = target_cell.row, target_cell.col
+        if self.pencil_mode:
+            self.game_board.clear_notes(row, col)
+            target_cell.update_notes(set())
+        else:
+            target_cell.clear_value()
+            self._clear_feedback_classes(target_cell.get_style_context())
+            self.game_board.set_input(row, col, None)
         popover.popdown()
+
 
     def on_number_selected(
         self, num_button: Gtk.Button, target_cell: SudokuCell, popover
@@ -334,11 +428,19 @@ class SudokuWindow(Adw.ApplicationWindow):
         else:
             cell.grab_focus()
 
-    def _fill_cell(self, cell: SudokuCell, number: int):
+    def _fill_cell(self, cell: SudokuCell, number: str):
         self._clear_conflicts()
-        cell.set_label(number)
         row, col = cell.row, cell.col
 
+        if self.pencil_mode:
+            if number in self.game_board.get_notes(row, col):
+                self.game_board.remove_note(row, col, number)
+            else:
+                self.game_board.add_note(row, col, number)
+            cell.update_notes(self.game_board.get_notes(row, col))
+            return
+
+        cell.set_value(number)
         self.game_board.set_input(row, col, number)
 
         correct = str(self.game_board.solution[row][col])

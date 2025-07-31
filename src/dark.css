@@ -101,3 +101,23 @@
   50%  { background-color: rgba(255, 0, 0, 0.4); }
   100% { background-color: rgba(255, 0, 0, 0.2); }
 }
+
+.notes-grid {
+    padding: 1px;
+}
+
+.note-cell-label {
+    font-size: 13px;
+    color: #fff;
+    padding: 1px;
+}
+
+#pencil_toggle_button:hover,
+#pencil_toggle_button:focus {
+  box-shadow: none;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  filter: none;
+}
+

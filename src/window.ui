@@ -19,6 +19,15 @@
                 </style>
               </object>
             </property>
+            <child type="end">
+              <object class="GtkToggleButton" id="pencil_toggle_button">
+                <child>
+                  <object class="GtkImage">
+                    <property name="resource">/io/github/sepehr_rs/LibreSudoku/icons/pencil.svg</property>
+                  </object>
+                </child>
+              </object>
+            </child>
 
             <child type="end">
               <object class="GtkMenuButton">
@@ -93,6 +102,7 @@
                 <property name="margin-start">24</property>
                 <property name="margin-end">24</property>
 
+                <!-- Sudoku grid container -->
                 <child>
                   <object class="GtkBox" id="grid_container">
                     <property name="orientation">vertical</property>
@@ -102,6 +112,7 @@
                 </child>
               </object>
             </child>
+
 
           </object>
         </property>
@@ -136,4 +147,5 @@
     </section>
   </menu>
 </interface>
+
 
