@@ -211,10 +211,13 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_mode = False
         self.pencil_toggle_button.set_active(False)
         self.pencil_toggle_button.connect("toggled", self.on_pencil_toggled)
+        pencil_action = Gio.SimpleAction.new_stateful("pencil-toggled", None, GLib.Variant.new_boolean(False))
+        pencil_action.connect("change-state", self.on_pencil_action_toggled)
+        self.add_action(pencil_action)
+        self.pencil_action = pencil_action
 
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
-
 
 
     def _load_css(self, dark_mode: bool):
@@ -291,6 +294,12 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
         print("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
+
+    def on_pencil_action_toggled(self, action, value):
+        # Flip the boolean state
+        new_state = not action.get_state().get_boolean()
+        action.set_state(GLib.Variant.new_boolean(new_state))
+        self.pencil_toggle_button.set_active(new_state)
 
 
     def start_game(self, difficulty: float):
