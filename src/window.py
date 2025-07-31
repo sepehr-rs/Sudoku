@@ -78,7 +78,7 @@ class SudokuCell(Gtk.Button):
             row_spacing=0,
             column_spacing=0,
             column_homogeneous=True,
-            row_homogeneous=True
+            row_homogeneous=True,
         )
         self.notes_grid.get_style_context().add_class("notes-grid")
 
@@ -107,13 +107,9 @@ class SudokuCell(Gtk.Button):
 
         self.update_display()
 
-
     def set_value(self, value: str):
         self.main_label.set_text(value)
         self.update_display()
-
-    def clear_value(self):
-        self.set_value("")
 
     def update_notes(self, notes):
         # Clear old labels
@@ -139,7 +135,6 @@ class SudokuCell(Gtk.Button):
             self.notes_grid.attach(note_label, col, row, 1, 1)
 
         self.notes_grid.show()
-
 
     def update_display(self):
         if self.main_label.get_text():
@@ -187,7 +182,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         settings = Gtk.Settings.get_default()
         dark_mode = settings.get_property("gtk-application-prefer-dark-theme")
         self._load_css(dark_mode)
-        settings.connect("notify::gtk-application-prefer-dark-theme", self._on_dark_mode_changed)
+        settings.connect(
+            "notify::gtk-application-prefer-dark-theme", self._on_dark_mode_changed
+        )
         self.conflict_cells = []
 
         self.key_map = {getattr(Gdk, f"KEY_{i}"): str(i) for i in range(1, 10)}
@@ -211,14 +208,15 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_mode = False
         self.pencil_toggle_button.set_active(False)
         self.pencil_toggle_button.connect("toggled", self.on_pencil_toggled)
-        pencil_action = Gio.SimpleAction.new_stateful("pencil-toggled", None, GLib.Variant.new_boolean(False))
+        pencil_action = Gio.SimpleAction.new_stateful(
+            "pencil-toggled", None, GLib.Variant.new_boolean(False)
+        )
         pencil_action.connect("change-state", self.on_pencil_action_toggled)
         self.add_action(pencil_action)
         self.pencil_action = pencil_action
 
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
-
 
     def _load_css(self, dark_mode: bool):
         css_path = self.dark_css_path if dark_mode else self.light_css_path
@@ -233,9 +231,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         # so we just replace by re-adding with the same provider object.
 
         Gtk.StyleContext.add_provider_for_display(
-            display,
-            self.css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER
+            display, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
     def _on_dark_mode_changed(self, settings, param):
@@ -300,7 +296,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         new_state = not action.get_state().get_boolean()
         action.set_state(GLib.Variant.new_boolean(new_state))
         self.pencil_toggle_button.set_active(new_state)
-
 
     def start_game(self, difficulty: float):
         print("Starting game with difficulty:", difficulty)
@@ -397,11 +392,10 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.game_board.clear_notes(row, col)
             target_cell.update_notes(set())
         else:
-            target_cell.clear_value()
+            target_cell.set_value("")
             self._clear_feedback_classes(target_cell.get_style_context())
             self.game_board.set_input(row, col, None)
         popover.popdown()
-
 
     def on_number_selected(
         self, num_button: Gtk.Button, target_cell: SudokuCell, popover
@@ -449,6 +443,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             cell.update_notes(self.game_board.get_notes(row, col))
             return
 
+        print("Outside of pencil mode.")
         cell.set_value(number)
         self.game_board.set_input(row, col, number)
 
@@ -482,10 +477,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         for r in range(block_row_start, block_row_start + BLOCK_SIZE):
             for c in range(block_col_start, block_col_start + BLOCK_SIZE):
                 cell = self.cell_inputs[r][c]
-                if (
-                    cell.get_label() == label
-                    and cell != self.cell_inputs[row][col]
-                ):
+                if cell.get_label() == label and cell != self.cell_inputs[row][col]:
                     cell.highlight("conflict")
                     self.conflict_cells.append(cell)
 
@@ -533,8 +525,11 @@ class SudokuWindow(Adw.ApplicationWindow):
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
-            cell.set_label("")
+            cell.set_value("")
             self._clear_feedback_classes(cell.get_style_context())
+            self.game_board.clear_notes(row, col)
+            self.game_board.set_input(row, col, None)
+            cell.update_notes(set())
             return True
 
         return False
