@@ -70,4 +70,34 @@
   100% { background-color: rgba(255, 0, 0, 0.2); }
 }
 
+.entry-cell, .clue-cell {
+    color: #E6C4B3;
+    border-color: #444;
+    background-color: transparent;
+}
 
+.top-border    { border-top-color: #a37d6b; }
+.left-border   { border-left-color: #a37d6b; }
+.right-border  { border-right-color: #a37d6b; }
+.bottom-border { border-bottom-color: #a37d6b; }
+
+.entry-cell.highlight, .clue-cell.highlight {
+    background-color: rgba(230, 196, 179, 0.25);
+}
+
+.entry-cell.correct {
+    background-color: rgba(144, 238, 144, 0.5);
+}
+.entry-cell.wrong {
+    background-color: rgba(255, 99, 71, 0.4);
+}
+.conflict {
+    background-color: rgba(255, 0, 0, 0.2);
+    animation: pulse 2s ease-in-out 1;
+}
+
+@keyframes pulse {
+  0%   { background-color: rgba(255, 0, 0, 0.2); }
+  50%  { background-color: rgba(255, 0, 0, 0.4); }
+  100% { background-color: rgba(255, 0, 0, 0.2); }
+}

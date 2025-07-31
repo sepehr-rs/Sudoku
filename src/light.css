@@ -64,10 +64,35 @@
   animation: pulse 2s ease-in-out 1; /* longer duration, more pulses */
 }
 
-@keyframes pulse {
-  0%   { background-color: rgba(255, 0, 0, 0.2); }
-  50%  { background-color: rgba(255, 0, 0, 0.4); }
-  100% { background-color: rgba(255, 0, 0, 0.2); }
+.entry-cell, .clue-cell {
+    color: #7D5A50;
+    border-color: #aaa;
+    background-color: transparent;
 }
 
+.top-border    { border-top-color: #5c3f37; }
+.left-border   { border-left-color: #5c3f37; }
+.right-border  { border-right-color: #5c3f37; }
+.bottom-border { border-bottom-color: #5c3f37; }
+
+.entry-cell.highlight, .clue-cell.highlight {
+    background-color: rgba(125, 90, 80, 0.15);
+}
+
+.entry-cell.correct {
+    background-color: rgba(144, 238, 144, 0.5);
+}
+.entry-cell.wrong {
+    background-color: rgba(255, 99, 71, 0.4);
+}
+.conflict {
+    background-color: rgba(255, 0, 0, 0.15);
+    animation: pulse 2s ease-in-out 1;
+}
+
+@keyframes pulse {
+  0%   { background-color: rgba(255, 0, 0, 0.15); }
+  50%  { background-color: rgba(255, 0, 0, 0.3); }
+  100% { background-color: rgba(255, 0, 0, 0.15); }
+}
 
