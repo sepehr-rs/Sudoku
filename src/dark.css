@@ -1,3 +1,8 @@
+window, dialog, .background, AdwApplicationWindow {
+    background-color: #3e2e24; /* rich dark brown */
+    color: #f5e2d3; /* warm off-white */
+}
+
 /* Base thin border for all cells */
 .entry-cell, .clue-cell {
     min-width: 55px;
@@ -44,7 +49,7 @@
 
 /* Highlight for row/col/box — subtle bluish tone */
 .entry-cell.highlight, .clue-cell.highlight {
-    background-color: rgba(100, 149, 237, 0.25); /* light cornflower blue */
+    background-color: rgba(100, 149, 237, 0.25);
     transition: background-color 0.8s ease;
 
 }
@@ -102,22 +107,29 @@
   100% { background-color: rgba(255, 0, 0, 0.2); }
 }
 
+/* Pencil notes */
 .notes-grid {
     padding: 1px;
 }
 
 .note-cell-label {
     font-size: 13px;
-    color: #fff;
+    color: #f5e2d3;  /* warm off-white for readability */
     padding: 1px;
 }
 
-#pencil_toggle_button:hover,
-#pencil_toggle_button:focus {
-  box-shadow: none;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  filter: none;
+/* Pencil toggle button */
+#pencil_toggle_button {
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    -gtk-focus-ring-color: transparent;
 }
 
+#pencil_toggle_button:hover,
+#pencil_toggle_button:checked,
+#pencil_toggle_button:active {
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+}

@@ -1,3 +1,9 @@
+/* light.css */
+window, dialog, .background, AdwApplicationWindow {
+    background-color: #e6c4b3; /* light theme */
+    color: black;
+}
+
 /* Base thin border for all cells */
 .entry-cell, .clue-cell {
     min-width: 55px;
