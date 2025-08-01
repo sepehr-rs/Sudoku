@@ -443,7 +443,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             cell.update_notes(self.game_board.get_notes(row, col))
             return
 
-        print("Outside of pencil mode.")
         cell.set_value(number)
         self.game_board.set_input(row, col, number)
 
@@ -464,12 +463,18 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.conflict_cells.clear()
         for c in range(GRID_SIZE):
             cell = self.cell_inputs[row][c]
-            if cell.get_label() == label and cell != self.cell_inputs[row][col]:
+            if (
+                cell.main_label.get_text() == label
+                and cell != self.cell_inputs[row][col]
+            ):
                 cell.highlight("conflict")
                 self.conflict_cells.append(cell)
         for r in range(GRID_SIZE):
             cell = self.cell_inputs[r][col]
-            if cell.get_label() == label and cell != self.cell_inputs[row][col]:
+            if (
+                cell.main_label.get_text() == label
+                and cell != self.cell_inputs[row][col]
+            ):
                 cell.highlight("conflict")
                 self.conflict_cells.append(cell)
         block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
@@ -477,9 +482,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         for r in range(block_row_start, block_row_start + BLOCK_SIZE):
             for c in range(block_col_start, block_col_start + BLOCK_SIZE):
                 cell = self.cell_inputs[r][c]
-                if cell.get_label() == label and cell != self.cell_inputs[row][col]:
-                    cell.highlight("conflict")
-                    self.conflict_cells.append(cell)
+            if (
+                cell.main_label.get_text() == label
+                and cell != self.cell_inputs[row][col]
+            ):
+                cell.highlight("conflict")
+                self.conflict_cells.append(cell)
 
     def _clear_conflicts(self):
         for cell in self.conflict_cells:
@@ -495,6 +503,9 @@ class SudokuWindow(Adw.ApplicationWindow):
             cell.highlight("correct")
             GLib.timeout_add(2000, lambda: cell.unhighlight("correct"))
         else:
+            print(
+                f"Wrong input {number} at ({cell.row},{cell.col}), highlighting conflicts"
+            )
             cell.highlight("wrong")
             self._highlight_conflicts(cell.row, cell.col, number)
             GLib.timeout_add(2000, self._clear_conflicts)
