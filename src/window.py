@@ -482,12 +482,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         for r in range(block_row_start, block_row_start + BLOCK_SIZE):
             for c in range(block_col_start, block_col_start + BLOCK_SIZE):
                 cell = self.cell_inputs[r][c]
-            if (
-                cell.main_label.get_text() == label
-                and cell != self.cell_inputs[row][col]
-            ):
-                cell.highlight("conflict")
-                self.conflict_cells.append(cell)
+                if (
+                    cell.main_label.get_text() == label
+                    and cell != self.cell_inputs[row][col]
+                ):
+                    cell.highlight("conflict")
+                    self.conflict_cells.append(cell)
 
     def _clear_conflicts(self):
         for cell in self.conflict_cells:
