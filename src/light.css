@@ -44,15 +44,15 @@
 
 /* Focused cell (keyboard or mouse focus) */
 .entry-cell:focus, .clue-cell:focus {
-    box-shadow: inset 0 0 6px 3px rgba(100, 149, 237, 0.6); /* soft blue glow */
+    box-shadow: inset 0 0 6px 3px rgba(125, 90, 80, 0.4); /* soft warm glow */
     outline: none;
 }
+
 
 /* Highlight for row/col/box — subtle bluish tone */
 .entry-cell.highlight, .clue-cell.highlight {
     background-color: rgba(100, 149, 237, 0.25); /* light cornflower blue */
     transition: background-color 0.8s ease;
-
 }
 
 /* Feedback colors for user input */

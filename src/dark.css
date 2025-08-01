@@ -1,6 +1,6 @@
 .sudoku-main-window, .sudoku-dialog {
     background-color: #3e2e24; /* rich dark brown */
-    color: #f5e2d3; /* warm off-white */
+    color: white; /* warm off-white */
 }
 
 /* Base thin border for all cells */
@@ -43,10 +43,9 @@
 
 /* Focused cell (keyboard or mouse focus) */
 .entry-cell:focus, .clue-cell:focus {
-    box-shadow: inset 0 0 6px 3px rgba(100, 149, 237, 0.6); /* soft blue glow */
+    box-shadow: inset 0 0 6px 3px rgba(163, 125, 107, 0.7); /* warm brown glow */
     outline: none;
 }
-
 /* Highlight for row/col/box — subtle bluish tone */
 .entry-cell.highlight, .clue-cell.highlight {
     background-color: rgba(100, 149, 237, 0.25);
