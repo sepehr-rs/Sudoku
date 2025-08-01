@@ -107,7 +107,7 @@
   <menu id="main_menu">
     <section>
       <item>
-        <attribute name="label" translatable="yes">_Back to Menu</attribute>
+        <attribute name="label" translatable="yes">_Back to Main Menu</attribute>
         <attribute name="action">win.back-to-menu</attribute>
       </item>
     </section>

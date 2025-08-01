@@ -40,6 +40,7 @@ class SudokuApplication(Adw.Application):
         quit_action.connect("activate", lambda *args: self.quit())
         self.add_action(quit_action)
         self.set_accels_for_action("win.pencil-toggled", ["<Ctrl>p"])
+        self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
 
 
     def do_activate(self):
