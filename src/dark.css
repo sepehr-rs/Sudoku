@@ -1,4 +1,4 @@
-window, dialog, .background, AdwApplicationWindow {
+.sudoku-main-window, .sudoku-dialog {
     background-color: #3e2e24; /* rich dark brown */
     color: #f5e2d3; /* warm off-white */
 }

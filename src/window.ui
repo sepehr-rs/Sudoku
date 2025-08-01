@@ -4,6 +4,9 @@
   <requires lib="Adw" version="1.0"/>
 
   <template class="SudokuWindow" parent="AdwApplicationWindow">
+  <style>
+    <class name="sudoku-main-window"/>
+  </style>
     <property name="title" translatable="yes">Sudoku</property>
     <property name="default-width">800</property>
     <property name="default-height">600</property>
@@ -109,10 +112,6 @@
       </item>
     </section>
     <section>
-      <item>
-        <attribute name="label" translatable="yes">_Preferences</attribute>
-        <attribute name="action">app.preferences</attribute>
-      </item>
       <item>
         <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
         <attribute name="action">win.show-help-overlay</attribute>

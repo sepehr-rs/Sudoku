@@ -1,5 +1,5 @@
 /* light.css */
-window, dialog, .background, AdwApplicationWindow {
+.sudoku-main-window, .sudoku-dialog {
     background-color: #e6c4b3; /* light theme */
     color: black;
 }

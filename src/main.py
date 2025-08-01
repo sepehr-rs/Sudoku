@@ -35,7 +35,7 @@ class SudokuApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.create_action('quit', self.quit, ['<primary>q'])
         self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action)
+        #self.create_action('preferences', self.on_preferences_action)
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda *args: self.quit())
         self.add_action(quit_action)

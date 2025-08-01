@@ -270,7 +270,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             margin_end=24,
         )
         dialog.get_content_area().append(box)
-
+        dialog.get_style_context().add_class("sudoku-dialog")
         for label, difficulty in [
             ("Easy", EASY_DIFFICULTY),
             ("Medium", MEDIUM_DIFFICULTY),
@@ -352,7 +352,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         popover.set_has_arrow(False)
         popover.set_position(Gtk.PositionType.BOTTOM)
         popover.set_parent(button)
-
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
         popover.set_child(grid)
 
