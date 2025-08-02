@@ -20,8 +20,22 @@ from gi.repository import Adw, Gtk, Gdk, GLib, Gio
 from sudoku import Sudoku as PySudoku
 from functools import partial
 import json
+import os
+import logging
 
-SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+APP_ID = "io.github.sepehr_rs.LibreSudoku"
+
+data_dir = os.path.expanduser(GLib.get_user_data_dir())
+save_dir = os.path.join(data_dir, APP_ID)
+os.makedirs(save_dir, exist_ok=True)
+
+SAVE_PATH = os.path.join(save_dir, "save.json")
 
 GRID_SIZE = 9
 BLOCK_SIZE = 3
@@ -98,7 +112,7 @@ class GameBoard:
             with open(SAVE_PATH, "w") as f:
                 json.dump(self.to_dict(), f)
         except Exception as e:
-            print(f"Failed to save game: {e}")
+            logging.error(f"Failed to save game: {e}")
 
 
 class SudokuCell(Gtk.Button):
@@ -256,7 +270,6 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _load_css(self, dark_mode: bool):
         css_path = self.dark_css_path if dark_mode else self.light_css_path
-        print(css_path)
         self.css_provider.load_from_resource(css_path)
 
         # Remove previous provider if any and add the new one
@@ -287,7 +300,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.set_visible_child(self.main_menu_box)
 
     def on_close_request(self, window):
-        print("Close request signal received")
         return False
 
     def on_new_game_clicked(self, action):
@@ -326,7 +338,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
-        print("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
+        logging.info("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
 
     def on_pencil_action_toggled(self, action, value):
         # Flip the boolean state
@@ -335,7 +347,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.set_active(new_state)
 
     def start_game(self, difficulty: float):
-        print("Starting game with difficulty:", difficulty)
+        logging.info(f"Starting game with difficulty: {difficulty}")
         self.game_board = GameBoard(difficulty)
         self.build_grid()
         self.stack.set_visible_child(self.game_view_box)
@@ -541,9 +553,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             cell.highlight("correct")
             GLib.timeout_add(2000, lambda: cell.unhighlight("correct"))
         else:
-            print(
-                f"Wrong input {number} at ({cell.row},{cell.col}), highlighting conflicts"
-            )
             cell.highlight("wrong")
             self._highlight_conflicts(cell.row, cell.col, number)
             GLib.timeout_add(2000, self._clear_conflicts)
@@ -583,6 +592,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         return False
 
+
     def load_saved_game(self):
         try:
             with open(SAVE_PATH, "r") as f:
@@ -611,9 +621,9 @@ class SudokuWindow(Adw.ApplicationWindow):
                     cell.update_notes(notes)
 
             self.stack.set_visible_child(self.game_view_box)
-            print("Game successfully loaded from save.")
+            logging.info("Game successfully loaded from save.")
         except Exception as e:
-            print(f"Error loading game: {e}")
+            logging.error(f"Error loading game: {e}")
 
     def _has_saved_game(self):
         try:
