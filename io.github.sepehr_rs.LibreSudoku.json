@@ -30,8 +30,8 @@
           "builddir": true,
           "sources": [
               {
-                  "type": "dir",
-                  "path": "."
+                  "type": "git",
+                  "url": "https://github.com/sepehr-rs/LibreSudoku.git"
               }
           ]
       }
