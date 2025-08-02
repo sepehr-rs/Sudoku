@@ -1,0 +1,108 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $SudokuWindow: Adw.ApplicationWindow {
+  styles [
+    "sudoku-main-window",
+  ]
+
+  title: _("Sudoku");
+  default-width: 800;
+  default-height: 600;
+
+  content: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Label {
+        label: _("Sudoku Game");
+
+        styles [
+          "title-1",
+        ]
+      };
+
+      [end]
+      ToggleButton pencil_toggle_button {
+        Image {
+          resource: "/io/github/sepehr_rs/LibreSudoku/icons/pencil.svg";
+        }
+      }
+
+      [end]
+      MenuButton {
+        icon-name: "open-menu-symbolic";
+        menu-model: main_menu;
+      }
+    }
+
+    content: Adw.ViewStack stack {
+      Box main_menu_box {
+        orientation: vertical;
+        halign: center;
+        valign: center;
+        hexpand: true;
+        vexpand: true;
+        spacing: 24;
+        margin-top: 24;
+        margin-bottom: 24;
+        margin-start: 24;
+        margin-end: 24;
+
+        Button continue_button {
+          label: _("_Continue Game");
+          use-underline: true;
+        }
+
+        Button new_game_button {
+          label: _("_New Game");
+          use-underline: true;
+        }
+      }
+
+      Box game_view_box {
+        orientation: vertical;
+        halign: fill;
+        valign: fill;
+        hexpand: true;
+        vexpand: true;
+        spacing: 12;
+        margin-top: 24;
+        margin-bottom: 24;
+        margin-start: 24;
+        margin-end: 24;
+
+        Box grid_container {
+          orientation: vertical;
+          hexpand: true;
+          vexpand: true;
+        }
+      }
+    };
+  };
+}
+
+menu main_menu {
+  section {
+    item {
+      label: _("_Back to Main Menu");
+      action: "win.back-to-menu";
+    }
+  }
+
+  section {
+    item {
+      label: _("_Keyboard Shortcuts");
+      action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_About");
+      action: "app.about";
+    }
+
+    item {
+      label: _("_Quit");
+      action: "app.quit";
+    }
+  }
+}
