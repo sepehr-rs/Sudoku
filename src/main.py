@@ -19,12 +19,11 @@
 
 import sys
 import gi
+from gi.repository import Gio, Adw
+from .window import SudokuWindow
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-
-from gi.repository import Gtk, Gio, Adw
-from .window import SudokuWindow
 
 
 class SudokuApplication(Adw.Application):
@@ -41,7 +40,6 @@ class SudokuApplication(Adw.Application):
         self.add_action(quit_action)
         self.set_accels_for_action("win.pencil-toggled", ["<Ctrl>p"])
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
-
 
     def do_activate(self):
         """Called when the application is activated.
@@ -60,7 +58,7 @@ class SudokuApplication(Adw.Application):
                                 application_name='sudoku',
                                 application_icon='io.github.sepehr_rs.LibreSudoku',
                                 developer_name='sepehr',
-                                version='0.1.4',
+                                version='0.2.0',
                                 developers=['sepehr'],
                                 copyright='© 2025 sepehr')
         about.present()
@@ -90,4 +88,3 @@ def main(version):
     """The application's entry point."""
     app = SudokuApplication()
     return app.run(sys.argv)
-

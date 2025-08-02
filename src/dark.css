@@ -122,7 +122,6 @@
     background-color: transparent;
     box-shadow: none;
     border: none;
-    -gtk-focus-ring-color: transparent;
 }
 
 #pencil_toggle_button:hover,

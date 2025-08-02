@@ -19,6 +19,7 @@
 from gi.repository import Adw, Gtk, Gdk, GLib, Gio
 from sudoku import Sudoku as PySudoku
 from functools import partial
+import json
 
 SAVE_PATH = "/home/sepehr/gnome-project/saves/save.json"
 
@@ -33,15 +34,43 @@ DIALOG_DEFAULT_HEIGHT = 240
 
 
 class GameBoard:
-    def __init__(self, difficulty: float):
-        sudoku = PySudoku(3).difficulty(difficulty)
-        self.puzzle = sudoku.board
-        self.solution = sudoku.solve().board
-        self.user_inputs = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-        self.notes = [[set() for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+    def __init__(
+        self,
+        difficulty: float,
+        puzzle=None,
+        solution=None,
+        user_inputs=None,
+        notes=None,
+    ):
+        self.difficulty = difficulty
 
-    def is_correct(self, row: int, col: int, value: str):
-        return str(self.solution[row][col]) == str(value)
+        if puzzle and solution:
+            self.puzzle = puzzle
+            self.solution = solution
+        else:
+            sudoku = PySudoku(3).difficulty(difficulty)
+            self.puzzle = sudoku.board
+            self.solution = sudoku.solve().board
+
+        self.user_inputs = (
+            user_inputs
+            if user_inputs
+            else [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+        )
+        self.notes = (
+            notes
+            if notes
+            else [[set() for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+        )
+
+    def to_dict(self):
+        return {
+            "difficulty": self.difficulty,
+            "puzzle": self.puzzle,
+            "solution": self.solution,
+            "user_inputs": self.user_inputs,
+            "notes": [[list(n) for n in row] for row in self.notes],
+        }
 
     def is_clue(self, row: int, col: int):
         return self.puzzle[row][col] is not None
@@ -63,6 +92,13 @@ class GameBoard:
 
     def clear_notes(self, row, col):
         self.notes[row][col].clear()
+
+    def save_to_file(self, path=SAVE_PATH):
+        try:
+            with open(SAVE_PATH, "w") as f:
+                json.dump(self.to_dict(), f)
+        except Exception as e:
+            print(f"Failed to save game: {e}")
 
 
 class SudokuCell(Gtk.Button):
@@ -239,7 +275,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._load_css(dark_mode)
 
     def on_continue_clicked(self, button: Gtk.Button):
-        print("Continue Game clicked")
+        self.load_saved_game()
 
     def on_stack_page_changed(self, stack, param):
         is_game_page = stack.get_visible_child() != self.main_menu_box
@@ -247,6 +283,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.set_visible(is_game_page)
 
     def on_back_to_menu(self, action, parameter):
+        self.continue_button.set_sensitive(self._has_saved_game())
         self.stack.set_visible_child(self.main_menu_box)
 
     def on_close_request(self, window):
@@ -394,6 +431,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             target_cell.set_value("")
             self._clear_feedback_classes(target_cell.get_style_context())
             self.game_board.set_input(row, col, None)
+        self.game_board.save_to_file()
         popover.popdown()
 
     def on_number_selected(
@@ -444,6 +482,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         cell.set_value(number)
         self.game_board.set_input(row, col, number)
+        self.game_board.save_to_file()
 
         correct = str(self.game_board.solution[row][col])
         context = cell.get_style_context()
@@ -543,6 +582,38 @@ class SudokuWindow(Adw.ApplicationWindow):
             return True
 
         return False
+
+    def load_saved_game(self):
+        try:
+            with open(SAVE_PATH, "r") as f:
+                data = json.load(f)
+
+            notes = [[set(cell) for cell in row] for row in data["notes"]]
+            self.game_board = GameBoard(
+                difficulty=data["difficulty"],
+                puzzle=data["puzzle"],
+                solution=data["solution"],
+                user_inputs=data["user_inputs"],
+                notes=notes,
+            )
+
+            self.build_grid()
+
+            for row in range(GRID_SIZE):
+                for col in range(GRID_SIZE):
+                    value = self.game_board.user_inputs[row][col]
+                    notes = self.game_board.get_notes(row, col)
+                    cell = self.cell_inputs[row][col]
+                    if value:
+                        cell.set_value(str(value))
+                        if str(value) != str(self.game_board.solution[row][col]):
+                            cell.highlight("wrong")  # Re-highlight wrong inputs
+                    cell.update_notes(notes)
+
+            self.stack.set_visible_child(self.game_view_box)
+            print("Game successfully loaded from save.")
+        except Exception as e:
+            print(f"Error loading game: {e}")
 
     def _has_saved_game(self):
         try:
