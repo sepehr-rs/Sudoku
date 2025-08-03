@@ -18,7 +18,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Gdk, GLib
-from typing import Callable, Any
 
 from .game_board import GRID_SIZE, BLOCK_SIZE
 
@@ -27,7 +26,7 @@ class UIHelpers:
     """Static helper methods for UI operations."""
 
     @staticmethod
-    def create_number_button(label: str, callback: Callable, *args) -> Gtk.Button:
+    def create_number_button(label: str, callback, *args):
         """Create a number button with consistent styling."""
         button = Gtk.Button(label=label)
         button.set_size_request(40, 40)
@@ -136,7 +135,7 @@ class UIHelpers:
     @staticmethod
     def create_difficulty_dialog(
         parent_window: Gtk.Window, difficulties: list
-    ) -> Gtk.Dialog:
+    ):
         """Create a difficulty selection dialog."""
         dialog = Gtk.Dialog(
             title="Select Difficulty",
@@ -159,8 +158,8 @@ class UIHelpers:
 
     @staticmethod
     def create_finished_overlay(
-        game_view_box: Gtk.Box, callback: Callable
-    ) -> Gtk.Overlay:
+        game_view_box: Gtk.Box, callback
+    ):
         """Create the puzzle finished overlay."""
         overlay = Gtk.Overlay()
         overlay.set_hexpand(True)

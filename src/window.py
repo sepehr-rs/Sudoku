@@ -17,8 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import logging
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk
 from functools import partial
 
 from .game_board import (
