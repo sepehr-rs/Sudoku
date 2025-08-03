@@ -23,27 +23,15 @@
       "*.a"
   ],
   "modules": [
-      {
-          "name": "py-sudoku",
-          "buildsystem": "simple",
-          "build-commands": [
-              "pip3 install --prefix=/app --no-warn-script-location py_sudoku-2.0.0-py3-none-any.whl"
-          ],
-          "sources": [
-              {
-                  "type": "file",
-                  "path": "sources/py_sudoku-2.0.0-py3-none-any.whl"
-              }
-          ]
-      },
+      "python3-requirements.json",
       {
           "name": "libresudoku",
           "buildsystem": "meson",
           "builddir": true,
           "sources": [
               {
-                  "type": "dir",
-                  "path": "."
+                  "type": "git",
+                  "url": "https://github.com/sepehr-rs/LibreSudoku.git"
               }
           ]
       }
