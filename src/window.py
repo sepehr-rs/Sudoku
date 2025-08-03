@@ -228,15 +228,6 @@ class SudokuWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.light_css_path = "/io/github/sepehr_rs/LibreSudoku/light.css"
-        self.dark_css_path = "/io/github/sepehr_rs/LibreSudoku/dark.css"
-        self.css_provider = Gtk.CssProvider()
-        settings = Gtk.Settings.get_default()
-        dark_mode = settings.get_property("gtk-application-prefer-dark-theme")
-        self._load_css(dark_mode)
-        settings.connect(
-            "notify::gtk-application-prefer-dark-theme", self._on_dark_mode_changed
-        )
         self.conflict_cells = []
 
         self.key_map = {getattr(Gdk, f"KEY_{i}"): str(i) for i in range(1, 10)}
@@ -269,18 +260,6 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
-
-    def _load_css(self, dark_mode: bool):
-        css_path = self.dark_css_path if dark_mode else self.light_css_path
-        self.css_provider.load_from_resource(css_path)
-        display = Gdk.Display.get_default()
-        Gtk.StyleContext.add_provider_for_display(
-            display, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
-        )
-
-    def _on_dark_mode_changed(self, settings, param):
-        dark_mode = settings.get_property("gtk-application-prefer-dark-theme")
-        self._load_css(dark_mode)
 
     def _is_puzzle_solved(self):
         for row in range(GRID_SIZE):
