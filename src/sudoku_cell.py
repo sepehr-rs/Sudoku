@@ -24,7 +24,7 @@ from .game_board import BLOCK_SIZE
 
 class SudokuCell(Gtk.Button):
     """Individual Sudoku cell widget with main value and notes display."""
-    
+
     def __init__(self, row: int, col: int, value: str, editable: bool):
         super().__init__()
 
@@ -135,4 +135,4 @@ class SudokuCell(Gtk.Button):
         if (self.col + 1) % BLOCK_SIZE == 0:
             context.add_class("right-border")
         if (self.row + 1) % BLOCK_SIZE == 0:
-            context.add_class("bottom-border") 
+            context.add_class("bottom-border")

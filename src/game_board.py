@@ -141,4 +141,4 @@ class GameBoard:
             with open(path, "r"):
                 return True
         except Exception:
-            return False 
+            return False

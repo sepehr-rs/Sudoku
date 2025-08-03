@@ -25,7 +25,7 @@ from .game_board import GRID_SIZE, BLOCK_SIZE
 
 class UIHelpers:
     """Static helper methods for UI operations."""
-    
+
     @staticmethod
     def create_number_button(label: str, callback: Callable, *args) -> Gtk.Button:
         """Create a number button with consistent styling."""
@@ -39,13 +39,13 @@ class UIHelpers:
         """Setup key mappings for number input."""
         key_map = {getattr(Gdk, f"KEY_{i}"): str(i) for i in range(1, 10)}
         key_map.update({getattr(Gdk, f"KEY_KP_{i}"): str(i) for i in range(1, 10)})
-        
+
         remove_cell_keybindings = (
             Gdk.KEY_BackSpace,
             Gdk.KEY_Delete,
             Gdk.KEY_KP_Delete,
         )
-        
+
         return key_map, remove_cell_keybindings
 
     @staticmethod
@@ -64,7 +64,7 @@ class UIHelpers:
     def highlight_related_cells(cells: list, row: int, col: int):
         """Highlight all cells related to the given cell (row, column, block)."""
         UIHelpers.clear_highlights(cells, "highlight")
-        
+
         # Highlight row and column
         for i in range(GRID_SIZE):
             UIHelpers.highlight_cell(cells, row, i, "highlight")
@@ -81,19 +81,26 @@ class UIHelpers:
     def highlight_conflicts(cells: list, row: int, col: int, label: str) -> list:
         """Highlight conflicting cells and return the list of highlighted cells."""
         conflict_cells = []
-        
+
         # Check row, column, and block for conflicts
         for check_row in range(GRID_SIZE):
             for check_col in range(GRID_SIZE):
                 cell = cells[check_row][check_col]
-                if (cell.get_value() == label and 
-                    cell != cells[row][col] and
-                    (check_row == row or check_col == col or 
-                     (check_row // BLOCK_SIZE == row // BLOCK_SIZE and 
-                      check_col // BLOCK_SIZE == col // BLOCK_SIZE))):
+                if (
+                    cell.get_value() == label
+                    and cell != cells[row][col]
+                    and (
+                        check_row == row
+                        or check_col == col
+                        or (
+                            check_row // BLOCK_SIZE == row // BLOCK_SIZE
+                            and check_col // BLOCK_SIZE == col // BLOCK_SIZE
+                        )
+                    )
+                ):
                     cell.highlight("conflict")
                     conflict_cells.append(cell)
-        
+
         return conflict_cells
 
     @staticmethod
@@ -111,11 +118,7 @@ class UIHelpers:
 
     @staticmethod
     def specify_cell_correctness(
-        cell, 
-        number: str, 
-        correct: str, 
-        conflict_cells: list,
-        cell_inputs: list
+        cell, number: str, correct: str, conflict_cells: list, cell_inputs: list
     ):
         """Handle cell correctness feedback."""
         if number == correct:
@@ -131,7 +134,9 @@ class UIHelpers:
             GLib.timeout_add(2000, lambda: UIHelpers.clear_conflicts(conflict_cells))
 
     @staticmethod
-    def create_difficulty_dialog(parent_window: Gtk.Window, difficulties: list) -> Gtk.Dialog:
+    def create_difficulty_dialog(
+        parent_window: Gtk.Window, difficulties: list
+    ) -> Gtk.Dialog:
         """Create a difficulty selection dialog."""
         dialog = Gtk.Dialog(
             title="Select Difficulty",
@@ -149,18 +154,20 @@ class UIHelpers:
         )
         dialog.get_content_area().append(box)
         dialog.get_style_context().add_class("sudoku-dialog")
-        
+
         return dialog, box
 
     @staticmethod
-    def create_finished_overlay(game_view_box: Gtk.Box, callback: Callable) -> Gtk.Overlay:
+    def create_finished_overlay(
+        game_view_box: Gtk.Box, callback: Callable
+    ) -> Gtk.Overlay:
         """Create the puzzle finished overlay."""
         overlay = Gtk.Overlay()
         overlay.set_hexpand(True)
         overlay.set_vexpand(True)
 
         overlay.set_child(game_view_box)
-        
+
         # Blur box
         blur_box = Gtk.Box()
         blur_box.set_hexpand(True)
@@ -185,9 +192,9 @@ class UIHelpers:
 
         back_button = Gtk.Button(label="Back to Main Menu")
         back_button.connect("clicked", callback)
-        
+
         dialog_box.append(label)
         dialog_box.append(back_button)
         overlay.add_overlay(dialog_box)
 
-        return overlay 
+        return overlay

@@ -32,9 +32,9 @@ class GameManager:
         self.cell_inputs = None
         self.conflict_cells = []
         self.pencil_mode = False
-        
+
         self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
-        
+
         self._setup_actions()
 
     def _setup_actions(self):
@@ -151,7 +151,9 @@ class GameManager:
         correct = self.game_board.get_correct_value(row, col)
         context = cell.get_style_context()
         UIHelpers.clear_feedback_classes(context)
-        UIHelpers.specify_cell_correctness(cell, number, correct, self.conflict_cells, self.cell_inputs)
+        UIHelpers.specify_cell_correctness(
+            cell, number, correct, self.conflict_cells, self.cell_inputs
+        )
 
         if self.game_board.is_solved():
             self._show_puzzle_finished_dialog()
@@ -255,13 +257,12 @@ class GameManager:
 
     def _show_puzzle_finished_dialog(self):
         self.window.pencil_toggle_button.set_visible(False)
-        
+
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 
         overlay = UIHelpers.create_finished_overlay(
-            self.window.game_view_box, 
-            self._on_back_to_menu_clicked_after_finish
+            self.window.game_view_box, self._on_back_to_menu_clicked_after_finish
         )
         self.window.grid_container.append(overlay)
 
@@ -270,4 +271,4 @@ class GameManager:
             self.window.grid_container.remove(child)
         self.window.grid_container.append(self.window.game_view_box)
         self.window.stack.set_visible_child(self.window.main_menu_box)
-        self.window.continue_button.set_sensitive(GameBoard.has_saved_game()) 
+        self.window.continue_button.set_sensitive(GameBoard.has_saved_game())

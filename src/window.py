@@ -21,14 +21,20 @@ import logging
 from gi.repository import Adw, Gtk, Gio, GLib
 from functools import partial
 
-from .game_board import GameBoard, EASY_DIFFICULTY, MEDIUM_DIFFICULTY, HARD_DIFFICULTY, EXTREME_DIFFICULTY
+from .game_board import (
+    GameBoard,
+    EASY_DIFFICULTY,
+    MEDIUM_DIFFICULTY,
+    HARD_DIFFICULTY,
+    EXTREME_DIFFICULTY,
+)
 from .game_manager import GameManager
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/LibreSudoku/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
     """Main application window."""
-    
+
     __gtype_name__ = "SudokuWindow"
 
     # Template children
@@ -42,10 +48,10 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # Initialize game manager
         self.game_manager = GameManager(self)
-        
+
         # Setup UI
         self._setup_ui()
         self._setup_stack_observer()
@@ -56,10 +62,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.continue_button.set_sensitive(GameBoard.has_saved_game())
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
-        
+
         # Setup pencil button
         self.pencil_toggle_button.set_active(False)
-        self.pencil_toggle_button.connect("toggled", self.game_manager.on_pencil_toggled)
+        self.pencil_toggle_button.connect(
+            "toggled", self.game_manager.on_pencil_toggled
+        )
 
     def _setup_stack_observer(self):
         """Setup stack page change observer."""
@@ -98,7 +106,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         dialog.get_content_area().append(box)
         dialog.get_style_context().add_class("sudoku-dialog")
-        
+
         # Create difficulty buttons
         difficulties = [
             ("Easy", EASY_DIFFICULTY),
@@ -106,7 +114,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             ("Hard", HARD_DIFFICULTY),
             ("Extreme", EXTREME_DIFFICULTY),
         ]
-        
+
         for label, difficulty in difficulties:
             button = Gtk.Button(label=label)
             button.connect("clicked", partial(self.on_difficulty_selected, difficulty))
