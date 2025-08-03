@@ -1,7 +1,7 @@
 {
   "id": "io.github.sepehr_rs.LibreSudoku.Devel",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "45",
+  "runtime-version": "master",
   "sdk": "org.gnome.Sdk",
   "command": "libresudoku",
   "finish-args": [
