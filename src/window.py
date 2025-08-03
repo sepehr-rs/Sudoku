@@ -43,8 +43,6 @@ EASY_DIFFICULTY = 0.2
 MEDIUM_DIFFICULTY = 0.5
 HARD_DIFFICULTY = 0.7
 EXTREME_DIFFICULTY = 0.9
-DIALOG_DEFAULT_WIDTH = 340
-DIALOG_DEFAULT_HEIGHT = 240
 
 
 class GameBoard:
@@ -61,12 +59,10 @@ class GameBoard:
         if puzzle and solution:
             self.puzzle = puzzle
             self.solution = solution
-            print(self.solution)
         else:
             sudoku = PySudoku(3).difficulty(difficulty)
             self.puzzle = sudoku.board
             self.solution = sudoku.solve().board
-            print(self.solution)
 
         self.user_inputs = (
             user_inputs
@@ -246,7 +242,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         back_action = Gio.SimpleAction.new("back-to-menu", None)
         back_action.connect("activate", self.on_back_to_menu)
         self.add_action(back_action)
-        self.back_action = back_action
 
         self.pencil_mode = False
         self.pencil_toggle_button.set_active(False)
@@ -256,7 +251,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         pencil_action.connect("change-state", self.on_pencil_action_toggled)
         self.add_action(pencil_action)
-        self.pencil_action = pencil_action
 
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
@@ -277,31 +271,16 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _highlight_conflicts(self, row: int, col: int, label: str):
         self.conflict_cells.clear()
-        for c in range(GRID_SIZE):
-            cell = self.cell_inputs[row][c]
-            if (
-                cell.main_label.get_text() == label
-                and cell != self.cell_inputs[row][col]
-            ):
-                cell.highlight("conflict")
-                self.conflict_cells.append(cell)
-        for r in range(GRID_SIZE):
-            cell = self.cell_inputs[r][col]
-            if (
-                cell.main_label.get_text() == label
-                and cell != self.cell_inputs[row][col]
-            ):
-                cell.highlight("conflict")
-                self.conflict_cells.append(cell)
-        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
-        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
-        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
-            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
-                cell = self.cell_inputs[r][c]
-                if (
-                    cell.main_label.get_text() == label
-                    and cell != self.cell_inputs[row][col]
-                ):
+        
+        # Check row, column, and block for conflicts
+        for check_row in range(GRID_SIZE):
+            for check_col in range(GRID_SIZE):
+                cell = self.cell_inputs[check_row][check_col]
+                if (cell.main_label.get_text() == label and 
+                    cell != self.cell_inputs[row][col] and
+                    (check_row == row or check_col == col or 
+                     (check_row // BLOCK_SIZE == row // BLOCK_SIZE and 
+                      check_col // BLOCK_SIZE == col // BLOCK_SIZE))):
                     cell.highlight("conflict")
                     self.conflict_cells.append(cell)
 
@@ -309,7 +288,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         for cell in self.conflict_cells:
             cell.unhighlight("conflict")
         self.conflict_cells.clear()
-        return False
 
     def _specify_cell_correctness(
         self, context, number: int, correct: int, cell: SudokuCell
@@ -435,16 +413,19 @@ class SudokuWindow(Adw.ApplicationWindow):
         grid.grab_focus()
         popover.show()
 
-    def on_clear_selected(self, clear_button, target_cell: SudokuCell, popover):
-        row, col = target_cell.row, target_cell.col
+    def _clear_cell(self, cell: SudokuCell):
+        row, col = cell.row, cell.col
         if self.pencil_mode:
             self.game_board.clear_notes(row, col)
-            target_cell.update_notes(set())
+            cell.update_notes(set())
         else:
-            target_cell.set_value("")
-            self._clear_feedback_classes(target_cell.get_style_context())
+            cell.set_value("")
+            self._clear_feedback_classes(cell.get_style_context())
             self.game_board.set_input(row, col, None)
         self.game_board.save_to_file()
+
+    def on_clear_selected(self, clear_button, target_cell: SudokuCell, popover):
+        self._clear_cell(target_cell)
         popover.popdown()
 
     def on_number_selected(
@@ -503,11 +484,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
-            cell.set_value("")
-            self._clear_feedback_classes(cell.get_style_context())
-            self.game_board.clear_notes(row, col)
-            self.game_board.set_input(row, col, None)
-            cell.update_notes(set())
+            self._clear_cell(cell)
             return True
 
         return False
@@ -569,7 +546,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             transient_for=self,
             modal=True,
         )
-        dialog.set_default_size(DIALOG_DEFAULT_WIDTH, DIALOG_DEFAULT_HEIGHT)
 
         box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
@@ -621,9 +597,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.grid_container.append(self.game_view_box)
         self.stack.set_visible_child(self.main_menu_box)
         self.continue_button.set_sensitive(self._has_saved_game())
-
-    def on_close_request(self, window):
-        return False
 
     def _show_puzzle_finished_dialog(self):
         self.pencil_toggle_button.set_visible(False)
