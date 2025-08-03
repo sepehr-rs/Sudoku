@@ -273,22 +273,18 @@ class SudokuWindow(Adw.ApplicationWindow):
     def _load_css(self, dark_mode: bool):
         css_path = self.dark_css_path if dark_mode else self.light_css_path
         self.css_provider.load_from_resource(css_path)
-
-        # Remove previous provider if any and add the new one
         display = Gdk.Display.get_default()
-
-        # Clear all previous providers with the same priority to avoid stacking
-        # Unfortunately, GTK doesn't provide a direct way to remove all providers
-        # by priority, so we just replace by re-adding with the same provider object.
-
         Gtk.StyleContext.add_provider_for_display(
             display, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
+    def _on_dark_mode_changed(self, settings, param):
+        dark_mode = settings.get_property("gtk-application-prefer-dark-theme")
+        self._load_css(dark_mode)
+
     def _is_puzzle_solved(self):
         for row in range(GRID_SIZE):
             for col in range(GRID_SIZE):
-                # Only check user inputs for non-clue cells
                 if not self.game_board.is_clue(row, col):
                     user_val = self.game_board.user_inputs[row][col]
                     correct_val = str(self.game_board.solution[row][col])
@@ -296,127 +292,89 @@ class SudokuWindow(Adw.ApplicationWindow):
                         return False
         return True
 
-    def _show_puzzle_finished_dialog(self):
-        self.pencil_toggle_button.set_visible(False)
-        overlay = Gtk.Overlay()
-        overlay.set_hexpand(True)
-        overlay.set_vexpand(True)
+    def _clear_feedback_classes(self, context):
+        context.remove_class("correct")
+        context.remove_class("wrong")
 
-        # Remove old children from grid_container and add the overlay
-        while child := self.grid_container.get_first_child():
-            self.grid_container.remove(child)
+    def _highlight_conflicts(self, row: int, col: int, label: str):
+        self.conflict_cells.clear()
+        for c in range(GRID_SIZE):
+            cell = self.cell_inputs[row][c]
+            if (
+                cell.main_label.get_text() == label
+                and cell != self.cell_inputs[row][col]
+            ):
+                cell.highlight("conflict")
+                self.conflict_cells.append(cell)
+        for r in range(GRID_SIZE):
+            cell = self.cell_inputs[r][col]
+            if (
+                cell.main_label.get_text() == label
+                and cell != self.cell_inputs[row][col]
+            ):
+                cell.highlight("conflict")
+                self.conflict_cells.append(cell)
+        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
+        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
+        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
+            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
+                cell = self.cell_inputs[r][c]
+                if (
+                    cell.main_label.get_text() == label
+                    and cell != self.cell_inputs[row][col]
+                ):
+                    cell.highlight("conflict")
+                    self.conflict_cells.append(cell)
 
-        overlay.set_child(self.game_view_box)
-        blur_box = Gtk.Box()
-        blur_box.set_hexpand(True)
-        blur_box.set_vexpand(True)
-
-        overlay.add_overlay(blur_box)
-
-        # Create a centered dialog box container
-        dialog_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=12,
-            margin_top=20,
-            margin_bottom=20,
-            margin_start=20,
-            margin_end=20,
-            halign=Gtk.Align.CENTER,
-            valign=Gtk.Align.CENTER,
-        )
-
-        label = Gtk.Label(label="Puzzle Finished")
-        label.set_margin_bottom(12)
-        label.get_style_context().add_class("finished-label")
-
-        back_button = Gtk.Button(label="Back to Main Menu")
-        back_button.connect("clicked", self._on_back_to_menu_clicked_after_finish)
-        dialog_box.append(label)
-        dialog_box.append(back_button)
-
-        overlay.add_overlay(dialog_box)
-
-        self.grid_container.append(overlay)
-
-    def _on_dark_mode_changed(self, settings, param):
-        dark_mode = settings.get_property("gtk-application-prefer-dark-theme")
-        self._load_css(dark_mode)
-
-    def on_continue_clicked(self, button: Gtk.Button):
-        self.load_saved_game()
-
-    def on_stack_page_changed(self, stack, param):
-        is_game_page = stack.get_visible_child() != self.main_menu_box
-        self.lookup_action("back-to-menu").set_enabled(is_game_page)
-        self.pencil_toggle_button.set_visible(is_game_page)
-
-    def _on_back_to_menu_clicked_after_finish(self, button):
-        # Reset the UI to main menu and remove the overlay
-        while child := self.grid_container.get_first_child():
-            self.grid_container.remove(child)
-        self.grid_container.append(self.game_view_box)
-        self.stack.set_visible_child(self.main_menu_box)
-        self.continue_button.set_sensitive(self._has_saved_game())
-
-    def on_back_to_menu(self, action, parameter):
-        self.continue_button.set_sensitive(self._has_saved_game())
-        self.stack.set_visible_child(self.main_menu_box)
-
-    def on_close_request(self, window):
+    def _clear_conflicts(self):
+        for cell in self.conflict_cells:
+            cell.unhighlight("conflict")
+        self.conflict_cells.clear()
         return False
 
-    def on_new_game_clicked(self, action):
-        dialog = Gtk.Dialog(
-            title="Select Difficulty",
-            transient_for=self,
-            modal=True,
-        )
-        dialog.set_default_size(DIALOG_DEFAULT_WIDTH, DIALOG_DEFAULT_HEIGHT)
+    def _specify_cell_correctness(
+        self, context, number: int, correct: int, cell: SudokuCell
+    ):
+        if number == correct:
+            cell.editable = False
+            cell.highlight("correct")
+            GLib.timeout_add(2000, lambda: cell.unhighlight("correct"))
+        else:
+            cell.highlight("wrong")
+            self._highlight_conflicts(cell.row, cell.col, number)
+            GLib.timeout_add(2000, self._clear_conflicts)
 
-        box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=12,
-            margin_top=24,
-            margin_bottom=24,
-            margin_start=24,
-            margin_end=24,
-        )
-        dialog.get_content_area().append(box)
-        dialog.get_style_context().add_class("sudoku-dialog")
-        for label, difficulty in [
-            ("Easy", EASY_DIFFICULTY),
-            ("Medium", MEDIUM_DIFFICULTY),
-            ("Hard", HARD_DIFFICULTY),
-            ("Extreme", EXTREME_DIFFICULTY),
-        ]:
-            button = Gtk.Button(label=label)
-            button.connect("clicked", partial(self.on_new_game, difficulty))
-            box.append(button)
+    def _clear_highlights(self, class_name: str):
+        for row in range(9):
+            for col in range(9):
+                self.cell_inputs[row][col].unhighlight(class_name)
 
-        dialog.show()
+    def _highlight_cell(self, row: int, col: int, class_name: str):
+        self.cell_inputs[row][col].highlight(class_name)
 
-    def on_new_game(self, difficulty: float, button: Gtk.Button):
-        self.start_game(difficulty)
-        button.get_root().destroy()
+    def highlight_related_cells(self, row: int, col: int):
+        self._clear_highlights("highlight")
+        for i in range(9):
+            self._highlight_cell(row, i, "highlight")
+            self._highlight_cell(i, col, "highlight")
 
-    def on_pencil_toggled(self, button: Gtk.ToggleButton):
-        self.pencil_mode = button.get_active()
-        logging.info("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
+        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
+        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
+        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
+            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
+                self._highlight_cell(r, c, "highlight")
 
-    def on_pencil_action_toggled(self, action, value):
-        # Flip the boolean state
-        new_state = not action.get_state().get_boolean()
-        action.set_state(GLib.Variant.new_boolean(new_state))
-        self.pencil_toggle_button.set_active(new_state)
+    def _focus_cell(self, row: int, col: int):
+        self.cell_inputs[row][col].grab_focus()
+        self.highlight_related_cells(row, col)
 
-    def start_game(self, difficulty: float):
-        logging.info(f"Starting game with difficulty: {difficulty}")
-        self.game_board = GameBoard(difficulty)
-        self.build_grid()
-        self.stack.set_visible_child(self.game_view_box)
+    def _create_number_button(self, label: str, callback, *args):
+        button = Gtk.Button(label=label)
+        button.set_size_request(40, 40)
+        button.connect("clicked", callback, *args)
+        return button
 
     def build_grid(self):
-        # Clear old grid children
         while child := self.grid_container.get_first_child():
             self.grid_container.remove(child)
 
@@ -433,10 +391,11 @@ class SudokuWindow(Adw.ApplicationWindow):
                 value = self.game_board.puzzle[row][col]
                 editable = not self.game_board.is_clue(row, col)
                 cell = SudokuCell(row, col, value, editable)
-                # Connect cell events
+
                 gesture = Gtk.GestureClick.new()
                 gesture.connect("pressed", self.on_cell_clicked, cell)
                 cell.add_controller(gesture)
+
                 key_controller = Gtk.EventControllerKey()
                 key_controller.connect("key-pressed", self.on_key_pressed, row, col)
                 cell.add_controller(key_controller)
@@ -453,11 +412,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._focus_cell(0, 0)
         frame.show()
 
-    def _create_number_button(self, label: str, callback, *args):
-        button = Gtk.Button(label=label)
-        button.set_size_request(40, 40)
-        button.connect("clicked", callback, *args)
-        return button
+    def start_game(self, difficulty: float):
+        logging.info(f"Starting game with difficulty: {difficulty}")
+        self.game_board = GameBoard(difficulty)
+        self.build_grid()
+        self.stack.set_visible_child(self.game_view_box)
 
     def _show_popover(self, button: Gtk.Button):
         popover = Gtk.Popover()
@@ -516,33 +475,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._fill_cell(target_cell, number)
         popover.popdown()
 
-    def _clear_highlights(self, class_name: str):
-        for row in range(9):
-            for col in range(9):
-                self.cell_inputs[row][col].unhighlight(class_name)
-
-    def _highlight_cell(self, row: int, col: int, class_name: str):
-        self.cell_inputs[row][col].highlight(class_name)
-
-    def highlight_related_cells(self, row: int, col: int):
-        self._clear_highlights("highlight")
-        for i in range(9):
-            self._highlight_cell(row, i, "highlight")
-            self._highlight_cell(i, col, "highlight")
-
-        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
-        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
-        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
-            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
-                self._highlight_cell(r, c, "highlight")
-
-    def on_cell_clicked(self, gesture, n_press, x: int, y: int, cell: SudokuCell):
-        self.highlight_related_cells(cell.row, cell.col)
-        if cell.editable and n_press == 1:
-            self._show_popover(cell)
-        else:
-            cell.grab_focus()
-
     def _fill_cell(self, cell: SudokuCell, number: str):
         self._clear_conflicts()
         row, col = cell.row, cell.col
@@ -567,62 +499,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         if self._is_puzzle_solved():
             self._show_puzzle_finished_dialog()
 
-    def _focus_cell(self, row: int, col: int):
-        self.cell_inputs[row][col].grab_focus()
-        self.highlight_related_cells(row, col)
-
-    def _clear_feedback_classes(self, context):
-        context.remove_class("correct")
-        context.remove_class("wrong")
-
-    def _highlight_conflicts(self, row: int, col: int, label: str):
-        self.conflict_cells.clear()
-        for c in range(GRID_SIZE):
-            cell = self.cell_inputs[row][c]
-            if (
-                cell.main_label.get_text() == label
-                and cell != self.cell_inputs[row][col]
-            ):
-                cell.highlight("conflict")
-                self.conflict_cells.append(cell)
-        for r in range(GRID_SIZE):
-            cell = self.cell_inputs[r][col]
-            if (
-                cell.main_label.get_text() == label
-                and cell != self.cell_inputs[row][col]
-            ):
-                cell.highlight("conflict")
-                self.conflict_cells.append(cell)
-        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
-        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
-        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
-            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
-                cell = self.cell_inputs[r][c]
-                if (
-                    cell.main_label.get_text() == label
-                    and cell != self.cell_inputs[row][col]
-                ):
-                    cell.highlight("conflict")
-                    self.conflict_cells.append(cell)
-
-    def _clear_conflicts(self):
-        for cell in self.conflict_cells:
-            cell.unhighlight("conflict")
-        self.conflict_cells.clear()
-        return False
-
-    def _specify_cell_correctness(
-        self, context, number: int, correct: int, cell: SudokuCell
-    ):
-        if number == correct:
-            cell.editable = False
-            cell.highlight("correct")
-            GLib.timeout_add(2000, lambda: cell.unhighlight("correct"))
-        else:
-            cell.highlight("wrong")
-            self._highlight_conflicts(cell.row, cell.col, number)
-            GLib.timeout_add(2000, self._clear_conflicts)
-
     def on_key_pressed(self, controller, keyval, keycode, state, row: int, col: int):
         directions = {
             Gdk.KEY_Up: (-1, 0),
@@ -634,7 +510,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         if keyval in directions:
             d_row, d_col = directions[keyval]
             new_row, new_col = row + d_row, col + d_col
-            # Buggy line later on ?
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
             return True
@@ -657,6 +532,13 @@ class SudokuWindow(Adw.ApplicationWindow):
             return True
 
         return False
+
+    def on_cell_clicked(self, gesture, n_press, x: int, y: int, cell: SudokuCell):
+        self.highlight_related_cells(cell.row, cell.col)
+        if cell.editable and n_press == 1:
+            self._show_popover(cell)
+        else:
+            cell.grab_focus()
 
     def load_saved_game(self):
         try:
@@ -698,3 +580,108 @@ class SudokuWindow(Adw.ApplicationWindow):
                 return True
         except Exception:
             return False
+
+    def on_continue_clicked(self, button: Gtk.Button):
+        self.load_saved_game()
+
+    def on_new_game_clicked(self, action):
+        dialog = Gtk.Dialog(
+            title="Select Difficulty",
+            transient_for=self,
+            modal=True,
+        )
+        dialog.set_default_size(DIALOG_DEFAULT_WIDTH, DIALOG_DEFAULT_HEIGHT)
+
+        box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=12,
+            margin_top=24,
+            margin_bottom=24,
+            margin_start=24,
+            margin_end=24,
+        )
+        dialog.get_content_area().append(box)
+        dialog.get_style_context().add_class("sudoku-dialog")
+        for label, difficulty in [
+            ("Easy", EASY_DIFFICULTY),
+            ("Medium", MEDIUM_DIFFICULTY),
+            ("Hard", HARD_DIFFICULTY),
+            ("Extreme", EXTREME_DIFFICULTY),
+        ]:
+            button = Gtk.Button(label=label)
+            button.connect("clicked", partial(self.on_new_game, difficulty))
+            box.append(button)
+
+        dialog.show()
+
+    def on_new_game(self, difficulty: float, button: Gtk.Button):
+        self.start_game(difficulty)
+        button.get_root().destroy()
+
+    def on_pencil_toggled(self, button: Gtk.ToggleButton):
+        self.pencil_mode = button.get_active()
+        logging.info("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
+
+    def on_pencil_action_toggled(self, action, value):
+        new_state = not action.get_state().get_boolean()
+        action.set_state(GLib.Variant.new_boolean(new_state))
+        self.pencil_toggle_button.set_active(new_state)
+
+    def on_stack_page_changed(self, stack, param):
+        is_game_page = stack.get_visible_child() != self.main_menu_box
+        self.lookup_action("back-to-menu").set_enabled(is_game_page)
+        self.pencil_toggle_button.set_visible(is_game_page)
+
+    def on_back_to_menu(self, action, parameter):
+        self.continue_button.set_sensitive(self._has_saved_game())
+        self.stack.set_visible_child(self.main_menu_box)
+
+    def _on_back_to_menu_clicked_after_finish(self, button):
+        while child := self.grid_container.get_first_child():
+            self.grid_container.remove(child)
+        self.grid_container.append(self.game_view_box)
+        self.stack.set_visible_child(self.main_menu_box)
+        self.continue_button.set_sensitive(self._has_saved_game())
+
+    def on_close_request(self, window):
+        return False
+
+    def _show_puzzle_finished_dialog(self):
+        self.pencil_toggle_button.set_visible(False)
+        overlay = Gtk.Overlay()
+        overlay.set_hexpand(True)
+        overlay.set_vexpand(True)
+
+        while child := self.grid_container.get_first_child():
+            self.grid_container.remove(child)
+
+        overlay.set_child(self.game_view_box)
+        blur_box = Gtk.Box()
+        blur_box.set_hexpand(True)
+        blur_box.set_vexpand(True)
+
+        overlay.add_overlay(blur_box)
+
+        dialog_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=12,
+            margin_top=20,
+            margin_bottom=20,
+            margin_start=20,
+            margin_end=20,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
+        )
+
+        label = Gtk.Label(label="Puzzle Finished")
+        label.set_margin_bottom(12)
+        label.get_style_context().add_class("finished-label")
+
+        back_button = Gtk.Button(label="Back to Main Menu")
+        back_button.connect("clicked", self._on_back_to_menu_clicked_after_finish)
+        dialog_box.append(label)
+        dialog_box.append(back_button)
+
+        overlay.add_overlay(dialog_box)
+
+        self.grid_container.append(overlay)
