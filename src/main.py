@@ -20,21 +20,24 @@
 import sys
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw
 from .window import SudokuWindow
+
 
 class SudokuApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.sepehr_rs.LibreSudoku',
-                         flags=Gio.ApplicationFlags.FLAGS_NONE)
-        self.create_action('quit', self.quit, ['<primary>q'])
-        self.create_action('about', self.on_about_action)
-        #self.create_action('preferences', self.on_preferences_action)
+        super().__init__(
+            application_id="io.github.sepehr_rs.LibreSudoku",
+            flags=Gio.ApplicationFlags.FLAGS_NONE,
+        )
+        self.create_action("quit", self.quit, ["<primary>q"])
+        self.create_action("about", self.on_about_action)
+        # self.create_action('preferences', self.on_preferences_action)
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda *args: self.quit())
         self.add_action(quit_action)
@@ -54,18 +57,20 @@ class SudokuApplication(Adw.Application):
 
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""
-        about = Adw.AboutWindow(transient_for=self.props.active_window,
-                                application_name='sudoku',
-                                application_icon='io.github.sepehr_rs.LibreSudoku',
-                                developer_name='sepehr',
-                                version='0.2.0',
-                                developers=['sepehr'],
-                                copyright='© 2025 sepehr')
+        about = Adw.AboutWindow(
+            transient_for=self.props.active_window,
+            application_name="sudoku",
+            application_icon="io.github.sepehr_rs.LibreSudoku",
+            developer_name="sepehr",
+            version="0.2.0",
+            developers=["sepehr"],
+            copyright="© 2025 sepehr",
+        )
         about.present()
 
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
-        print('app.preferences action activated')
+        print("app.preferences action activated")
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
@@ -81,7 +86,6 @@ class SudokuApplication(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
-
 
 
 def main(version):

@@ -25,8 +25,8 @@ import logging
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 
 APP_ID = "io.github.sepehr_rs.LibreSudoku"
@@ -276,8 +276,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         display = Gdk.Display.get_default()
 
         # Clear all previous providers with the same priority to avoid stacking
-        # Unfortunately, GTK doesn't provide a direct way to remove all providers by priority,
-        # so we just replace by re-adding with the same provider object.
+        # Unfortunately, GTK doesn't provide a direct way to remove all providers
+        # by priority, so we just replace by re-adding with the same provider object.
 
         Gtk.StyleContext.add_provider_for_display(
             display, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
@@ -591,7 +591,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             return True
 
         return False
-
 
     def load_saved_game(self):
         try:
