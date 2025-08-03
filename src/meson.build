@@ -45,6 +45,10 @@ sudoku_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'game_board.py',
+  'game_manager.py',
+  'sudoku_cell.py',
+  'ui_helpers.py',
 ]
 
 install_data(sudoku_sources, install_dir: moduledir)
