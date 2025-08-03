@@ -19,12 +19,20 @@
 
 import sys
 import gi
+import logging
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw
 from .window import SudokuWindow
+
+# Setup logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 class SudokuApplication(Adw.Application):
