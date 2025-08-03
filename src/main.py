@@ -62,7 +62,7 @@ class SudokuApplication(Adw.Application):
             application_name="sudoku",
             application_icon="io.github.sepehr_rs.LibreSudoku",
             developer_name="sepehr",
-            version="0.2.0",
+            version="0.2.2",
             developers=["sepehr"],
             copyright="© 2025 sepehr",
         )
