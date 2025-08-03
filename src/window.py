@@ -61,10 +61,12 @@ class GameBoard:
         if puzzle and solution:
             self.puzzle = puzzle
             self.solution = solution
+            print(self.solution)
         else:
             sudoku = PySudoku(3).difficulty(difficulty)
             self.puzzle = sudoku.board
             self.solution = sudoku.solve().board
+            print(self.solution)
 
         self.user_inputs = (
             user_inputs
@@ -283,6 +285,59 @@ class SudokuWindow(Adw.ApplicationWindow):
             display, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
+    def _is_puzzle_solved(self):
+        for row in range(GRID_SIZE):
+            for col in range(GRID_SIZE):
+                # Only check user inputs for non-clue cells
+                if not self.game_board.is_clue(row, col):
+                    user_val = self.game_board.user_inputs[row][col]
+                    correct_val = str(self.game_board.solution[row][col])
+                    if user_val != correct_val:
+                        return False
+        return True
+
+    def _show_puzzle_finished_dialog(self):
+        self.pencil_toggle_button.set_visible(False)
+        overlay = Gtk.Overlay()
+        overlay.set_hexpand(True)
+        overlay.set_vexpand(True)
+
+        # Remove old children from grid_container and add the overlay
+        while child := self.grid_container.get_first_child():
+            self.grid_container.remove(child)
+
+        overlay.set_child(self.game_view_box)
+        blur_box = Gtk.Box()
+        blur_box.set_hexpand(True)
+        blur_box.set_vexpand(True)
+
+        overlay.add_overlay(blur_box)
+
+        # Create a centered dialog box container
+        dialog_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=12,
+            margin_top=20,
+            margin_bottom=20,
+            margin_start=20,
+            margin_end=20,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
+        )
+
+        label = Gtk.Label(label="Puzzle Finished")
+        label.set_margin_bottom(12)
+        label.get_style_context().add_class("finished-label")
+
+        back_button = Gtk.Button(label="Back to Main Menu")
+        back_button.connect("clicked", self._on_back_to_menu_clicked_after_finish)
+        dialog_box.append(label)
+        dialog_box.append(back_button)
+
+        overlay.add_overlay(dialog_box)
+
+        self.grid_container.append(overlay)
+
     def _on_dark_mode_changed(self, settings, param):
         dark_mode = settings.get_property("gtk-application-prefer-dark-theme")
         self._load_css(dark_mode)
@@ -294,6 +349,14 @@ class SudokuWindow(Adw.ApplicationWindow):
         is_game_page = stack.get_visible_child() != self.main_menu_box
         self.lookup_action("back-to-menu").set_enabled(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
+
+    def _on_back_to_menu_clicked_after_finish(self, button):
+        # Reset the UI to main menu and remove the overlay
+        while child := self.grid_container.get_first_child():
+            self.grid_container.remove(child)
+        self.grid_container.append(self.game_view_box)
+        self.stack.set_visible_child(self.main_menu_box)
+        self.continue_button.set_sensitive(self._has_saved_game())
 
     def on_back_to_menu(self, action, parameter):
         self.continue_button.set_sensitive(self._has_saved_game())
@@ -501,6 +564,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._clear_feedback_classes(context)
         self._specify_cell_correctness(context, number, correct, cell)
 
+        if self._is_puzzle_solved():
+            self._show_puzzle_finished_dialog()
+
     def _focus_cell(self, row: int, col: int):
         self.cell_inputs[row][col].grab_focus()
         self.highlight_related_cells(row, col)
@@ -621,6 +687,8 @@ class SudokuWindow(Adw.ApplicationWindow):
 
             self.stack.set_visible_child(self.game_view_box)
             logging.info("Game successfully loaded from save.")
+            if self._is_puzzle_solved():
+                self._show_puzzle_finished_dialog()
         except Exception as e:
             logging.error(f"Error loading game: {e}")
 

@@ -126,3 +126,9 @@
   border: none;
 }
 
+.finished-label {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: inherit;
+}
+

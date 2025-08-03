@@ -131,3 +131,9 @@
     box-shadow: none;
     border: none;
 }
+
+.finished-label {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
