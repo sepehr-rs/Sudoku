@@ -53,6 +53,7 @@ class SudokuApplication(Adw.Application):
         self.add_action(quit_action)
         self.set_accels_for_action("win.pencil-toggled", ["<Ctrl>p"])
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
+        self.set_accels_for_action("app.how_to_play", ["F1"])
 
     def do_activate(self):
         """Called when the application is activated.
@@ -85,6 +86,7 @@ class SudokuApplication(Adw.Application):
     def on_how_to_play(self, action, param):
         """Show how to play dialog."""
         dialog = HowToPlayDialog(self.props.active_window)
+        dialog.get_style_context().add_class("sudoku-dialog")
         dialog.connect("response", lambda d, r: d.destroy())
         dialog.show()
 
