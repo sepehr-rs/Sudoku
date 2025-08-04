@@ -20,7 +20,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
       [end]
       ToggleButton pencil_toggle_button {
         Image {
-          icon-name: "pencil";
+          icon-name: "pencil-symbolic";
         }
       }
 
@@ -90,12 +90,14 @@ menu main_menu {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
     }
-
+    item {
+      label: _("How to play");
+      action: "app.how_to_play";
+    }
     item {
       label: _("_About");
       action: "app.about";
     }
-
     item {
       label: _("_Quit");
       action: "app.quit";
