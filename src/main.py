@@ -26,6 +26,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw
 from .window import SudokuWindow
+from .help_dialog import HowToPlayDialog
 
 # Setup logging
 logging.basicConfig(
@@ -81,9 +82,11 @@ class SudokuApplication(Adw.Application):
     #     """Callback for the app.preferences action."""
     #     print("app.preferences action activated")
 
-    def on_how_to_play(self, widget, _):
-        """Callback for the app.preferences action."""
-        print("app.about action activated")
+    def on_how_to_play(self, action, param):
+        """Show how to play dialog."""
+        dialog = HowToPlayDialog(self.props.active_window)
+        dialog.connect("response", lambda d, r: d.destroy())
+        dialog.show()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
