@@ -28,6 +28,7 @@ from .game_board import (
     EXTREME_DIFFICULTY,
 )
 from .game_manager import GameManager
+from .ui_helpers import UIHelpers
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/LibreSudoku/window.ui")
@@ -54,6 +55,35 @@ class SudokuWindow(Adw.ApplicationWindow):
         # Setup UI
         self._setup_ui()
         self._setup_stack_observer()
+
+        # Add a click gesture to detect clicks anywhere in the window
+        gesture = Gtk.GestureClick.new()
+        gesture.connect("pressed", self.on_window_clicked)
+        self.add_controller(gesture)
+
+    def _get_grid_widget(self):
+        frame = self.grid_container.get_first_child()
+        if frame is None:
+            return None
+        return frame.get_child()
+
+    def on_window_clicked(self, gesture, n_press, x, y):
+        grid = self._get_grid_widget()
+        if grid is None:
+            return
+
+        alloc = grid.get_allocation()
+
+        if not (
+            alloc.x <= x < alloc.x + alloc.width
+            and alloc.y <= y < alloc.y + alloc.height
+        ):
+            self.on_grid_unfocus()
+
+    def on_grid_unfocus(self):
+        if self.game_manager and self.game_manager.cell_inputs:
+            UIHelpers.clear_highlights(self.game_manager.cell_inputs, "highlight")
+        # self.set_focus(None)
 
     def _setup_ui(self):
         """Setup the user interface."""
