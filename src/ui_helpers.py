@@ -123,14 +123,14 @@ class UIHelpers:
         if number == correct:
             cell.editable = False
             cell.highlight("correct")
-            GLib.timeout_add(2000, lambda: cell.unhighlight("correct"))
+            GLib.timeout_add(3000, lambda: cell.unhighlight("correct"))
         else:
             cell.highlight("wrong")
             new_conflicts = UIHelpers.highlight_conflicts(
                 cell_inputs, cell.row, cell.col, number
             )
             conflict_cells.extend(new_conflicts)
-            GLib.timeout_add(2000, lambda: UIHelpers.clear_conflicts(conflict_cells))
+            GLib.timeout_add(3000, lambda: UIHelpers.clear_conflicts(conflict_cells))
 
     @staticmethod
     def create_difficulty_dialog(

@@ -62,6 +62,7 @@ class SudokuCell(Gtk.Button):
         self.set_halign(Gtk.Align.FILL)
         self.set_valign(Gtk.Align.FILL)
         self.set_can_focus(True)
+        self.get_style_context().add_class("sudoku-cell-button")
 
     def _setup_initial_state(self, value: str):
         """Setup initial cell state based on value."""

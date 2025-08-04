@@ -82,11 +82,12 @@ class GameManager:
             self.window.grid_container.remove(child)
 
         grid = Gtk.Grid(
-            row_spacing=0.4,
-            column_spacing=0.4,
+            row_spacing=5,
+            column_spacing=5,
             column_homogeneous=True,
             row_homogeneous=True,
         )
+        grid.set_name("sudoku-grid")
         self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
 
         for row in range(GRID_SIZE):
