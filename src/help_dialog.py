@@ -7,15 +7,14 @@ class HowToPlayDialog(Gtk.Dialog):
         self.set_default_size(500, 400)
 
         content_area = self.get_content_area()
-
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scrolled_window.set_vexpand(True)
-        scrolled_window.set_hexpand(True)
 
         content_area.append(scrolled_window)
 
         textview = Gtk.TextView()
+        textview.get_style_context().add_class("sudoku-dialog")
         textview.set_editable(False)
         textview.set_cursor_visible(False)
         textview.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
