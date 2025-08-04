@@ -8,7 +8,7 @@
   </gresource>
 
   <gresource prefix="io/github/sepehr_rs/LibreSudoku/icons/scalable/actions/">
-    <file preprocess="xml-stripblanks" alias="pencil.svg">../data/icons/hicolor/scalable/actions/pencil.svg</file>
+    <file preprocess="xml-stripblanks" alias="pencil-symbolic.svg">../data/icons/hicolor/scalable/actions/pencil-symbolic.svg</file>
 
   </gresource>
 

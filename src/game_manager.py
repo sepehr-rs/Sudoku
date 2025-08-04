@@ -113,7 +113,6 @@ class GameManager:
         frame.set_child(grid)
 
         self.window.grid_container.append(frame)
-        self._focus_cell(0, 0)
         frame.show()
 
     def _focus_cell(self, row: int, col: int):
