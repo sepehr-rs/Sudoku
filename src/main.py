@@ -45,6 +45,7 @@ class SudokuApplication(Adw.Application):
         )
         self.create_action("quit", self.quit, ["<primary>q"])
         self.create_action("about", self.on_about_action)
+        self.create_action("how_to_play", self.on_how_to_play)
         # self.create_action('preferences', self.on_preferences_action)
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda *args: self.quit())
@@ -76,9 +77,13 @@ class SudokuApplication(Adw.Application):
         )
         about.present()
 
-    def on_preferences_action(self, widget, _):
+    # def on_preferences_action(self, widget, _):
+    #     """Callback for the app.preferences action."""
+    #     print("app.preferences action activated")
+
+    def on_how_to_play(self, widget, _):
         """Callback for the app.preferences action."""
-        print("app.preferences action activated")
+        print("app.about action activated")
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
