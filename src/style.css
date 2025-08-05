@@ -80,3 +80,13 @@
     20% { background-color: rgba(255, 0, 0, 0.4); }
     80% { background-color: rgba(255, 0, 0, 0.4); }
 }
+
+.notes-grid {
+    padding: 1px;
+}
+
+.note-cell-label {
+    font-size: 10px;
+    color: #777;
+    padding: 0.8px;
+}
