@@ -2,31 +2,38 @@
     background-color: #603808;
 }
 
-#sudoku-grid {
+#sudoku-parent-grid {
     background-color: #00000027;
 }
 
-#sudoku-grid button {
+#sudoku-parent-grid button {
     background-color: #ffffff1c;
 }
 
-#sudoku-grid button.toggle-active {
+#sudoku-parent-grid button.toggle-active {
     background-color: #bd7e4a;
     box-shadow: 0 0 10px #bd7e4a;
 }
 
-#sudoku-grid button:hover {
+#sudoku-parent-grid button:hover {
     background-color: #ffffff42;
 }
 
-#sudoku-grid button:checked {
+#sudoku-parent-grid button:checked {
     background-color: #ffffff5e;
 }
 
-
-#sudoku-grid .entry-cell.highlight, 
-#sudoku-grid .clue-cell.highlight {
+#sudoku-parent-grid .entry-cell.highlight, 
+#sudoku-parent-grid .clue-cell.highlight {
     background-color: #ffffff5e;
     box-shadow: 0 0 10px #ffffff5e;
     transition: background-color 0.3s ease-in-out;
+}
+
+.sudoku-cell-button {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0;
+    margin: 0;
+    border: none;
 }

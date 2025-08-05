@@ -31,38 +31,64 @@ class SudokuCell(Gtk.Button):
         self.row = row
         self.col = col
         self.editable = editable
+        self.set_margin_start(0)
+        self.set_margin_end(0)
+        self.set_margin_top(0)
+        self.set_margin_bottom(0)
 
         self._setup_ui()
         self._setup_initial_state(value)
         self._add_border_classes()
 
+    def _force_fixed_size(self, widget, allocation):
+        # Force the widget to be exactly 30x30
+        allocation.width = 30
+        allocation.height = 30
+        widget.size_allocate(allocation)
+
     def _setup_ui(self):
-        """Setup the UI components."""
-        self.main_label = Gtk.Label()
+        self.main_label = Gtk.Label(xalign=0.5, yalign=0.5)
+        self.main_label.set_halign(Gtk.Align.CENTER)
+        self.main_label.set_valign(Gtk.Align.CENTER)
+
+        self.main_label.set_hexpand(False)
+        self.main_label.set_vexpand(False)
+
         self.notes_grid = Gtk.Grid(
             row_spacing=0,
             column_spacing=0,
             column_homogeneous=True,
             row_homogeneous=True,
         )
-        self.notes_grid.get_style_context().add_class("notes-grid")
+        self.notes_grid.set_hexpand(False)
+        self.notes_grid.set_vexpand(False)
+        self.notes_grid.set_halign(Gtk.Align.FILL)
+        self.notes_grid.set_valign(Gtk.Align.FILL)
 
-        self.note_labels = {}  # Store label widgets by number
+        self.note_labels = {}
 
-        # Overlay both main and note labels
         overlay = Gtk.Overlay()
         overlay.set_child(self.main_label)
         overlay.add_overlay(self.notes_grid)
-
         self.set_child(overlay)
 
-        # Configure button properties
         self.set_hexpand(True)
         self.set_vexpand(True)
         self.set_halign(Gtk.Align.FILL)
         self.set_valign(Gtk.Align.FILL)
+
+        # Remove set_size_request
+
+        # Disable focus on click and relief to avoid padding difference
+        self.set_focus_on_click(False)
         self.set_can_focus(True)
         self.get_style_context().add_class("sudoku-cell-button")
+
+    def do_get_preferred_width(self):
+        return 30, 30
+
+    def do_get_preferred_height(self):
+        return 30, 30
 
     def _setup_initial_state(self, value: str):
         """Setup initial cell state based on value."""
@@ -92,6 +118,7 @@ class SudokuCell(Gtk.Button):
 
         self.note_labels.clear()
 
+        # If cell has a main value, don't show notes
         if not notes or self.main_label.get_text():
             return
 
@@ -100,6 +127,14 @@ class SudokuCell(Gtk.Button):
         for n in sorted_notes:
             note_label = Gtk.Label(label=n)
             note_label.get_style_context().add_class("note-cell-label")
+
+            # Enforce fixed small size on each note label to avoid resizing cell
+            note_label.set_size_request(10, 10)  # tweak if needed
+            note_label.set_hexpand(True)
+            note_label.set_vexpand(True)
+            note_label.set_halign(Gtk.Align.FILL)
+            note_label.set_valign(Gtk.Align.FILL)
+
             self.note_labels[n] = note_label
 
             index = int(n) - 1

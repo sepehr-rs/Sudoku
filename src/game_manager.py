@@ -140,6 +140,8 @@ class GameManager:
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
         frame.set_hexpand(True)
         frame.set_vexpand(True)
+        frame.set_halign(Gtk.Align.FILL)   # ensure fills horizontal space
+        frame.set_valign(Gtk.Align.FILL)   # ensure fills vertical space
         frame.set_child(parent_grid)
 
         self.window.grid_container.append(frame)

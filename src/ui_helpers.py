@@ -18,7 +18,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Gdk, GLib
-
 from .game_board import GRID_SIZE, BLOCK_SIZE
 
 
@@ -69,7 +68,7 @@ class UIHelpers:
             UIHelpers.highlight_cell(cells, row, i, "highlight")
             UIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        # Highlight block
+        # Highlight block only once per cell
         block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
         block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
         for r in range(block_row_start, block_row_start + BLOCK_SIZE):

@@ -2,30 +2,29 @@
     background-color: #d2a56d;
 }
 
-#sudoku-grid {
+#sudoku-parent-grid {
     background-color: #ffffff27;
     padding: 50px;
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-#sudoku-grid button {
+#sudoku-parent-grid button {
     background-color: #ffffff65;
 }
 
-#sudoku-grid button.toggle-active {
+#sudoku-parent-grid button.toggle-active {
     background-color: #ffffff;
     box-shadow: 0 0 10px #ffffff;
 }
 
-#sudoku-grid button:hover {
+#sudoku-parent-grid button:hover {
     background-color: #ffffffb0;
 }
 
-#sudoku-grid button:checked {
+#sudoku-parent-grid button:checked {
     background-color: #ffffff;
 }
-
 
 .entry-cell, .clue-cell {
     font-size: 20px;
@@ -48,25 +47,33 @@
     margin-bottom: 3px;
 }
 
-#sudoku-grid .entry-cell.highlight, 
-#sudoku-grid .clue-cell.highlight {
-    background-color: #ffffffb6;
-    box-shadow: 0 0 10px #ffffff79;
-    transition: background-color 0.3s ease-in-out;
+.sudoku-cell-button {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0;
+    margin: 0;
+    border: none;
 }
 
-.entry-cell.correct {
+#sudoku-parent-grid button.entry-cell.correct {
     background-color: rgba(0, 255, 0, 0.3);
     transition: background-color 0.3s ease-in-out;
 }
 
-.entry-cell.wrong {
+#sudoku-parent-grid button.entry-cell.wrong {
     background-color: rgba(255, 0, 0, 0.3);
 }
 
-.conflict {
+#sudoku-parent-grid button.conflict {
     background-color: rgba(255, 0, 0, 0.2);
     animation: pulse 3s;
+}
+
+#sudoku-parent-grid button.entry-cell.highlight,
+#sudoku-parent-grid button.clue-cell.highlight {
+    background-color: #ffffffb6;
+    box-shadow: 0 0 10px #ffffff79;
+    transition: background-color 0.3s ease-in-out;
 }
 
 @keyframes pulse {
