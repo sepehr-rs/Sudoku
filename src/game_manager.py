@@ -78,40 +78,69 @@ class GameManager:
                 cell.update_notes(notes)
 
     def build_grid(self):
+        # Clear previous children from the container
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 
-        grid = Gtk.Grid(
-            row_spacing=5,
-            column_spacing=5,
+        # Parent grid (3x3) holding 9 blocks
+        parent_grid = Gtk.Grid(
+            row_spacing=6,
+            column_spacing=6,
             column_homogeneous=True,
             row_homogeneous=True,
         )
-        grid.set_name("sudoku-grid")
+        parent_grid.set_name("sudoku-parent-grid")
+
+        # Prepare 9 block grids (3x3 each)
+        blocks = [[None for _ in range(3)] for _ in range(3)]
+        for block_row in range(3):
+            for block_col in range(3):
+                block = Gtk.Grid(
+                    row_spacing=2,
+                    column_spacing=2,
+                    column_homogeneous=True,
+                    row_homogeneous=True,
+                )
+                block.get_style_context().add_class("sudoku-block")
+                blocks[block_row][block_col] = block
+                parent_grid.attach(block, block_col, block_row, 1, 1)
+
+        # Initialize the 9x9 cell grid
         self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
 
+        # Fill blocks with SudokuCell widgets
         for row in range(GRID_SIZE):
             for col in range(GRID_SIZE):
                 value = self.game_board.puzzle[row][col]
                 editable = not self.game_board.is_clue(row, col)
                 cell = SudokuCell(row, col, value, editable)
 
-                # Add controllers
+                # Gesture click controller
                 gesture = Gtk.GestureClick.new()
                 gesture.connect("pressed", self.on_cell_clicked, cell)
                 cell.add_controller(gesture)
 
+                # Keyboard input controller
                 key_controller = Gtk.EventControllerKey()
                 key_controller.connect("key-pressed", self.on_key_pressed, row, col)
                 cell.add_controller(key_controller)
 
                 self.cell_inputs[row][col] = cell
-                grid.attach(cell, col, row, 1, 1)
 
+                # Determine block and cell's position inside block
+                block_row = row // 3
+                block_col = col // 3
+                inner_row = row % 3
+                inner_col = col % 3
+
+                block = blocks[block_row][block_col]
+                block.attach(cell, inner_col, inner_row, 1, 1)
+
+        # Wrap grid in an AspectFrame to maintain square shape
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
         frame.set_hexpand(True)
         frame.set_vexpand(True)
-        frame.set_child(grid)
+        frame.set_child(parent_grid)
 
         self.window.grid_container.append(frame)
         frame.show()
