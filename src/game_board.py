@@ -20,6 +20,7 @@
 import json
 import os
 import logging
+import random
 from sudoku import Sudoku as PySudoku
 
 GRID_SIZE = 9
@@ -52,7 +53,8 @@ class GameBoard:
             self.puzzle = puzzle
             self.solution = solution
         else:
-            sudoku = PySudoku(3).difficulty(difficulty)
+            random_seed = random.randint(1, 1000000)
+            sudoku = PySudoku(3, seed=random_seed).difficulty(difficulty)
             self.puzzle = sudoku.board
             self.solution = sudoku.solve().board
 
