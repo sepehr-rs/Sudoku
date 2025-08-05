@@ -23,11 +23,42 @@
     background-color: #ffffff5e;
 }
 
+/* ✅ Highlighted cells */
 #sudoku-parent-grid .entry-cell.highlight, 
 #sudoku-parent-grid .clue-cell.highlight {
     background-color: #ffffff5e;
     box-shadow: 0 0 10px #ffffff5e;
     transition: background-color 0.3s ease-in-out;
+}
+
+/* ✅ Correct/wrong feedback */
+#sudoku-parent-grid .entry-cell.correct {
+    background-color: rgba(0, 255, 0, 0.3);
+    transition: background-color 0.3s ease-in-out;
+}
+
+#sudoku-parent-grid .entry-cell.wrong {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+/* ✅ Correct/wrong feedback — when also highlighted */
+#sudoku-parent-grid .entry-cell.correct.highlight {
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+#sudoku-parent-grid .entry-cell.wrong.highlight {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+/* 🔴 Conflict feedback */
+#sudoku-parent-grid .conflict {
+    background-color: rgba(255, 0, 0, 0.2);
+    animation: pulse 3s;
+}
+
+@keyframes pulse {
+    20% { background-color: rgba(255, 0, 0, 0.4); }
+    80% { background-color: rgba(255, 0, 0, 0.4); }
 }
 
 .sudoku-cell-button {
@@ -36,4 +67,14 @@
     padding: 0;
     margin: 0;
     border: none;
+}
+
+.notes-grid {
+    padding: 1px;
+}
+
+.note-cell-label {
+    font-size: 10px;
+    color: #777;
+    padding: 0.8px;
 }

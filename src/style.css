@@ -55,6 +55,7 @@
     border: none;
 }
 
+/* ✅ Correct/wrong feedback — normal */
 #sudoku-parent-grid button.entry-cell.correct {
     background-color: rgba(0, 255, 0, 0.3);
     transition: background-color 0.3s ease-in-out;
@@ -64,11 +65,22 @@
     background-color: rgba(255, 0, 0, 0.3);
 }
 
+/* ✅ Correct/wrong feedback — when also highlighted */
+#sudoku-parent-grid button.entry-cell.correct.highlight {
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+#sudoku-parent-grid button.entry-cell.wrong.highlight {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+/* Conflict feedback */
 #sudoku-parent-grid button.conflict {
     background-color: rgba(255, 0, 0, 0.2);
     animation: pulse 3s;
 }
 
+/* Highlighted cells */
 #sudoku-parent-grid button.entry-cell.highlight,
 #sudoku-parent-grid button.clue-cell.highlight {
     background-color: #ffffffb6;
