@@ -18,7 +18,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Gdk, GLib
-
 from .game_board import GRID_SIZE, BLOCK_SIZE
 
 
@@ -69,7 +68,7 @@ class UIHelpers:
             UIHelpers.highlight_cell(cells, row, i, "highlight")
             UIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        # Highlight block
+        # Highlight block only once per cell
         block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
         block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
         for r in range(block_row_start, block_row_start + BLOCK_SIZE):
@@ -123,14 +122,14 @@ class UIHelpers:
         if number == correct:
             cell.editable = False
             cell.highlight("correct")
-            GLib.timeout_add(2000, lambda: cell.unhighlight("correct"))
+            GLib.timeout_add(3000, lambda: cell.unhighlight("correct"))
         else:
             cell.highlight("wrong")
             new_conflicts = UIHelpers.highlight_conflicts(
                 cell_inputs, cell.row, cell.col, number
             )
             conflict_cells.extend(new_conflicts)
-            GLib.timeout_add(2000, lambda: UIHelpers.clear_conflicts(conflict_cells))
+            GLib.timeout_add(3000, lambda: UIHelpers.clear_conflicts(conflict_cells))
 
     @staticmethod
     def create_difficulty_dialog(

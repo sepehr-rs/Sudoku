@@ -1,139 +1,56 @@
-.sudoku-main-window, .sudoku-dialog {
-    background-color: #3e2e24; /* rich dark brown */
-    color: white; /* warm off-white */
+.sudoku-main-window {
+    background-color: #5a3a29;
 }
 
-/* Base thin border for all cells */
-.entry-cell, .clue-cell {
-    min-width: 55px;
-    min-height: 55px;
-    font-family: monospace;
-    font-size: 20px;
-    padding: 0;
-    border-style: solid;
-    border-width: 1.6px;
-    border-color: #444; /* consistent across themes */
-    border-radius: 0;
-    background-color: transparent;
-    color: @theme_fg_color;
+#sudoku-parent-grid {
+    background-color: #00000040;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* 3x3 section thick borders */
-.top-border {
-    border-top-width: 3px;
-    border-top-color: shade(@theme_fg_color, 0.7);
-}
-.left-border {
-    border-left-width: 3px;
-    border-left-color: shade(@theme_fg_color, 0.7);
-}
-.right-border {
-    border-right-width: 3px;
-    border-right-color: shade(@theme_fg_color, 0.7);
-}
-.bottom-border {
-    border-bottom-width: 3px;
-    border-bottom-color: shade(@theme_fg_color, 0.7);
+#sudoku-parent-grid button {
+    background-color: #ffffff25;
 }
 
-/* Clue cells: bold numbers */
-.clue-cell {
-    font-weight: bold;
+#sudoku-parent-grid button.toggle-active {
+    background-color: #e0c6a3;
+    box-shadow: 0 0 10px #e0c6a3;
 }
 
-/* Focused cell (keyboard or mouse focus) */
-.entry-cell:focus, .clue-cell:focus {
-    box-shadow: inset 0 0 6px 3px rgba(163, 125, 107, 0.7); /* warm brown glow */
-    outline: none;
-}
-/* Highlight for row/col/box — subtle bluish tone */
-.entry-cell.highlight, .clue-cell.highlight {
-    background-color: rgba(100, 149, 237, 0.25);
-    transition: background-color 0.8s ease;
-
+#sudoku-parent-grid button:hover {
+    background-color: #ffffff40;
 }
 
-/* Feedback colors for user input */
-.entry-cell.correct {
-    background-color: rgba(144, 238, 144, 0.5); /* light green */
-    transition: background-color 0.5s ease;
+#sudoku-parent-grid button:checked {
+    background-color: #e0c6a3;
 }
 
-.entry-cell.wrong {
-    background-color: rgba(255, 99, 71, 0.4);   /* light red */
+#sudoku-parent-grid button.entry-cell.highlight,
+#sudoku-parent-grid button.clue-cell.highlight {
+    background-color: #897266;
+    box-shadow: 0 0 12px #d2a56d28;
 }
 
-.conflict {
-  background-color: rgba(255, 0, 0, 0.2); /* light red */
-  animation: pulse 2s ease-in-out 1; /* longer duration, more pulses */
+#sudoku-parent-grid button.entry-cell.correct {
+    background-color: rgba(0, 255, 0, 0.3);
 }
 
-@keyframes pulse {
-  0%   { background-color: rgba(255, 0, 0, 0.2); }
-  50%  { background-color: rgba(255, 0, 0, 0.4); }
-  100% { background-color: rgba(255, 0, 0, 0.2); }
+#sudoku-parent-grid button.entry-cell.wrong {
+    background-color: rgba(255, 0, 0, 0.3);
 }
 
-.entry-cell, .clue-cell {
-    color: #E6C4B3;
-    border-color: #444;
-    background-color: transparent;
+#sudoku-parent-grid button.entry-cell.correct.highlight {
+    background-color: rgba(0, 255, 0, 0.3);
 }
 
-.top-border    { border-top-color: #a37d6b; }
-.left-border   { border-left-color: #a37d6b; }
-.right-border  { border-right-color: #a37d6b; }
-.bottom-border { border-bottom-color: #a37d6b; }
-
-.entry-cell.highlight, .clue-cell.highlight {
-    background-color: rgba(230, 196, 179, 0.25);
+#sudoku-parent-grid button.entry-cell.wrong.highlight {
+    background-color: rgba(255, 0, 0, 0.3);
 }
 
-.entry-cell.correct {
-    background-color: rgba(144, 238, 144, 0.5);
-}
-.entry-cell.wrong {
-    background-color: rgba(255, 99, 71, 0.4);
-}
-.conflict {
+#sudoku-parent-grid button.conflict {
     background-color: rgba(255, 0, 0, 0.2);
-    animation: pulse 2s ease-in-out 1;
 }
 
 @keyframes pulse {
-  0%   { background-color: rgba(255, 0, 0, 0.2); }
-  50%  { background-color: rgba(255, 0, 0, 0.4); }
-  100% { background-color: rgba(255, 0, 0, 0.2); }
+    20% { background-color: rgba(255, 0, 0, 0.4); }
+    80% { background-color: rgba(255, 0, 0, 0.4); }
 }
-
-/* Pencil notes */
-.notes-grid {
-    padding: 1px;
-}
-
-.note-cell-label {
-    font-size: 13px;
-    color: #f5e2d3;  /* warm off-white for readability */
-    padding: 1px;
-}
-
-/* Pencil toggle button */
-#pencil_toggle_button {
-    background-color: transparent;
-    box-shadow: none;
-    border: none;
-}
-
-#pencil_toggle_button:hover,
-#pencil_toggle_button:checked,
-#pencil_toggle_button:active {
-    background-color: transparent;
-    box-shadow: none;
-    border: none;
-}
-
-.finished-label {
-    font-size: 1.4em;
-    font-weight: bold;
-}
-
