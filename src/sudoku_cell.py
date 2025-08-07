@@ -37,12 +37,6 @@ class SudokuCell(Gtk.Button):
         self._setup_ui()
         self._setup_initial_state(value)
 
-    def _force_fixed_size(self, widget, allocation):
-        # Force the widget to be exactly 30x30
-        allocation.width = 30
-        allocation.height = 30
-        widget.size_allocate(allocation)
-
     def _setup_ui(self):
         self.main_label = Gtk.Label(xalign=0.5, yalign=0.5)
         self.main_label.set_halign(Gtk.Align.CENTER)
@@ -74,18 +68,10 @@ class SudokuCell(Gtk.Button):
         self.set_halign(Gtk.Align.FILL)
         self.set_valign(Gtk.Align.FILL)
 
-        # Remove set_size_request
-
         # Disable focus on click and relief to avoid padding difference
         self.set_focus_on_click(False)
         self.set_can_focus(True)
         self.get_style_context().add_class("sudoku-cell-button")
-
-    def do_get_preferred_width(self):
-        return 30, 30
-
-    def do_get_preferred_height(self):
-        return 30, 30
 
     def _setup_initial_state(self, value: str):
         """Setup initial cell state based on value."""
