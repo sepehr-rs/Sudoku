@@ -84,8 +84,8 @@ class GameManager:
 
         # Parent grid (3x3) holding 9 blocks
         parent_grid = Gtk.Grid(
-            row_spacing=6,
-            column_spacing=6,
+            row_spacing=10,
+            column_spacing=10,
             column_homogeneous=True,
             row_homogeneous=True,
         )
@@ -96,8 +96,8 @@ class GameManager:
         for block_row in range(3):
             for block_col in range(3):
                 block = Gtk.Grid(
-                    row_spacing=2,
-                    column_spacing=2,
+                    row_spacing=4,
+                    column_spacing=4,
                     column_homogeneous=True,
                     row_homogeneous=True,
                 )
