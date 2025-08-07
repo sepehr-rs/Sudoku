@@ -26,10 +26,9 @@
 
 #sudoku-parent-grid button.entry-cell.highlight,
 #sudoku-parent-grid button.clue-cell.highlight {
-    background-color: #725648;
+    background-color: #897266;
     box-shadow: 0 0 12px #d2a56d28;
 }
-
 
 #sudoku-parent-grid button.entry-cell.correct {
     background-color: rgba(0, 255, 0, 0.3);
