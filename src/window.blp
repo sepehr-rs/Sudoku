@@ -13,8 +13,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
-      title-widget: Label {
-        label: _("Sudoku Game");
+      title-widget: Adw.WindowTitle {
+        title: _("Sudoku Game");
       };
 
       [end]
@@ -32,27 +32,55 @@ template $SudokuWindow: Adw.ApplicationWindow {
     }
 
     content: Adw.ViewStack stack {
-      Box main_menu_box {
-        orientation: vertical;
-        halign: center;
-        valign: center;
-        hexpand: true;
-        vexpand: true;
-        spacing: 24;
-        margin-top: 24;
-        margin-bottom: 24;
-        margin-start: 24;
-        margin-end: 24;
+      
+      ScrolledWindow {
+        hscrollbar-policy: never;
 
-        Button continue_button {
-          label: _("_Continue Game");
-          use-underline: true;
-        }
+        child: Adw.Clamp {
+          child: Box {
+            orientation: vertical;
+            valign: center;
+            margin-bottom: 24;
 
-        Button new_game_button {
-          label: _("_New Game");
-          use-underline: true;
-        }
+            Adw.StatusPage overlay_placeholder {
+              icon-name: "io.github.sepehr_rs.LibreSudoku";
+              valign: center;
+            }
+
+            Label {
+              label: _("Sudoku Game");
+              styles [
+                "title-1",
+              ]
+            }
+
+            Box main_menu_box {
+              orientation: vertical;
+              halign: center;
+              valign: center;
+              hexpand: true;
+              vexpand: true;
+              margin-top: 24;
+              spacing: 12;
+
+              Button continue_button {
+                label: _("_Continue Game");
+                use-underline: true;
+                styles [
+                  "pill",
+                ]
+              }
+
+              Button new_game_button {
+                label: _("_New Game");
+                use-underline: true;
+                styles [
+                  "pill",
+                ]
+              }
+            }
+          };
+        };
       }
 
       Box game_view_box {

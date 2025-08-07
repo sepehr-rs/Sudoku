@@ -2,6 +2,10 @@
     background-color: #d2a56d;
 }
 
+statuspage image {
+    -gtk-icon-size: 256px;
+}
+
 #sudoku-parent-grid {
     background-color: #ffffff27;
     padding: 50px;
@@ -70,5 +74,6 @@
 }
 
 .note-cell-label {
-    font-size: 10px;
+    font-size: 11px;
+    padding: 0.8px;
 }
