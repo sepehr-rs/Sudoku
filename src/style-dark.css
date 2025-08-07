@@ -76,19 +76,6 @@
     font-weight: bold;
 }
 
-.top-border {
-    margin-top: 3px;
-}
-.left-border {
-    margin-left: 3px;
-}
-.right-border {
-    margin-right: 3px;
-}
-.bottom-border {
-    margin-bottom: 3px;
-}
-
 .sudoku-cell-button {
     min-width: 40px;
     min-height: 40px;

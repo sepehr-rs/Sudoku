@@ -19,8 +19,6 @@
 
 from gi.repository import Gtk
 
-from .game_board import BLOCK_SIZE
-
 
 class SudokuCell(Gtk.Button):
     """Individual Sudoku cell widget with main value and notes display."""
@@ -38,7 +36,6 @@ class SudokuCell(Gtk.Button):
 
         self._setup_ui()
         self._setup_initial_state(value)
-        self._add_border_classes()
 
     def _force_fixed_size(self, widget, allocation):
         # Force the widget to be exactly 30x30
@@ -160,15 +157,3 @@ class SudokuCell(Gtk.Button):
     def unhighlight(self, class_name: str):
         """Remove a highlight class from the cell."""
         self.get_style_context().remove_class(class_name)
-
-    def _add_border_classes(self):
-        """Add border classes based on cell position."""
-        context = self.get_style_context()
-        if self.row % BLOCK_SIZE == 0:
-            context.add_class("top-border")
-        if self.col % BLOCK_SIZE == 0:
-            context.add_class("left-border")
-        if (self.col + 1) % BLOCK_SIZE == 0:
-            context.add_class("right-border")
-        if (self.row + 1) % BLOCK_SIZE == 0:
-            context.add_class("bottom-border")
