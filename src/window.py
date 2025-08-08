@@ -31,7 +31,7 @@ from .game_manager import GameManager
 from .ui_helpers import UIHelpers
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/LibreSudoku/window.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
     """Main application window."""
 

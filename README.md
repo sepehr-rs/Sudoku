@@ -1,12 +1,12 @@
-[license-url]: https://github.com/sepehr-rs/LibreSudoku/blob/master/COPYING
-[license-image]: https://img.shields.io/github/license/sepehr-rs/LibreSudoku.svg?style=for-the-badge
-[issues-url]: https://github.com/sepehr-rs/LibreSudoku/issues
-[issues-image]: https://img.shields.io/github/issues/sepehr-rs/LibreSudoku?style=for-the-badge
+[license-url]: https://github.com/sepehr-rs/Sudoku/blob/master/COPYING
+[license-image]: https://img.shields.io/github/license/sepehr-rs/Sudoku.svg?style=for-the-badge
+[issues-url]: https://github.com/sepehr-rs/Sudoku/issues
+[issues-image]: https://img.shields.io/github/issues/sepehr-rs/Sudoku?style=for-the-badge
 
 <div align="center">
-  <img src="data/icons/hicolor/scalable/apps/io.github.sepehr_rs.LibreSudoku.svg" width="128" height="128">
+  <img src="data/icons/hicolor/scalable/apps/io.github.sepehr_rs.Sudoku.svg" width="128" height="128">
 
-  # LibreSudoku
+  # Sudoku
 
   **Solve Sudoku puzzles**
 
@@ -14,12 +14,12 @@
   [![Issues][issues-image]][issues-url]
 
 
-  <img src="data/screenshots/libresudoku-dark.png">
+  <img src="data/screenshots/sudoku-dark.png">
 </div>
 
 ## Description
 
-LibreSudoku is a modern Sudoku app focused on delivering a clean, distraction-free experience. Designed with simplicity and comfort in mind, it features a straightforward interface that helps players stay focused and enjoy the game without unnecessary clutter or complications.
+Sudoku is a modern Sudoku app focused on delivering a clean, distraction-free experience. Designed with simplicity and comfort in mind, it features a straightforward interface that helps players stay focused and enjoy the game without unnecessary clutter or complications.
 
 ## Features
 - Modern GTK4 and libadwaita interface
@@ -36,7 +36,7 @@ You can clone and run from GNOME Builder.
 
 
 ## Contribute
-We need your help to make LibreSudoku better!
+We need your help to make Sudoku better!
 There are lots of features that can be added, and we would love to see your contributions.
 
 If you want to contribute to this project, you can fork the repository and submit a pull request. You can also report a bug or request a feature by opening an issue.

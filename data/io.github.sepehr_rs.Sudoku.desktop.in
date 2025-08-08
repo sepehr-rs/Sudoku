@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Sudoku
+Name=sudokugame
 Exec=sudokugame
 Icon=io.github.sepehr_rs.Sudoku
 Terminal=false

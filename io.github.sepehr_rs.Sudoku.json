@@ -1,9 +1,9 @@
 {
-  "app-id": "io.github.sepehr_rs.LibreSudoku",
+  "app-id": "io.github.sepehr_rs.Sudoku",
   "runtime": "org.gnome.Platform",
   "runtime-version": "master",
   "sdk": "org.gnome.Sdk",
-  "command": "libresudoku",
+  "command": "sudokugame",
   "finish-args": [
       "--share=network",
       "--share=ipc",
@@ -25,13 +25,13 @@
   "modules": [
       "python3-requirements.json",
       {
-          "name": "libresudoku",
+          "name": "sudokugame",
           "buildsystem": "meson",
           "builddir": true,
           "sources": [
               {
                   "type": "git",
-                  "url": "https://github.com/sepehr-rs/LibreSudoku.git"
+                  "url": "https://github.com/sepehr-rs/Sudoku.git"
               }
           ]
       }
