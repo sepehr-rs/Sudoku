@@ -8,16 +8,16 @@
 }
 
 #sudoku-parent-grid button {
-    background-color: #ffffff25;
+    background-color: rgba(224, 198, 163, 0.18);
 }
 
 #sudoku-parent-grid button.toggle-active {
     background-color: #e0c6a3;
-    box-shadow: 0 0 10px #e0c6a3;
+    box-shadow: 0 0 12px #e0c6a355;
 }
 
 #sudoku-parent-grid button:hover {
-    background-color: #ffffff40;
+    background-color: rgba(224, 198, 163, 0.28);
 }
 
 #sudoku-parent-grid button:checked {
@@ -31,26 +31,34 @@
 }
 
 #sudoku-parent-grid button.entry-cell.correct {
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: rgba(136, 163, 108, 0.45);
 }
 
 #sudoku-parent-grid button.entry-cell.wrong {
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(210, 120, 95, 0.52);
 }
 
 #sudoku-parent-grid button.entry-cell.correct.highlight {
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: rgba(168, 192, 128, 0.42);
 }
 
 #sudoku-parent-grid button.entry-cell.wrong.highlight {
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(226, 140, 110, 0.66);
 }
 
 #sudoku-parent-grid button.conflict {
-    background-color: rgba(255, 0, 0, 0.2);
+    background-color: rgba(210, 120, 95, 0.42);
 }
 
 @keyframes pulse {
-    20% { background-color: rgba(255, 0, 0, 0.4); }
-    80% { background-color: rgba(255, 0, 0, 0.4); }
+    20% { background-color: rgba(226, 140, 110, 0.66); }
+    80% { background-color: rgba(226, 140, 110, 0.66); }
+}
+
+.entry-cell, .clue-cell {
+    color: #f0e6db;
+}
+
+.note-cell-label {
+    color: #d9c3ae;
 }
