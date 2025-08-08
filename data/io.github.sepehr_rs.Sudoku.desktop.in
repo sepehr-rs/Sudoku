@@ -1,8 +1,9 @@
 [Desktop Entry]
 Name=sudokugame
+Comment=Solve Sudoku puzzles
 Exec=sudokugame
 Icon=io.github.sepehr_rs.Sudoku
 Terminal=false
 Type=Application
-Categories=GTK;
+Categories=GTK;Game;LogicGame;
 StartupNotify=true
