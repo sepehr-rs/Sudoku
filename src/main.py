@@ -72,9 +72,9 @@ class SudokuApplication(Adw.Application):
             transient_for=self.props.active_window,
             application_name="Sudoku",
             application_icon="io.github.sepehr_rs.Sudoku",
-            developer_name="sepehr",
-            version="0.2.2",
-            developers=["sepehr"],
+            developer_name="Sepehr",
+            version="1.0.0",
+            developers=["Sepehr","Revisto"],
             copyright="© 2025 sepehr",
         )
         about.present()
