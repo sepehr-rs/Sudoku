@@ -7,27 +7,27 @@ statuspage image {
 }
 
 #sudoku-parent-grid {
-    background-color: #ffffff27;
+    background-color: rgba(247, 233, 213, 0.22);
     padding: 50px;
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #sudoku-parent-grid button {
-    background-color: #ffffff65;
+    background-color: rgba(247, 233, 213, 0.45);
 }
 
 #sudoku-parent-grid button.toggle-active {
-    background-color: #ffffff;
-    box-shadow: 0 0 10px #ffffff;
+    background-color: #f1e2c8;
+    box-shadow: 0 0 10px #d2a56d88;
 }
 
 #sudoku-parent-grid button:hover {
-    background-color: #ffffffb0;
+    background-color: rgba(247, 233, 213, 0.70);
 }
 
 #sudoku-parent-grid button:checked {
-    background-color: #ffffff;
+    background-color: #f1e2c8;
 }
 
 .entry-cell, .clue-cell {
@@ -40,37 +40,37 @@ statuspage image {
 }
 
 #sudoku-parent-grid button.entry-cell.correct {
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: rgba(158, 188, 62, 0.52);
     transition: background-color 0.3s ease-in-out;
 }
 
 #sudoku-parent-grid button.entry-cell.wrong {
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(206, 106, 64, 0.50)
 }
 
 #sudoku-parent-grid button.entry-cell.correct.highlight {
-    background-color: rgba(0, 255, 0, 0.3);
+    background-color: rgba(180, 206, 80, 0.64);
 }
 
 #sudoku-parent-grid button.entry-cell.wrong.highlight {
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(226, 126, 86, 0.64);
 }
 
 #sudoku-parent-grid button.conflict {
-    background-color: rgba(255, 0, 0, 0.2);
+    background-color: rgba(206, 106, 64, 0.40);
     animation: pulse 3s;
 }
 
 #sudoku-parent-grid button.entry-cell.highlight,
 #sudoku-parent-grid button.clue-cell.highlight {
-    background-color: #ffffffb6;
-    box-shadow: 0 0 10px #ffffff79;
+    background-color: #f7ecd8;
+    box-shadow: 0 0 10px #d2a56d79;
     transition: background-color 0.3s ease-in-out;
 }
 
 @keyframes pulse {
-    20% { background-color: rgba(255, 0, 0, 0.4); }
-    80% { background-color: rgba(255, 0, 0, 0.4); }
+    20% { background-color: rgba(226, 126, 86, 0.64); }
+    80% { background-color: rgba(226, 126, 86, 0.64); }
 }
 
 .note-cell-label {
