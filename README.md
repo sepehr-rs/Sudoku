@@ -31,6 +31,9 @@ Sudoku is a modern Sudoku app focused on delivering a clean, distraction-free ex
 
 ## Install
 
+## Download from Flathub
+[![Download on Flathub](https://flathub.org/api/badge?svg&locale=en)](https://flathub.org/apps/io.github.sepehr_rs.Sudoku)
+
 ### Build from source
 You can clone and run from GNOME Builder.
 
