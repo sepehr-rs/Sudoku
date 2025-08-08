@@ -1,5 +1,5 @@
 [license-url]: https://github.com/sepehr-rs/Sudoku/blob/master/COPYING
-[license-image]: https://img.shields.io/github/license/sepehr-rs/Sudoku.svg?style=for-the-badge
+[license-image]: https://img.shields.io/github/license/sepehr-rs/sudoku.svg?style=for-the-badge
 [issues-url]: https://github.com/sepehr-rs/Sudoku/issues
 [issues-image]: https://img.shields.io/github/issues/sepehr-rs/Sudoku?style=for-the-badge
 
