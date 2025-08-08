@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Sudoku
-Exec=sudokugame
-Icon=io.github.sepehr_rs.Sudoku
-Terminal=false
-Type=Application
-Categories=GTK;
-StartupNotify=true
