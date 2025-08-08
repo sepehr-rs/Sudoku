@@ -1,5 +1,5 @@
 {
-  "app-id": "io.github.sepehr_rs.LibreSudoku",
+  "app-id": "io.github.sepehr_rs.Sudoku",
   "runtime": "org.gnome.Platform",
   "runtime-version": "master",
   "sdk": "org.gnome.Sdk",
@@ -31,7 +31,7 @@
           "sources": [
               {
                   "type": "git",
-                  "url": "https://github.com/sepehr-rs/LibreSudoku.git"
+                  "url": "https://github.com/sepehr-rs/Sudoku.git"
               }
           ]
       }

@@ -41,7 +41,7 @@ class SudokuApplication(Adw.Application):
 
     def __init__(self):
         super().__init__(
-            application_id="io.github.sepehr_rs.LibreSudoku",
+            application_id="io.github.sepehr_rs.Sudoku",
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
         self.create_action("quit", self.quit, ["<primary>q"])
@@ -71,7 +71,7 @@ class SudokuApplication(Adw.Application):
         about = Adw.AboutWindow(
             transient_for=self.props.active_window,
             application_name="sudoku",
-            application_icon="io.github.sepehr_rs.LibreSudoku",
+            application_icon="io.github.sepehr_rs.Sudoku",
             developer_name="sepehr",
             version="0.2.2",
             developers=["sepehr"],

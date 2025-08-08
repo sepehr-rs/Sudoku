@@ -39,6 +39,6 @@ jobs:
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: "libresudoku-devel.flatpak"
-          manifest-path: "io.github.sepehr_rs.LibreSudoku.Devel.json"
+          manifest-path: "io.github.sepehr_rs.Sudoku.Devel.json"
           run-tests: "true"
           cache-key: flatpak-builder-${{ github.sha }}

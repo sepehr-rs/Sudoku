@@ -1,4 +1,4 @@
-application_id = 'io.github.sepehr_rs.LibreSudoku'
+application_id = 'io.github.sepehr_rs.Sudoku'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(

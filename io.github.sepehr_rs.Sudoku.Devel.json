@@ -1,5 +1,5 @@
 {
-  "id": "io.github.sepehr_rs.LibreSudoku.Devel",
+  "id": "io.github.sepehr_rs.Sudoku.Devel",
   "runtime": "org.gnome.Platform",
   "runtime-version": "master",
   "sdk": "org.gnome.Sdk",
@@ -11,7 +11,7 @@
     "--socket=wayland",
     "--device=dri",
     "--filesystem=home",
-    "--own-name=io.github.sepehr_rs.LibreSudoku"
+    "--own-name=io.github.sepehr_rs.Sudoku"
   ],
   "modules": [
     "python3-requirements.json",

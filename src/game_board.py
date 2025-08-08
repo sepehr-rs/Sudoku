@@ -31,7 +31,7 @@ MEDIUM_DIFFICULTY = 0.5
 HARD_DIFFICULTY = 0.7
 EXTREME_DIFFICULTY = 0.9
 
-APP_ID = "io.github.sepehr_rs.LibreSudoku"
+APP_ID = "io.github.sepehr_rs.Sudoku"
 data_dir = os.path.expanduser("~/.local/share")
 save_dir = os.path.join(data_dir, APP_ID)
 os.makedirs(save_dir, exist_ok=True)

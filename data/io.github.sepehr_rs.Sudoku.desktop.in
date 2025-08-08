@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=libresudoku
 Exec=libresudoku
-Icon=io.github.sepehr_rs.LibreSudoku
+Icon=io.github.sepehr_rs.Sudoku
 Terminal=false
 Type=Application
 Categories=GTK;

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/sepehr_rs/LibreSudoku">
+  <gresource prefix="/io/github/sepehr_rs/Sudoku">
     <file alias="style.css">style.css</file>
     <file alias="style-dark.css">style-dark.css</file>
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
 
-  <gresource prefix="io/github/sepehr_rs/LibreSudoku/icons/scalable/actions/">
+  <gresource prefix="io/github/sepehr_rs/Sudoku/icons/scalable/actions/">
     <file preprocess="xml-stripblanks" alias="pencil-symbolic.svg">../data/icons/hicolor/scalable/actions/pencil-symbolic.svg</file>
 
   </gresource>
