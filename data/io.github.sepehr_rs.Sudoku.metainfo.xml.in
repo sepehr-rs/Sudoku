@@ -26,11 +26,11 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/sudokugame.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/sudoku.png</image>
       <caption>LibreSudoku in light mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/sudokugame-dark.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/sudoku-dark.png</image>
       <caption>LibreSudoku in dark mode</caption>
     </screenshot>
   </screenshots>
