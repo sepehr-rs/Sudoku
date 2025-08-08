@@ -70,7 +70,7 @@ class SudokuApplication(Adw.Application):
         """Callback for the app.about action."""
         about = Adw.AboutWindow(
             transient_for=self.props.active_window,
-            application_name="sudoku",
+            application_name="Sudoku",
             application_icon="io.github.sepehr_rs.Sudoku",
             developer_name="sepehr",
             version="0.2.2",
