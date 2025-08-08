@@ -32,15 +32,14 @@ template $SudokuWindow: Adw.ApplicationWindow {
     }
 
     content: Adw.ViewStack stack {
-      
-      ScrolledWindow {
+      ScrolledWindow main_menu_box {
         hscrollbar-policy: never;
 
         child: Adw.Clamp {
-          child: Box {
+          child: Box main_menu_page_box {
             orientation: vertical;
-            valign: center;
             margin-bottom: 24;
+            valign: center;
 
             Adw.StatusPage overlay_placeholder {
               icon-name: "io.github.sepehr_rs.LibreSudoku";
@@ -49,23 +48,25 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
             Label {
               label: _("Sudoku Game");
+
               styles [
                 "title-1",
               ]
             }
 
-            Box main_menu_box {
+            Box menu_box {
               orientation: vertical;
-              halign: center;
+              spacing: 12;
+              margin-top: 24;
               valign: center;
+              halign: center;
               hexpand: true;
               vexpand: true;
-              margin-top: 24;
-              spacing: 12;
 
               Button continue_button {
                 label: _("_Continue Game");
                 use-underline: true;
+
                 styles [
                   "pill",
                 ]
@@ -74,6 +75,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
               Button new_game_button {
                 label: _("_New Game");
                 use-underline: true;
+
                 styles [
                   "pill",
                 ]
@@ -118,14 +120,17 @@ menu main_menu {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
     }
+
     item {
       label: _("How to play");
       action: "app.how_to_play";
     }
+
     item {
       label: _("_About");
       action: "app.about";
     }
+
     item {
       label: _("_Quit");
       action: "app.quit";
