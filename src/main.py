@@ -74,7 +74,7 @@ class SudokuApplication(Adw.Application):
             application_icon="io.github.sepehr_rs.Sudoku",
             developer_name="Sepehr",
             version="1.0.0",
-            developers=["Sepehr","Revisto"],
+            developers=["Sepehr", "Revisto"],
             copyright="© 2025 sepehr",
         )
         about.present()
