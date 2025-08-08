@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>io.github.sepehr_rs.Sudoku.desktop</id>
+  <id>io.github.sepehr_rs.Sudoku</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
 
@@ -66,6 +66,23 @@
     <name>Sepehr RS</name>
     <email>sepehrrasouli06_at_gmail.com</email>
   </developer>
+
+  <releases>
+    <release version="1.0.0" date="2025-08-08">
+      <description>
+        <p>First stable release of Sudoku! A modern GTK4/libadwaita application for playing Sudoku puzzles.</p>
+        <p>Features:</p>
+        <ul>
+          <li>Modern GTK4 and libadwaita interface</li>
+          <li>Keyboard shortcuts for quick access to all functions</li>
+          <li>Save and load games seamlessly to continue your progress anytime</li>
+          <li>Highlight active row and cell to improve focus and ease of play</li>
+          <li>Conflict highlighting to help identify mistakes, ideal for beginners</li>
+          <li>Suitable for all skill levels, from beginners to experts</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
 
   <supports>
     <control>keyboard</control>
