@@ -3,7 +3,7 @@
   "runtime": "org.gnome.Platform",
   "runtime-version": "master",
   "sdk": "org.gnome.Sdk",
-  "command": "libresudoku",
+  "command": "sudokugame",
   "finish-args": [
       "--share=network",
       "--share=ipc",
@@ -25,7 +25,7 @@
   "modules": [
       "python3-requirements.json",
       {
-          "name": "libresudoku",
+          "name": "sudokugame",
           "buildsystem": "meson",
           "builddir": true,
           "sources": [

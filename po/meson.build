@@ -1,1 +1,1 @@
-i18n.gettext('libresudoku', preset: 'glib')
+i18n.gettext('sudokugame', preset: 'glib')

@@ -1,5 +1,5 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
-moduledir = join_paths(pkgdatadir, 'libresudoku')
+moduledir = join_paths(pkgdatadir, 'sudokugame')
 gnome = import('gnome')
 python = import('python')
 
@@ -18,8 +18,8 @@ compiled_blueprints = custom_target('compiled_blueprints',
   command: [blueprint_compiler, 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@']
 )
 
-gnome.compile_resources('libresudoku',
-  'libresudoku.gresource.xml',
+gnome.compile_resources('sudokugame',
+  'sudokugame.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -34,8 +34,8 @@ conf.set('localedir', join_paths(get_option('prefix'), get_option('localedir')))
 conf.set('pkgdatadir', pkgdatadir)
 
 configure_file(
-  input: 'libresudoku.in',
-  output: 'libresudoku',
+  input: 'sudokugame.in',
+  output: 'sudokugame',
   configuration: conf,
   install: true,
   install_dir: get_option('bindir')

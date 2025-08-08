@@ -26,11 +26,11 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/libresudoku.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/sudokugame.png</image>
       <caption>LibreSudoku in light mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/libresudoku-dark.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/LibreSudoku/refs/heads/master/data/screenshots/sudokugame-dark.png</image>
       <caption>LibreSudoku in dark mode</caption>
     </screenshot>
   </screenshots>
@@ -55,7 +55,7 @@
     <keyword>numbers</keyword>
   </keywords>
 
-  <translation type="gettext">libresudoku</translation>
+  <translation type="gettext">sudokugame</translation>
   <launchable type="desktop-id">io.github.sepehr_rs.LibreSudoku.desktop</launchable>
   <url type="homepage">https://github.com/sepehr-rs/LibreSudoku</url>
   <url type="bugtracker">https://github.com/sepehr-rs/LibreSudoku/issues</url>

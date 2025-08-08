@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=libresudoku
-Exec=libresudoku
+Name=sudokugame
+Exec=sudokugame
 Icon=io.github.sepehr_rs.Sudoku
 Terminal=false
 Type=Application
