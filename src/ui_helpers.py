@@ -19,6 +19,7 @@
 
 from gi.repository import Gtk, Gdk, GLib
 from .game_board import GRID_SIZE, BLOCK_SIZE
+from gettext import gettext as _
 
 
 class UIHelpers:
@@ -97,6 +98,7 @@ class UIHelpers:
                     )
                 ):
                     cell.highlight("conflict")
+                    cell.set_tooltip_text(_("1"))
                     conflict_cells.append(cell)
 
         return conflict_cells

@@ -19,6 +19,7 @@
 
 from gi.repository import Adw, Gtk
 from functools import partial
+from gettext import gettext as _
 
 from .game_board import (
     GameBoard,
