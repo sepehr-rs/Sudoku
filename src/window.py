@@ -90,8 +90,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         # Setup buttons
         self.continue_button.set_sensitive(GameBoard.has_saved_game())
         self.continue_button.connect("clicked", self.on_continue_clicked)
+        self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
-
+        self.new_game_button.set_tooltip_text(_("New Game"))
         # Setup pencil button
         self.pencil_toggle_button.set_active(False)
         self.pencil_toggle_button.connect(
@@ -146,6 +147,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         for label, difficulty in difficulties:
             button = Gtk.Button(label=label)
+            button.set_tooltip_text(_(f"{label}"))
             button.connect("clicked", partial(self.on_difficulty_selected, difficulty))
             box.append(button)
 

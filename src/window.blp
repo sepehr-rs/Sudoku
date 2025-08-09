@@ -48,6 +48,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
             Label {
               label: _("Sudoku Game");
+              tooltip-text: _("Sudoku Game");
 
               styles [
                 "title-1",
@@ -66,6 +67,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
               Button continue_button {
                 label: _("_Continue Game");
                 use-underline: true;
+                tooltip-text: _("Continue Game");
 
                 styles [
                   "pill",
@@ -75,6 +77,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
               Button new_game_button {
                 label: _("_New Game");
                 use-underline: true;
+                tooltip-text: _("New Game");
 
                 styles [
                   "pill",
@@ -112,6 +115,7 @@ menu main_menu {
     item {
       label: _("_Back to Main Menu");
       action: "win.back-to-menu";
+      tooltip-text: _("Back to main menu");
     }
   }
 
@@ -119,21 +123,25 @@ menu main_menu {
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
+      tooltip-text: _("Keyboard shortcuts");
     }
 
     item {
       label: _("How to play");
       action: "app.how_to_play";
+      tooltip-text: _("How to play");
     }
 
     item {
       label: _("_About");
       action: "app.about";
+      tooltip-text: _("About");
     }
 
     item {
       label: _("_Quit");
       action: "app.quit";
+      tooltip-text: _("Quit");
     }
   }
 }
