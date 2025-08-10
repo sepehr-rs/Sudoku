@@ -19,6 +19,8 @@
 import logging
 from gi.repository import Gtk, Gdk, GLib, Gio
 
+from gettext import gettext as _
+
 from .game_board import GameBoard, GRID_SIZE
 from .sudoku_cell import SudokuCell
 from .ui_helpers import UIHelpers
@@ -114,7 +116,8 @@ class GameManager:
                 value = self.game_board.puzzle[row][col]
                 editable = not self.game_board.is_clue(row, col)
                 cell = SudokuCell(row, col, value, editable)
-                cell.set_tooltip_text(f"{value if value else "Empty"}")
+                if not value:
+                    cell.set_tooltip_text(_("Empty"))
 
                 # Gesture click controller
                 gesture = Gtk.GestureClick.new()
@@ -141,8 +144,8 @@ class GameManager:
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
         frame.set_hexpand(True)
         frame.set_vexpand(True)
-        frame.set_halign(Gtk.Align.FILL)   # ensure fills horizontal space
-        frame.set_valign(Gtk.Align.FILL)   # ensure fills vertical space
+        frame.set_halign(Gtk.Align.FILL)  # ensure fills horizontal space
+        frame.set_valign(Gtk.Align.FILL)  # ensure fills vertical space
         frame.set_child(parent_grid)
 
         self.window.grid_container.append(frame)
