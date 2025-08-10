@@ -114,6 +114,7 @@ class GameManager:
                 value = self.game_board.puzzle[row][col]
                 editable = not self.game_board.is_clue(row, col)
                 cell = SudokuCell(row, col, value, editable)
+                cell.set_tooltip_text(f"{value if value else "Empty"}")
 
                 # Gesture click controller
                 gesture = Gtk.GestureClick.new()
