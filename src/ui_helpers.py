@@ -189,12 +189,10 @@ class UIHelpers:
         )
 
         label = Gtk.Label(label="Puzzle Finished")
-        label.set_tooltip_text("Puzzle Finished")
         label.set_margin_bottom(12)
         label.get_style_context().add_class("finished-label")
 
         back_button = Gtk.Button(label="Back to Main Menu")
-        back_button.set_tooltip_text("Back to Main Menu")
         back_button.connect("clicked", callback)
 
         dialog_box.append(label)

@@ -22,12 +22,14 @@ template $SudokuWindow: Adw.ApplicationWindow {
         Image {
           icon-name: "pencil-symbolic";
         }
+        tooltip-text: _("Toggle Pencil Mode");
       }
 
       [end]
       MenuButton {
         icon-name: "open-menu-symbolic";
         menu-model: main_menu;
+        tooltip-text: _("Menu");
       }
     }
 
@@ -44,6 +46,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
             Adw.StatusPage overlay_placeholder {
               icon-name: "io.github.sepehr_rs.Sudoku";
               valign: center;
+              tooltip-text: _("Sudoku Game Icon");
             }
 
             Label {
@@ -67,7 +70,6 @@ template $SudokuWindow: Adw.ApplicationWindow {
               Button continue_button {
                 label: _("_Continue Game");
                 use-underline: true;
-                tooltip-text: _("Continue Game");
 
                 styles [
                   "pill",
@@ -77,7 +79,6 @@ template $SudokuWindow: Adw.ApplicationWindow {
               Button new_game_button {
                 label: _("_New Game");
                 use-underline: true;
-                tooltip-text: _("New Game");
 
                 styles [
                   "pill",
