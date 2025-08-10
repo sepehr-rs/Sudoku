@@ -148,7 +148,9 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         for label, difficulty in difficulties:
             button = Gtk.Button(label=label)
-            button.set_tooltip_text(_("Start new game with {} difficulty").format(label.lower()))
+            button.set_tooltip_text(
+                _("Start new game with {} difficulty").format(label.lower())
+            )
             button.connect("clicked", partial(self.on_difficulty_selected, difficulty))
             box.append(button)
 
