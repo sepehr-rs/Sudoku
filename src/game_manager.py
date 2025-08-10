@@ -77,6 +77,7 @@ class GameManager:
                     cell.set_value(str(value))
                     if str(value) != self.game_board.get_correct_value(row, col):
                         cell.highlight("wrong")
+                        cell.set_tooltip_text(_("Wrong"))
                 cell.update_notes(notes)
 
     def build_grid(self):
@@ -116,8 +117,6 @@ class GameManager:
                 value = self.game_board.puzzle[row][col]
                 editable = not self.game_board.is_clue(row, col)
                 cell = SudokuCell(row, col, value, editable)
-                if not value:
-                    cell.set_tooltip_text(_("Empty"))
 
                 # Gesture click controller
                 gesture = Gtk.GestureClick.new()
@@ -162,6 +161,7 @@ class GameManager:
             cell.update_notes(set())
         else:
             cell.set_value("")
+            cell.set_tooltip_text("")
             UIHelpers.clear_feedback_classes(cell.get_style_context())
             self.game_board.set_input(row, col, None)
         self.game_board.save_to_file()
