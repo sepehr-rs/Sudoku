@@ -250,6 +250,8 @@ class GameManager:
             new_row, new_col = row + d_row, col + d_col
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
+            else:
+                return False
             return True
 
         cell = self.cell_inputs[row][col]
