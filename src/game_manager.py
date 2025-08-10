@@ -208,7 +208,7 @@ class GameManager:
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 
-        clear_button = Gtk.Button(label="Clear")
+        clear_button = Gtk.Button(label="Clear Cell")
         clear_button.set_size_request(40 * 3 + 10, 40)
         clear_button.connect("clicked", self.on_clear_selected, cell, popover)
         grid.attach(clear_button, 0, 3, 3, 1)
