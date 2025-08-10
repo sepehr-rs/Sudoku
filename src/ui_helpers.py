@@ -98,7 +98,6 @@ class UIHelpers:
                     )
                 ):
                     cell.highlight("conflict")
-                    cell.set_tooltip_text(_("1"))
                     conflict_cells.append(cell)
 
         return conflict_cells
@@ -121,12 +120,17 @@ class UIHelpers:
         cell, number: str, correct: str, conflict_cells: list, cell_inputs: list
     ):
         """Handle cell correctness feedback."""
+        def remove_tooltip(cell):
+            cell.set_tooltip_text(f"{number}")
         if number == correct:
             cell.editable = False
             cell.highlight("correct")
+            cell.set_tooltip_text(_("correct"))
+            GLib.timeout_add(3000, lambda: remove_tooltip(cell))
             GLib.timeout_add(3000, lambda: cell.unhighlight("correct"))
         else:
             cell.highlight("wrong")
+            cell.set_tooltip_text(_("wrong"))
             new_conflicts = UIHelpers.highlight_conflicts(
                 cell_inputs, cell.row, cell.col, number
             )
