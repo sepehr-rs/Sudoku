@@ -19,6 +19,7 @@
 
 from gi.repository import Gtk, Gdk, GLib
 from .game_board import GRID_SIZE, BLOCK_SIZE
+from gettext import gettext as _
 
 
 class UIHelpers:
@@ -122,9 +123,12 @@ class UIHelpers:
         if number == correct:
             cell.editable = False
             cell.highlight("correct")
+            cell.set_tooltip_text(_("Correct"))
             GLib.timeout_add(3000, lambda: cell.unhighlight("correct"))
+            GLib.timeout_add(3000, lambda: cell.set_tooltip_text(""))
         else:
             cell.highlight("wrong")
+            cell.set_tooltip_text(_("Wrong"))
             new_conflicts = UIHelpers.highlight_conflicts(
                 cell_inputs, cell.row, cell.col, number
             )

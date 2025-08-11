@@ -22,12 +22,14 @@ template $SudokuWindow: Adw.ApplicationWindow {
         Image {
           icon-name: "pencil-symbolic";
         }
+        tooltip-text: _("Toggle Pencil Mode");
       }
 
       [end]
       MenuButton {
         icon-name: "open-menu-symbolic";
         menu-model: main_menu;
+        tooltip-text: _("Menu");
       }
     }
 
@@ -44,10 +46,12 @@ template $SudokuWindow: Adw.ApplicationWindow {
             Adw.StatusPage overlay_placeholder {
               icon-name: "io.github.sepehr_rs.Sudoku";
               valign: center;
+              tooltip-text: _("Sudoku Game Icon");
             }
 
             Label {
               label: _("Sudoku Game");
+              tooltip-text: _("Sudoku Game");
 
               styles [
                 "title-1",
@@ -112,6 +116,7 @@ menu main_menu {
     item {
       label: _("_Back to Main Menu");
       action: "win.back-to-menu";
+      tooltip-text: _("Back to main menu");
     }
   }
 
@@ -119,21 +124,25 @@ menu main_menu {
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";
+      tooltip-text: _("Keyboard shortcuts");
     }
 
     item {
       label: _("How to play");
       action: "app.how_to_play";
+      tooltip-text: _("How to play");
     }
 
     item {
       label: _("_About");
       action: "app.about";
+      tooltip-text: _("About");
     }
 
     item {
       label: _("_Quit");
       action: "app.quit";
+      tooltip-text: _("Quit");
     }
   }
 }

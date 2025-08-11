@@ -19,6 +19,8 @@
 import logging
 from gi.repository import Gtk, Gdk, GLib, Gio
 
+from gettext import gettext as _
+
 from .game_board import GameBoard, GRID_SIZE
 from .sudoku_cell import SudokuCell
 from .ui_helpers import UIHelpers
@@ -75,6 +77,7 @@ class GameManager:
                     cell.set_value(str(value))
                     if str(value) != self.game_board.get_correct_value(row, col):
                         cell.highlight("wrong")
+                        cell.set_tooltip_text(_("Wrong"))
                 cell.update_notes(notes)
 
     def build_grid(self):
@@ -140,8 +143,8 @@ class GameManager:
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
         frame.set_hexpand(True)
         frame.set_vexpand(True)
-        frame.set_halign(Gtk.Align.FILL)   # ensure fills horizontal space
-        frame.set_valign(Gtk.Align.FILL)   # ensure fills vertical space
+        frame.set_halign(Gtk.Align.FILL)  # ensure fills horizontal space
+        frame.set_valign(Gtk.Align.FILL)  # ensure fills vertical space
         frame.set_child(parent_grid)
 
         self.window.grid_container.append(frame)
@@ -158,6 +161,7 @@ class GameManager:
             cell.update_notes(set())
         else:
             cell.set_value("")
+            cell.set_tooltip_text("")
             UIHelpers.clear_feedback_classes(cell.get_style_context())
             self.game_board.set_input(row, col, None)
         self.game_board.save_to_file()
@@ -204,7 +208,7 @@ class GameManager:
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 
-        clear_button = Gtk.Button(label="Clear")
+        clear_button = Gtk.Button(label="Clear Cell")
         clear_button.set_size_request(40 * 3 + 10, 40)
         clear_button.connect("clicked", self.on_clear_selected, cell, popover)
         grid.attach(clear_button, 0, 3, 3, 1)
@@ -246,6 +250,8 @@ class GameManager:
             new_row, new_col = row + d_row, col + d_col
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
+            else:
+                return False
             return True
 
         cell = self.cell_inputs[row][col]
