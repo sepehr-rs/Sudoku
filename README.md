@@ -46,6 +46,12 @@ If you want to contribute to this project, you can fork the repository and submi
 
 Your contributions are extremely welcome and appreciated.
 
+## Credits
+
+Developed by **[SepehrRS](https://github.com/sepehr-rs)**
+
+Special thanks to **[Revisto](https://github.com/revisto)** for his key contributions to the project and for raising the bar in every aspect.
+
 ## License
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
