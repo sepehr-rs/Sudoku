@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns="http://usefulinc.com/ns/doap#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns:dc="http://purl.org/dc/terms/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <name>Sudoku</name>
+  <shortdesc>Solve puzzles in style.</shortdesc>
+  <description>
+    Sudoku is a modern Sudoku app focused on delivering a clean, distraction-free experience. Designed with simplicity and comfort in mind, it features a straightforward interface that helps players stay focused and enjoy the game without unnecessary clutter or complications.
+  </description>
+  <homepage rdf:resource="https://github.com/sepehr-rs/Sudoku"/>
+  <created>2025-08-12</created>
+  <programming-language>Python</programming-language>
+  <license rdf:resource="https://www.gnu.org/licenses/gpl-3.0.html"/>
+  <platform>GTK 4</platform>
+  <platform>Libadwaita</platform>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Sepehr</foaf:name>
+      <foaf:mbox rdf:resource="mailto:sepehrrasouli06@gmail.com"/>
+      <foaf:account>
+        <foaf:OnlineAccount>
+          <foaf:accountServiceHomepage rdf:resource="https://github.com"/>
+          <foaf:accountName>sepehr</foaf:accountName>
+        </foaf:OnlineAccount>
+      </foaf:account>
+    </foaf:Person>
+  </maintainer>
+</Project>
