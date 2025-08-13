@@ -76,6 +76,16 @@
   </developer>
 
   <releases>
+      <release version="1.1.1" date="2025-08-13">
+      <description>
+        <p>Updated shortcuts:</p>
+        <ul>
+          <li>Added F10 as primary menu's shortcut</li>
+          <li>Added Ctrl + w to close Sudoku</li>
+        </ul>
+        <p>Additionally, a logging issue when pencil mode was turned on/off is now fixed.</p>
+      </description>
+    </release>
       <release version="1.1.0" date="2025-08-11">
       <description>
         <p>Enhanced screen reader support for Sudoku, making the game more accessible and intuitive for players who rely on assistive technologies. With these improvements, users can now:</p>
