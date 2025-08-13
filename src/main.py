@@ -44,16 +44,17 @@ class SudokuApplication(Adw.Application):
             application_id="io.github.sepehr_rs.Sudoku",
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
-        self.create_action("quit", self.quit, ["<primary>q"])
+        self.create_action("quit", self.quit, ["<primary>q", "<primary>w"])
         self.create_action("about", self.on_about_action)
-        self.create_action("how_to_play", self.on_how_to_play)
+        self.create_action("how_to_play", self.on_how_to_play, ["F1"])
         # self.create_action('preferences', self.on_preferences_action)
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda *args: self.quit())
         self.add_action(quit_action)
         self.set_accels_for_action("win.pencil-toggled", ["<Ctrl>p"])
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
-        self.set_accels_for_action("app.how_to_play", ["F1"])
+        self.set_accels_for_action("win.show-primary-menu", ["F10"])
+        # self.set_accels_for_action("app.how_to_play", ["F1"])
 
     def do_activate(self):
         """Called when the application is activated.
@@ -73,7 +74,7 @@ class SudokuApplication(Adw.Application):
             application_name="Sudoku",
             application_icon="io.github.sepehr_rs.Sudoku",
             developer_name="Sepehr",
-            version="1.1.0",
+            version="1.1.1",
             developers=["Sepehr", "Revisto"],
             copyright="© 2025 sepehr",
         )

@@ -280,7 +280,10 @@ class GameManager:
 
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
-        logging.info("Pencil Mode is now", "ON" if self.pencil_mode else "OFF")
+        logging.info(
+            "Pencil Mode is now ON" if self.pencil_mode
+            else "Pencil mode is now OFF"
+        )
 
     def on_pencil_action_toggled(self, action, value):
         new_state = not action.get_state().get_boolean()

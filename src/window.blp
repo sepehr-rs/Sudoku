@@ -18,18 +18,19 @@ template $SudokuWindow: Adw.ApplicationWindow {
       };
 
       [end]
+      MenuButton primary_menu_button {
+        icon-name: "open-menu-symbolic";
+        menu-model: main_menu;
+        tooltip-text: _("Menu");
+      }
+
+      [end]
       ToggleButton pencil_toggle_button {
         Image {
           icon-name: "pencil-symbolic";
         }
-        tooltip-text: _("Toggle Pencil Mode");
-      }
 
-      [end]
-      MenuButton {
-        icon-name: "open-menu-symbolic";
-        menu-model: main_menu;
-        tooltip-text: _("Menu");
+        tooltip-text: _("Toggle Pencil Mode");
       }
     }
 
