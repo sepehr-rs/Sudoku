@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gtk, Gio
 from functools import partial
 from gettext import gettext as _
 
@@ -46,6 +46,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     game_view_box = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
+    primary_menu_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,6 +62,13 @@ class SudokuWindow(Adw.ApplicationWindow):
         gesture = Gtk.GestureClick.new()
         gesture.connect("pressed", self.on_window_clicked)
         self.add_controller(gesture)
+        action = Gio.SimpleAction.new("show-primary-menu", None)
+        action.connect("activate", self.on_show_primary_menu)
+        self.add_action(action)
+
+    def on_show_primary_menu(self, action, param):
+        """Open the hamburger menu popover."""
+        self.primary_menu_button.popup()
 
     def _get_grid_widget(self):
         frame = self.grid_container.get_first_child()
