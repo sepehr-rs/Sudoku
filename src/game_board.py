@@ -42,13 +42,14 @@ class GameBoard:
     def __init__(
         self,
         difficulty: float,
+        difficulty_label: str,
         puzzle=None,
         solution=None,
         user_inputs=None,
         notes=None,
     ):
         self.difficulty = difficulty
-
+        self.difficulty_label = difficulty_label
         if puzzle and solution:
             self.puzzle = puzzle
             self.solution = solution
@@ -72,6 +73,7 @@ class GameBoard:
     def to_dict(self):
         return {
             "difficulty": self.difficulty,
+            "difficulty_label": self.difficulty_label,
             "puzzle": self.puzzle,
             "solution": self.solution,
             "user_inputs": self.user_inputs,
@@ -128,6 +130,7 @@ class GameBoard:
             notes = [[set(cell) for cell in row] for row in data["notes"]]
             return cls(
                 difficulty=data["difficulty"],
+                difficulty_label=data["difficulty_label"],
                 puzzle=data["puzzle"],
                 solution=data["solution"],
                 user_inputs=data["user_inputs"],

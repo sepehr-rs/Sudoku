@@ -45,6 +45,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     game_view_box = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
+    sudoku_game_title = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -144,14 +145,15 @@ class SudokuWindow(Adw.ApplicationWindow):
             ("Extreme", EXTREME_DIFFICULTY),
         ]
 
-        for label, difficulty in difficulties:
-            button = Gtk.Button(label=label)
-            button.connect("clicked", partial(self.on_difficulty_selected, difficulty))
+        for difficulty_label, difficulty in difficulties:
+            button = Gtk.Button(label=difficulty_label)
+            button.connect("clicked", partial(self.on_difficulty_selected,difficulty_label, difficulty))
             box.append(button)
 
         dialog.show()
 
-    def on_difficulty_selected(self, difficulty: float, button: Gtk.Button):
+    def on_difficulty_selected(self,difficulty_label, difficulty: float, button: Gtk.Button):
         """Handle difficulty selection."""
-        self.game_manager.start_game(difficulty)
+        self.sudoku_game_title.set_title(f"Sudoku Game ({difficulty_label})")
+        self.game_manager.start_game(difficulty, difficulty_label)
         button.get_root().destroy()

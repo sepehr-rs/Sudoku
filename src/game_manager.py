@@ -47,19 +47,21 @@ class GameManager:
         pencil_action.connect("change-state", self.on_pencil_action_toggled)
         self.window.add_action(pencil_action)
 
-    def start_game(self, difficulty: float):
+    def start_game(self, difficulty: float, difficulty_label : str):
         logging.info(f"Starting game with difficulty: {difficulty}")
-        self.game_board = GameBoard(difficulty)
+        self.game_board = GameBoard(difficulty, difficulty_label)
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_view_box)
 
     def load_saved_game(self):
         self.game_board = GameBoard.load_from_file()
         if self.game_board:
+            self.window.sudoku_game_title.set_title(f"Sudoku Game ({self.game_board.difficulty_label})")
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_view_box)
             logging.info("Game successfully loaded from save.")
+
             if self.game_board.is_solved():
                 self._show_puzzle_finished_dialog()
         else:
@@ -284,6 +286,7 @@ class GameManager:
     def on_back_to_menu(self, action, parameter):
         self.window.continue_button.set_sensitive(GameBoard.has_saved_game())
         self.window.stack.set_visible_child(self.window.main_menu_box)
+        self.window.sudoku_game_title.set_title("Sudoku Game")
 
     def _show_puzzle_finished_dialog(self):
         self.window.pencil_toggle_button.set_visible(False)
