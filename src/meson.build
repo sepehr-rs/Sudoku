@@ -45,6 +45,7 @@ configure_file(
 sudoku_sources = [
   '__init__.py',
   'main.py',
+  'application.py',
   'window.py',
   'game_board.py',
   'game_manager.py',

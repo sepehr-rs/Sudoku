@@ -8,7 +8,7 @@
 
   # Sudoku
 
-  **Solve Sudoku puzzles**
+  **Solve puzzles in style**
 
   [![License][license-image]][license-url]
   [![Issues][issues-image]][issues-url]
@@ -19,7 +19,7 @@
 
 ## Description
 
-Sudoku is a modern Sudoku app focused on delivering a clean, distraction-free experience. Designed with simplicity and comfort in mind, it features a straightforward interface that helps players stay focused and enjoy the game without unnecessary clutter or complications.
+Sudoku is a puzzle app that lets you solve classic number-placement challenges. It features a clean, distraction-free design with a simple interface to keep you focused and engaged.
 
 ## Features
 - Modern GTK4 and libadwaita interface
