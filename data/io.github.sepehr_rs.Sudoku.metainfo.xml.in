@@ -68,11 +68,25 @@
   <update_contact>sepehrrasouli06_at_gmail.com</update_contact>
 
   <developer id="gmail.com">
-    <name>Sepehr RS</name>
+    <name>SepehrRS</name>
     <email>sepehrrasouli06_at_gmail.com</email>
   </developer>
 
+  <developer id="gmail.com">
+    <name>Revisto</name>
+    <email>theRevisto_at_gmail.com</email>
+  </developer>
+
   <releases>
+      <release version="1.1.2" date="2025-08-14">
+        <description>
+          <p>Updated completion screen and added a difficulty subtitle:</p>
+          <ul>
+            <li>Completion screen now shows randomized messages with improved imagery</li>
+            <li>Added difficulty level as a subtitle in the header bar</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.1.1" date="2025-08-13">
       <description>
         <p>Updated shortcuts:</p>
