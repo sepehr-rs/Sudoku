@@ -4,10 +4,11 @@ using Adw 1;
 template $FinishedOverlay: Overlay {
   hexpand: true;
   vexpand: true;
+  margin-bottom: 30;
+
   Box {
     orientation: vertical;
     spacing: 12;
-    margin-top: 20;
     margin-bottom: 20;
     halign: fill;
     valign: center;
@@ -43,7 +44,7 @@ template $FinishedOverlay: Overlay {
     }
 
     Adw.Clamp {
-      maximum-size: 300;
+      maximum-size: 150;
       tightening-threshold: 100;
 
       Button back_button {
