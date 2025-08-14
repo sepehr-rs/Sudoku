@@ -61,7 +61,7 @@ class GameManager:
             try:
                 difficulty_label = self.game_board.difficulty_label
             except Exception:
-                difficulty_lable = ""
+                difficulty_label = ""
             self.window.sudoku_window_title.set_subtitle(f"{difficulty_label}")
             self.build_grid()
             self._restore_game_state()
