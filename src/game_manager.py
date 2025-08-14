@@ -58,7 +58,10 @@ class GameManager:
     def load_saved_game(self):
         self.game_board = GameBoard.load_from_file()
         if self.game_board:
-            difficulty_label = self.game_board.difficulty_label
+            try:
+                difficulty_label = self.game_board.difficulty_label
+            except Exception:
+                difficulty_lable = ""
             self.window.sudoku_window_title.set_subtitle(f"{difficulty_label}")
             self.build_grid()
             self._restore_game_state()
