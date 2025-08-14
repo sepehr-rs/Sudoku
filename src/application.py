@@ -69,7 +69,7 @@ class SudokuApplication(Adw.Application):
             developer_name="Sepehr",
             version=self.version,
             developers=["Sepehr", "Revisto"],
-            copyright="© 2025 sepehr",
+            copyright="© 2025 sepehr-rs",
         )
         about.present()
 
