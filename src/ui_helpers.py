@@ -18,6 +18,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Gdk, GLib
+from gettext import gettext as _
+
 from .game_board import GRID_SIZE, BLOCK_SIZE
 from .finished_overlay import FinishedOverlay
 
