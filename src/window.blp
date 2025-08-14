@@ -9,12 +9,15 @@ template $SudokuWindow: Adw.ApplicationWindow {
   title: _("Sudoku");
   default-width: 800;
   default-height: 600;
+  width-request: 360;
+  height-request: 420;
+
 
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
       title-widget: Adw.WindowTitle sudoku_window_title{
-        title: _("Sudoku Game");
+        title: _("Sudoku");
       };
 
       [end]

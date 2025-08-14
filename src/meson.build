@@ -8,6 +8,7 @@ blueprint_compiler = find_program('blueprint-compiler', required: true)
 blueprint_files = files(
   'window.blp',
   'gtk/help-overlay.blp',
+  'gtk/finished-overlay.blp',
 )
 
 compiled_ui_dir_name = 'compiled_ui_files'
@@ -50,6 +51,7 @@ sudoku_sources = [
   'sudoku_cell.py',
   'help_dialog.py',
   'ui_helpers.py',
+  'finished_overlay.py',
 ]
 
 install_data(sudoku_sources, install_dir: moduledir)

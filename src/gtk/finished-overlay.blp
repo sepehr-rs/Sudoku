@@ -1,0 +1,55 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $FinishedOverlay: Overlay {
+  hexpand: true;
+  vexpand: true;
+  margin-bottom: 30;
+
+  Box {
+    orientation: vertical;
+    spacing: 12;
+    margin-bottom: 20;
+    halign: fill;
+    valign: center;
+    hexpand: true;
+    vexpand: true;
+
+    Adw.Clamp {
+      maximum-size: 1200;
+      tightening-threshold: 300;
+
+      Box {
+        orientation: vertical;
+        spacing: 24;
+
+        Picture picture_contain {
+          halign: center;
+          valign: fill;
+          hexpand: true;
+          vexpand: true;
+          can-shrink: true;
+          content-fit: contain;
+          file: "resource://io/github/sepehr_rs/Sudoku/illustrations/puzzle-complete-celebration.svg";
+        }
+        
+        Label finished_label {
+          wrap: true;
+          justify: center;
+          styles [
+            "title-3",
+          ]
+        }
+      }
+    }
+
+    Adw.Clamp {
+      maximum-size: 150;
+      tightening-threshold: 100;
+
+      Button back_button {
+        label: _("Back to Main Menu");
+      }
+    }
+  }
+}
