@@ -129,9 +129,10 @@ class GameBoard:
                 data = json.load(f)
 
             notes = [[set(cell) for cell in row] for row in data["notes"]]
+            difficulty_label = data.get("difficulty_label", "Unknown")
             return cls(
                 difficulty=data["difficulty"],
-                difficulty_label=data["difficulty_label"],
+                difficulty_label=difficulty_label,
                 puzzle=data["puzzle"],
                 solution=data["solution"],
                 user_inputs=data["user_inputs"],
