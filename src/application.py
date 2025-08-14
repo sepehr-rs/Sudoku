@@ -34,16 +34,20 @@ class SudokuApplication(Adw.Application):
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
         self.version = version
-        self.create_action("quit", self.quit, ["<primary>q", "<primary>w"])
+        self._setup_actions()
+        self._setup_accelerators()
+
+    def _setup_actions(self):
+        """Set up application actions."""
+        self.create_action("quit", self._on_close_request, ["<primary>q", "<primary>w"])
         self.create_action("about", self.on_about_action)
         self.create_action("how_to_play", self.on_how_to_play, ["F1"])
-        quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda *args: self.quit())
-        self.add_action(quit_action)
+
+    def _setup_accelerators(self):
+        """Set up keyboard accelerators for window actions."""
         self.set_accels_for_action("win.pencil-toggled", ["<Ctrl>p"])
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
         self.set_accels_for_action("win.show-primary-menu", ["F10"])
-        # self.set_accels_for_action("app.how_to_play", ["F1"])
 
     def do_activate(self):
         """Called when the application is activated.
@@ -75,6 +79,9 @@ class SudokuApplication(Adw.Application):
         dialog.get_style_context().add_class("sudoku-dialog")
         dialog.connect("response", lambda d, r: d.destroy())
         dialog.show()
+
+    def _on_close_request(self, *args):
+        self.quit()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
