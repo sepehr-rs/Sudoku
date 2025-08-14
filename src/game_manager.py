@@ -49,15 +49,17 @@ class GameManager:
         pencil_action.connect("change-state", self.on_pencil_action_toggled)
         self.window.add_action(pencil_action)
 
-    def start_game(self, difficulty: float):
+    def start_game(self, difficulty: float, difficulty_label: str):
         logging.info(f"Starting game with difficulty: {difficulty}")
-        self.game_board = GameBoard(difficulty)
+        self.game_board = GameBoard(difficulty, difficulty_label)
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_view_box)
 
     def load_saved_game(self):
         self.game_board = GameBoard.load_from_file()
         if self.game_board:
+            difficulty_label = self.game_board.difficulty_label
+            self.window.sudoku_window_title.set_subtitle(f"{difficulty_label}")
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_view_box)
@@ -281,8 +283,7 @@ class GameManager:
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
         logging.info(
-            "Pencil Mode is now ON" if self.pencil_mode
-            else "Pencil mode is now OFF"
+            "Pencil Mode is now ON" if self.pencil_mode else "Pencil mode is now OFF"
         )
 
     def on_pencil_action_toggled(self, action, value):
@@ -293,6 +294,7 @@ class GameManager:
     def on_back_to_menu(self, action, parameter):
         self.window.continue_button.set_sensitive(GameBoard.has_saved_game())
         self.window.stack.set_visible_child(self.window.main_menu_box)
+        self.window.sudoku_window_title.set_subtitle("")
 
     def _show_puzzle_finished_dialog(self):
         self.window.pencil_toggle_button.set_visible(False)
@@ -309,5 +311,6 @@ class GameManager:
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
         self.window.grid_container.append(self.window.game_view_box)
+        self.window.sudoku_window_title.set_subtitle("")
         self.window.stack.set_visible_child(self.window.main_menu_box)
         self.window.continue_button.set_sensitive(GameBoard.has_saved_game())
