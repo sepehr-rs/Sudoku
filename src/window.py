@@ -154,18 +154,22 @@ class SudokuWindow(Adw.ApplicationWindow):
             ("Extreme", EXTREME_DIFFICULTY),
         ]
 
-        for label, difficulty in difficulties:
-            button = Gtk.Button(label=label)
+        for difficulty_label, difficulty in difficulties:
+            button = Gtk.Button(label=difficulty_label)
             button.set_tooltip_text(
-                _("Start new game with {} difficulty").format(label.lower())
+                _("Start new game with {} difficulty").format(difficulty_label.lower())
             )
-            button.connect("clicked", partial(self.on_difficulty_selected, difficulty, label))
+            button.connect("clicked",
+                                    partial(
+                                            self.on_difficulty_selected,
+                                            difficulty,
+                                            difficulty_label))
             box.append(button)
 
         dialog.show()
 
-    def on_difficulty_selected(self, difficulty, label, button: Gtk.Button):
+    def on_difficulty_selected(self, difficulty: float, difficulty_label: str, button: Gtk.Button):
         """Handle difficulty selection."""
-        self.sudoku_window_title.set_subtitle(f"Difficulty {label}")
-        self.game_manager.start_game(difficulty, label)
+        self.sudoku_window_title.set_subtitle(f"{difficulty_label}")
+        self.game_manager.start_game(difficulty, difficulty_label)
         button.get_root().destroy()

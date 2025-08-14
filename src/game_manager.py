@@ -59,7 +59,7 @@ class GameManager:
         self.game_board = GameBoard.load_from_file()
         if self.game_board:
             difficulty_label = self.game_board.difficulty_label
-            self.window.sudoku_window_title.set_subtitle(f"Difficulty {difficulty_label}")
+            self.window.sudoku_window_title.set_subtitle(f"{difficulty_label}")
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_view_box)
