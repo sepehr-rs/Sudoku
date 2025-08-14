@@ -19,7 +19,7 @@
 
 from gi.repository import Gtk, Gdk, GLib
 from .game_board import GRID_SIZE, BLOCK_SIZE
-from gettext import gettext as _
+from .finished_overlay import FinishedOverlay
 
 
 class UIHelpers:
@@ -136,9 +136,7 @@ class UIHelpers:
             GLib.timeout_add(3000, lambda: UIHelpers.clear_conflicts(conflict_cells))
 
     @staticmethod
-    def create_difficulty_dialog(
-        parent_window: Gtk.Window, difficulties: list
-    ):
+    def create_difficulty_dialog(parent_window: Gtk.Window, difficulties: list):
         """Create a difficulty selection dialog."""
         dialog = Gtk.Dialog(
             title="Select Difficulty",
@@ -160,43 +158,10 @@ class UIHelpers:
         return dialog, box
 
     @staticmethod
-    def create_finished_overlay(
-        game_view_box: Gtk.Box, callback
-    ):
+    def create_finished_overlay(game_view_box: Gtk.Box, callback):
         """Create the puzzle finished overlay."""
-        overlay = Gtk.Overlay()
-        overlay.set_hexpand(True)
-        overlay.set_vexpand(True)
-
+        overlay = FinishedOverlay()
         overlay.set_child(game_view_box)
-
-        # Blur box
-        blur_box = Gtk.Box()
-        blur_box.set_hexpand(True)
-        blur_box.set_vexpand(True)
-        overlay.add_overlay(blur_box)
-
-        # Dialog box
-        dialog_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=12,
-            margin_top=20,
-            margin_bottom=20,
-            margin_start=20,
-            margin_end=20,
-            halign=Gtk.Align.CENTER,
-            valign=Gtk.Align.CENTER,
-        )
-
-        label = Gtk.Label(label="Puzzle Finished")
-        label.set_margin_bottom(12)
-        label.get_style_context().add_class("finished-label")
-
-        back_button = Gtk.Button(label="Back to Main Menu")
-        back_button.connect("clicked", callback)
-
-        dialog_box.append(label)
-        dialog_box.append(back_button)
-        overlay.add_overlay(dialog_box)
+        overlay.back_button.connect("clicked", callback)
 
         return overlay
