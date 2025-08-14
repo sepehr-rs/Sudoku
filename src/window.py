@@ -164,7 +164,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         dialog.show()
 
-    def on_difficulty_selected(self, difficulty: float, label: str, button: Gtk.Button):
+    def on_difficulty_selected(self, difficulty, label, button: Gtk.Button):
         """Handle difficulty selection."""
         self.sudoku_window_title.set_subtitle(f"Difficulty {label}")
         self.game_manager.start_game(difficulty, label)
