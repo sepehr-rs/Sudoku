@@ -31,6 +31,5 @@ logging.basicConfig(
 
 
 def main(version):
-    """The application's entry point."""
-    app = SudokuApplication()
+    app = SudokuApplication(version)
     return app.run(sys.argv)

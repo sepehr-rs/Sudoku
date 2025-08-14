@@ -28,13 +28,12 @@ from .help_dialog import HowToPlayDialog
 
 
 class SudokuApplication(Adw.Application):
-    """The main application singleton class."""
-
-    def __init__(self):
+    def __init__(self, version):
         super().__init__(
             application_id="io.github.sepehr_rs.Sudoku",
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
+        self.version = version
         self.create_action("quit", self.quit, ["<primary>q", "<primary>w"])
         self.create_action("about", self.on_about_action)
         self.create_action("how_to_play", self.on_how_to_play, ["F1"])
@@ -64,7 +63,7 @@ class SudokuApplication(Adw.Application):
             application_name="Sudoku",
             application_icon="io.github.sepehr_rs.Sudoku",
             developer_name="Sepehr",
-            version="1.1.1",
+            version=self.version,
             developers=["Sepehr", "Revisto"],
             copyright="© 2025 sepehr",
         )
