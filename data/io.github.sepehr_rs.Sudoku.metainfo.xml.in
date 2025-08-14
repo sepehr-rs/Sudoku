@@ -8,10 +8,7 @@
   <summary>Solve puzzles in style</summary>
   <description>
     <p>
-      Sudoku is a modern Sudoku app focused on delivering a clean, distraction-free
-      experience. Designed with simplicity and comfort in mind, it features a straightforward
-      interface that helps players stay focused and enjoy the game without unnecessary clutter
-      or complications.
+      Sudoku is a puzzle app that lets you solve classic number-placement challenges. It features a clean, distraction-free design with a simple interface to keep you focused and engaged.
     </p>
     <p>Features:</p>
     <ul>
@@ -26,19 +23,19 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/master/data/screenshots/sudoku.png</image>
+      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/sudoku.png</image>
       <caption>Sudoku in light mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/master/data/screenshots/sudoku-dark.png</image>
+      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/sudoku-dark.png</image>
       <caption>Sudoku in dark mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/master/data/screenshots/landingpage-dark.png</image>
+      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/landing-page-dark.png</image>
       <caption>Sudoku landing page in dark mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/master/data/screenshots/landingpage.png</image>
+      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/landing-page.png</image>
       <caption>Sudoku landing page in light mode</caption>
     </screenshot>
   </screenshots>
