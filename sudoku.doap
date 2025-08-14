@@ -4,7 +4,7 @@
          xmlns:dc="http://purl.org/dc/terms/"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <name>Sudoku</name>
-  <shortdesc>Solve puzzles in style.</shortdesc>
+  <shortdesc>Solve puzzles in style</shortdesc>
   <description>
     Sudoku is a modern Sudoku app focused on delivering a clean, distraction-free experience. Designed with simplicity and comfort in mind, it features a straightforward interface that helps players stay focused and enjoy the game without unnecessary clutter or complications.
   </description>
@@ -21,7 +21,19 @@
       <foaf:account>
         <foaf:OnlineAccount>
           <foaf:accountServiceHomepage rdf:resource="https://github.com"/>
-          <foaf:accountName>sepehr</foaf:accountName>
+          <foaf:accountName>sepehr-rs</foaf:accountName>
+        </foaf:OnlineAccount>
+      </foaf:account>
+    </foaf:Person>
+  </maintainer>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Revisto</foaf:name>
+      <foaf:mbox rdf:resource="mailto:theRevisto@gmail.com"/>
+      <foaf:account>
+        <foaf:OnlineAccount>
+          <foaf:accountServiceHomepage rdf:resource="https://github.com"/>
+          <foaf:accountName>revisto</foaf:accountName>
         </foaf:OnlineAccount>
       </foaf:account>
     </foaf:Person>
