@@ -159,20 +159,17 @@ class SudokuWindow(Adw.ApplicationWindow):
             button.set_tooltip_text(
                 _("Start new game with {} difficulty").format(difficulty_label.lower())
             )
-            button.connect("clicked",
-                            partial(
-                                self.on_difficulty_selected,
-                                difficulty,
-                                difficulty_label))
+            button.connect(
+                "clicked",
+                partial(self.on_difficulty_selected, difficulty, difficulty_label),
+            )
             box.append(button)
 
         dialog.show()
 
-    def on_difficulty_selected(self,
-        difficulty: float,
-        difficulty_label: str,
-        button: Gtk.Button):
-
+    def on_difficulty_selected(
+        self, difficulty: float, difficulty_label: str, button: Gtk.Button
+    ):
         """Handle difficulty selection."""
         self.sudoku_window_title.set_subtitle(f"{difficulty_label}")
         self.game_manager.start_game(difficulty, difficulty_label)
