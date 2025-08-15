@@ -20,6 +20,13 @@ template $SudokuWindow: Adw.ApplicationWindow {
         title: _("Sudoku");
       };
 
+      [start]
+      Button home_button {
+        icon-name: "user-home-symbolic";
+        tooltip-text: _("Back to main menu");
+        action-name:  "win.back-to-menu";
+      }
+
       [end]
       MenuButton primary_menu_button {
         icon-name: "open-menu-symbolic";
