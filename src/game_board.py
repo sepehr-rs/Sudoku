@@ -22,6 +22,7 @@ import os
 import logging
 import random
 from sudoku import Sudoku as PySudoku
+from pathlib import Path
 
 GRID_SIZE = 9
 BLOCK_SIZE = 3
@@ -31,11 +32,12 @@ MEDIUM_DIFFICULTY = 0.5
 HARD_DIFFICULTY = 0.7
 EXTREME_DIFFICULTY = 0.9
 
+
 APP_ID = "io.github.sepehr_rs.Sudoku"
-data_dir = os.path.expanduser("~/.local/share")
-save_dir = os.path.join(data_dir, APP_ID)
-os.makedirs(save_dir, exist_ok=True)
-SAVE_PATH = os.path.join(save_dir, "save.json")
+data_dir = Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local/share"))
+save_dir = data_dir / APP_ID
+save_dir.mkdir(parents=True, exist_ok=True)
+SAVE_PATH = save_dir / "save.json"
 
 
 class GameBoard:
