@@ -70,7 +70,7 @@ class GameBoard:
         self.notes = (
             notes
             if notes
-            else [[set() for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+            else [[list() for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
         )
 
     def to_dict(self):
@@ -96,10 +96,10 @@ class GameBoard:
         return self.notes[row][col]
 
     def add_note(self, row: int, col: int, value: str):
-        self.notes[row][col].add(value)
+        self.notes[row][col].append(value)
 
     def remove_note(self, row: int, col: int, value: str):
-        self.notes[row][col].discard(value)
+        self.notes[row][col].remove(value)
 
     def clear_notes(self, row: int, col: int):
         self.notes[row][col].clear()
@@ -130,7 +130,7 @@ class GameBoard:
             with open(SAVE_PATH, "r") as f:
                 data = json.load(f)
 
-            notes = [[set(cell) for cell in row] for row in data["notes"]]
+            notes = [[list(cell) for cell in row] for row in data["notes"]]
             difficulty_label = data.get("difficulty_label", "Unknown")
             return cls(
                 difficulty=data["difficulty"],
