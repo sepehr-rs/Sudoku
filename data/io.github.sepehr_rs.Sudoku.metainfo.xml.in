@@ -76,6 +76,7 @@
       <release version="1.1.3" date="2025-08-16">
         <description>
           <p>Fixed game not being remembered after re-opening Sudoku</p>
+          <p>Also moved the Back to main menu button from the primary menu to the headerbar</p>
         </description>
       </release>
       <release version="1.1.2" date="2025-08-14">
