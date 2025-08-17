@@ -159,9 +159,10 @@ class GameManager:
 
     def _clear_cell(self, cell: SudokuCell, clear_notes: bool = False):
         row, col = cell.row, cell.col
-        if self.pencil_mode or clear_notes:
-            self.game_board.clear_notes(row, col)
-            cell.update_notes(set())
+        if self.pencil_mode:
+            if len(self.game_board.get_notes(row, col)) > 0:
+                self.game_board.get_notes(row, col).pop()
+                cell.update_notes(self.game_board.get_notes(row, col))
         else:
             cell.set_value("")
             cell.set_tooltip_text("")
