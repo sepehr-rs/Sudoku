@@ -51,7 +51,7 @@ class UIHelpers:
         )
 
         return key_map, remove_cell_keybindings, \
-                remove_note_keybindings
+            remove_note_keybindings
 
     @staticmethod
     def clear_highlights(cells: list, class_name: str):

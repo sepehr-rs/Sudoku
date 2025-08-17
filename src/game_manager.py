@@ -157,7 +157,7 @@ class GameManager:
         self.cell_inputs[row][col].grab_focus()
         UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
 
-    def _clear_cell(self, cell: SudokuCell, clear_notes: bool=False):
+    def _clear_cell(self, cell: SudokuCell, clear_notes: bool = False):
         row, col = cell.row, cell.col
         if self.pencil_mode or clear_notes:
             self.game_board.clear_notes(row, col)
