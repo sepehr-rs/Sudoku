@@ -43,11 +43,15 @@ class UIHelpers:
 
         remove_cell_keybindings = (
             Gdk.KEY_BackSpace,
+        )
+
+        remove_note_keybindings = (
             Gdk.KEY_Delete,
             Gdk.KEY_KP_Delete,
         )
 
-        return key_map, remove_cell_keybindings
+        return key_map, remove_cell_keybindings, \
+                remove_note_keybindings
 
     @staticmethod
     def clear_highlights(cells: list, class_name: str):

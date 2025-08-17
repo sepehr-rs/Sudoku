@@ -34,7 +34,8 @@ class GameManager:
         self.conflict_cells = []
         self.pencil_mode = False
 
-        self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
+        keys = UIHelpers.setup_key_mappings()
+        self.key_map, self.remove_cell_keybindings, self.remove_note_keybindings = keys
 
         self._setup_actions()
 
@@ -156,9 +157,9 @@ class GameManager:
         self.cell_inputs[row][col].grab_focus()
         UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
 
-    def _clear_cell(self, cell: SudokuCell):
+    def _clear_cell(self, cell: SudokuCell, clear_notes: bool=False):
         row, col = cell.row, cell.col
-        if self.pencil_mode:
+        if self.pencil_mode or clear_notes:
             self.game_board.clear_notes(row, col)
             cell.update_notes(set())
         else:
@@ -267,6 +268,9 @@ class GameManager:
 
         if keyval in self.remove_cell_keybindings and cell.editable:
             self._clear_cell(cell)
+            return True
+        elif keyval in self.remove_note_keybindings:
+            self._clear_cell(cell, clear_notes=True)
             return True
 
         return False
