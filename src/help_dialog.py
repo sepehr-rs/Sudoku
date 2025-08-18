@@ -30,7 +30,8 @@ class HowToPlayDialog(Adw.Dialog):
         header = Adw.HeaderBar()
         toolbar_view.add_top_bar(header)
 
-        label = Gtk.Label( margin_top=10, margin_bottom=10, margin_start=10, margin_end=10, wrap=True)
+        label = Gtk.Label(margin_top=10, margin_bottom=10, margin_start=10,
+            margin_end=10, wrap=True)
 
         instructions = (
             "Welcome to Sudoku!\n\n"
