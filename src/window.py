@@ -23,7 +23,7 @@ from .game_board import GameBoard
 from .game_manager import GameManager
 from .ui_helpers import UIHelpers
 from .difficulty_selection_dialog import DifficultySelectionDialog
-from .finished_page import FinishedPage
+from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/window.ui")
@@ -103,7 +103,10 @@ class SudokuWindow(Adw.ApplicationWindow):
             "toggled", self.game_manager.on_pencil_toggled
         )
 
-        self.finished_page.set_back_button_callback(self.game_manager.on_back_to_menu_clicked_after_finish)
+        self.finished_page.set_back_button_callback
+        (
+            self.game_manager.on_back_to_menu_clicked_after_finish
+        )
 
     def _setup_stack_observer(self):
         """Setup stack page change observer."""
