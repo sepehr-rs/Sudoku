@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $FinishedOverlay: Overlay {
+template $FinishedPage: Box {
   hexpand: true;
   vexpand: true;
   margin-bottom: 30;
@@ -32,7 +32,7 @@ template $FinishedOverlay: Overlay {
           content-fit: contain;
           file: "resource://io/github/sepehr_rs/Sudoku/illustrations/puzzle-complete-celebration.svg";
         }
-        
+
         Label finished_label {
           wrap: true;
           justify: center;
@@ -48,7 +48,9 @@ template $FinishedOverlay: Overlay {
       tightening-threshold: 100;
 
       Button back_button {
+        margin-top: 12;
         label: _("Back to Main Menu");
+        styles ["pill"]
       }
     }
   }

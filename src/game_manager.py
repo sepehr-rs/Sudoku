@@ -314,12 +314,9 @@ class GameManager:
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 
-        overlay = UIHelpers.create_finished_overlay(
-            self.window.game_view_box, self._on_back_to_menu_clicked_after_finish
-        )
-        self.window.grid_container.append(overlay)
+        self.window.stack.set_visible_child(self.window.finished_page)
 
-    def _on_back_to_menu_clicked_after_finish(self, button):
+    def on_back_to_menu_clicked_after_finish(self, button):
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
         self.window.grid_container.append(self.window.game_view_box)
