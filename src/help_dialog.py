@@ -23,7 +23,7 @@ from gi.repository import Gtk, Adw
 class HowToPlayDialog(Adw.Dialog):
     def __init__(self, parent=None):
         super().__init__()
-        self.set_title("How to Play Sudoku")
+        self.set_title(_("How to Play Sudoku"))
         self.set_content_width(500)
         self.set_content_height(400)
 
@@ -39,18 +39,22 @@ class HowToPlayDialog(Adw.Dialog):
             wrap=True
         )
 
-        instructions = (
-            "Welcome to Sudoku!\n\n"
-            "The goal is to fill the grid so that every row, column, "
-            "and 3x3 box contains the numbers 1 through 9 without repeats.\n\n"
-            "How to play:\n"
-            "- Click on an empty cell to select it.\n"
-            "- Use your keyboard or pencil tool to input a number.\n"
-            "- Use the pencil tool to make notes.\n"
-            "- Use the backspace key to clear a cell.\n"
-            "- Try to solve the puzzle logically.\n\n"
-            "Good luck and have fun!"
-        )
-        label.set_text(instructions)
+        instructions_parts = [
+            _("Welcome to Sudoku!"),
+            "",
+            _("The goal is to fill the grid so that every row, column, "
+              "and 3x3 box contains the numbers 1 through 9 without repeats."),
+            "",
+            _("How to play:"),
+            _("– Click on an empty cell to select it."),
+            _("– Use your keyboard or pencil tool to input a number."),
+            _("– Use the pencil tool to make notes."),
+            _("– Use the backspace key to clear a cell."),
+            _("– Try to solve the puzzle logically."),
+            "",
+            _("Good luck and have fun!"),
+        ]
+
+        label.set_text("\n".join(instructions_parts))
         toolbar_view.set_content(label)
         self.set_child(toolbar_view)

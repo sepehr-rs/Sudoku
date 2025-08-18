@@ -1,6 +1,10 @@
 data/io.github.sepehr_rs.Sudoku.desktop.in
-data/io.github.sepehr_rs.Sudoku.appdata.xml.in
 data/io.github.sepehr_rs.Sudoku.gschema.xml
+data/io.github.sepehr_rs.Sudoku.metainfo.xml.in
 src/main.py
 src/window.py
-src/window.ui
+src/window.blp
+src/finished_overlay.py
+src/game_manager.py
+src/help_dialog.py
+src/difficulty_selection_dialog.py
