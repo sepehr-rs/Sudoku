@@ -55,8 +55,14 @@
     80% { background-color: rgba(226, 140, 110, 0.66); }
 }
 
-.entry-cell, .clue-cell {
-    color: #f0e6db;
+.entry-cell {
+    color: rgba(240, 230, 219, 1);
+    font-size: 20px;
+}
+
+.clue-cell {
+    color: rgba(240, 230, 219, 0.50);
+    font-size: 20px;
 }
 
 .note-cell-label {
