@@ -34,8 +34,7 @@ class GameManager:
         self.conflict_cells = []
         self.pencil_mode = False
 
-        keys = UIHelpers.setup_key_mappings()
-        self.key_map, self.remove_cell_keybindings, self.remove_note_keybindings = keys
+        self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
 
         self._setup_actions()
 
@@ -164,6 +163,8 @@ class GameManager:
                 self.game_board.get_notes(row, col).pop()
                 cell.update_notes(self.game_board.get_notes(row, col))
         else:
+            self.game_board.clear_notes(row, col)
+            cell.update_notes(set())
             cell.set_value("")
             cell.set_tooltip_text("")
             UIHelpers.clear_feedback_classes(cell.get_style_context())
@@ -269,9 +270,6 @@ class GameManager:
 
         if keyval in self.remove_cell_keybindings and cell.editable:
             self._clear_cell(cell)
-            return True
-        elif keyval in self.remove_note_keybindings:
-            self._clear_cell(cell, clear_notes=True)
             return True
 
         return False
