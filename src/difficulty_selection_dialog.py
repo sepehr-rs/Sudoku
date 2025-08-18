@@ -20,7 +20,6 @@
 from gi.repository import Gtk, Adw
 
 from functools import partial
-from gettext import gettext as _
 
 from .game_board import (
     EASY_DIFFICULTY,
@@ -47,10 +46,10 @@ class DifficultySelectionDialog(Adw.Dialog):
 
         # Create difficulty buttons
         difficulties = [
-            ("Easy", EASY_DIFFICULTY),
-            ("Medium", MEDIUM_DIFFICULTY),
-            ("Hard", HARD_DIFFICULTY),
-            ("Extreme", EXTREME_DIFFICULTY),
+            (_("Easy"), EASY_DIFFICULTY),
+            (_("Medium"), MEDIUM_DIFFICULTY),
+            (_("Hard"), HARD_DIFFICULTY),
+            (_("Extreme"), EXTREME_DIFFICULTY),
         ]
 
         for label_text, difficulty_value in difficulties:

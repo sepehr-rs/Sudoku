@@ -19,8 +19,6 @@
 import logging
 from gi.repository import Gtk, Gdk, GLib, Gio
 
-from gettext import gettext as _
-
 from .game_board import GameBoard, GRID_SIZE
 from .sudoku_cell import SudokuCell
 from .ui_helpers import UIHelpers
@@ -224,7 +222,7 @@ class GameManager:
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 
-        clear_button = Gtk.Button(label="Clear Cell")
+        clear_button = Gtk.Button(label=_("Clear Cell"))
         clear_button.set_size_request(40 * 3 + 10, 40)
         clear_button.connect("clicked", self.on_clear_selected, cell, popover)
         grid.attach(clear_button, 0, 3, 3, 1)
