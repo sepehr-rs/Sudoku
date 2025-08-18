@@ -47,4 +47,3 @@ class HowToPlayDialog(Adw.Dialog):
         label.set_text(instructions)
         toolbar_view.set_content(label)
         self.set_child(toolbar_view)
-
