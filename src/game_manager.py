@@ -156,18 +156,31 @@ class GameManager:
         self.cell_inputs[row][col].grab_focus()
         UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
 
-    def _clear_cell(self, cell: SudokuCell):
+    def _clear_cell(self, cell: SudokuCell, clear_all: bool = False):
         row, col = cell.row, cell.col
-        if self.pencil_mode:
+        if clear_all:
+            self._clear_cell_notes(cell)
+            self._clear_cell_value(cell)
+        elif self.pencil_mode:
             if len(self.game_board.get_notes(row, col)) > 0:
                 self.game_board.get_notes(row, col).pop()
                 cell.update_notes(self.game_board.get_notes(row, col))
         else:
-            cell.set_value("")
-            cell.set_tooltip_text("")
-            UIHelpers.clear_feedback_classes(cell.get_style_context())
-            self.game_board.set_input(row, col, None)
+            self._clear_cell_notes(cell)
+            self._clear_cell_value(cell)
         self.game_board.save_to_file()
+
+    def _clear_cell_notes(self, cell: SudokuCell):
+        row, col = cell.row, cell.col
+        self.game_board.clear_notes(row, col)
+        cell.update_notes(set())
+
+    def _clear_cell_value(self, cell: SudokuCell):
+        row, col = cell.row, cell.col
+        cell.set_value("")
+        cell.set_tooltip_text("")
+        UIHelpers.clear_feedback_classes(cell.get_style_context())
+        self.game_board.set_input(row, col, None)
 
     def _fill_cell(self, cell: SudokuCell, number: str):
         UIHelpers.clear_conflicts(self.conflict_cells)
@@ -267,7 +280,7 @@ class GameManager:
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
-            self._clear_cell(cell)
+            self._clear_cell(cell, clear_all=(keyval == Gdk.KEY_Delete))
             return True
 
         return False
