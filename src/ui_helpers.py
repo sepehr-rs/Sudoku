@@ -23,7 +23,6 @@ from gettext import gettext as _
 from .game_board import GRID_SIZE, BLOCK_SIZE
 
 
-
 class UIHelpers:
     """Static helper methods for UI operations."""
 
@@ -158,4 +157,3 @@ class UIHelpers:
         dialog.get_style_context().add_class("sudoku-dialog")
 
         return dialog, box
-

@@ -59,4 +59,3 @@ class FinishedPage(Gtk.Box):
 
     def set_back_button_callback(self, callback):
         self.back_button.connect("clicked", callback)
-
