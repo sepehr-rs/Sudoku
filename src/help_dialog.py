@@ -19,6 +19,7 @@
 
 from gi.repository import Gtk, Adw
 
+
 class HowToPlayDialog(Adw.Dialog):
     def __init__(self, parent=None):
         super().__init__()
