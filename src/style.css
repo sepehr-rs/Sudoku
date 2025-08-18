@@ -51,7 +51,7 @@ statuspage image {
 }
 
 #sudoku-parent-grid button.entry-cell.wrong {
-    background-color: rgba(206, 106, 64, 0.50)
+    background-color: rgba(206, 106, 64, 0.50);
 }
 
 #sudoku-parent-grid button.entry-cell.correct.highlight {
