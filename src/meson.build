@@ -51,6 +51,7 @@ sudoku_sources = [
   'game_manager.py',
   'sudoku_cell.py',
   'help_dialog.py',
+  'difficulty_selection_dialog.py',
   'ui_helpers.py',
   'finished_overlay.py',
 ]
