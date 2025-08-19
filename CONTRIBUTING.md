@@ -29,4 +29,4 @@ We RECOMMENDED that you follow the project's ISSUE TEMPLATE when reporting bugs 
 - Create your feature branch off `dev`.
 - When your changes are ready, open a Pull Request targeting the dev branch.
 
-Thanks for helping improve Sudoku! 🙌
+Thanks for helping make Sudoku better!
