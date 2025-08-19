@@ -8,8 +8,8 @@
     <file preprocess="xml-stripblanks">gtk/finished-page.ui</file>
   </gresource>
 
-  <gresource prefix="/io/github/sepehr_rs/Sudoku/icons/scalable/actions/">
-    <file preprocess="xml-stripblanks" alias="pencil-symbolic.svg">../data/icons/hicolor/scalable/actions/pencil-symbolic.svg</file>
+  <gresource prefix="/io/github/sepehr_rs/Sudoku/icons/symbolic/actions/">
+    <file preprocess="xml-stripblanks" alias="pencil-symbolic.svg">../data/icons/hicolor/symbolic/actions/pencil-symbolic.svg</file>
   </gresource>
 
   <gresource prefix="/io/github/sepehr_rs/Sudoku/illustrations">
