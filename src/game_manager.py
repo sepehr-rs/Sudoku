@@ -252,11 +252,15 @@ class GameManager:
             cell.grab_focus()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row: int, col: int):
+        # Left and right gets needs to be swapped in RTL as whole board is flipped
+        direction = self.window.get_direction()
+        is_rtl = direction == Gtk.TextDirection.RTL
+
         directions = {
             Gdk.KEY_Up: (-1, 0),
             Gdk.KEY_Down: (1, 0),
-            Gdk.KEY_Left: (0, -1),
-            Gdk.KEY_Right: (0, 1),
+            Gdk.KEY_Left: (0, 1 if is_rtl else -1),
+            Gdk.KEY_Right: (0, -1 if is_rtl else 1),
         }
 
         if keyval in directions:
