@@ -2,6 +2,7 @@
 Thank you for your interest in contributing Sudoku! This guide will help you contribute to make Sudoku better application for community.
 
 Note 1: The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, and OPTIONAL in this document are to be interpreted as described in [RFC 2119]"
+
 Note 2: By contributing to Sudoku, you MUST comply with the GNOME Code of Conduct (COC).
 
 ## Raising an Issue
@@ -17,9 +18,9 @@ We RECOMMENDED that you follow the project's ISSUE TEMPLATE when reporting bugs 
 ## Pull Requests
 
 - You MAY consider opening an issue before sending PR to avoid conflicts
-- MUST fork the repository from the dev branch
-- Create your feature branch off dev.
-- When ready, submit your Pull Request (PR) to merge into the dev branch.
+- MUST fork the repository from the `dev` branch
+- Create your feature branch off `dev`.
+- When ready, submit your Pull Request (PR) to merge into the `dev` branch.
 - Make sure your code follows the project's coding standards and includes relevant tests if applicable
 - Ensure your PR description clearly explains the changes and purpose
 
