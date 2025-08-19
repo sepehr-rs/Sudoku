@@ -252,15 +252,24 @@ class GameManager:
             cell.grab_focus()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row: int, col: int):
+        # Left and right gets needs to be swapped in RTL as whole board is flipped
+        direction = self.window.get_direction()
+        is_rtl = direction == Gtk.TextDirection.RTL
+
         directions = {
             Gdk.KEY_Up: (-1, 0),
             Gdk.KEY_Down: (1, 0),
-            Gdk.KEY_Left: (0, -1),
-            Gdk.KEY_Right: (0, 1),
+            Gdk.KEY_Left: (0, 1 if is_rtl else -1),
+            Gdk.KEY_Right: (0, -1 if is_rtl else 1),
         }
+
+        ctrl_pressed = state & Gdk.ModifierType.CONTROL_MASK
 
         if keyval in directions:
             d_row, d_col = directions[keyval]
+            if ctrl_pressed:
+                d_row *= 3
+                d_col *= 3
             new_row, new_col = row + d_row, col + d_col
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
@@ -314,12 +323,9 @@ class GameManager:
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 
-        overlay = UIHelpers.create_finished_overlay(
-            self.window.game_view_box, self._on_back_to_menu_clicked_after_finish
-        )
-        self.window.grid_container.append(overlay)
+        self.window.stack.set_visible_child(self.window.finished_page)
 
-    def _on_back_to_menu_clicked_after_finish(self, button):
+    def on_back_to_menu_clicked_after_finish(self, button):
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
         self.window.grid_container.append(self.window.game_view_box)

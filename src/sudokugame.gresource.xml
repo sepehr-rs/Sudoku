@@ -5,11 +5,11 @@
     <file alias="style-dark.css">style-dark.css</file>
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
-    <file preprocess="xml-stripblanks">gtk/finished-overlay.ui</file>
+    <file preprocess="xml-stripblanks">gtk/finished-page.ui</file>
   </gresource>
 
-  <gresource prefix="/io/github/sepehr_rs/Sudoku/icons/scalable/actions/">
-    <file preprocess="xml-stripblanks" alias="pencil-symbolic.svg">../data/icons/hicolor/scalable/actions/pencil-symbolic.svg</file>
+  <gresource prefix="/io/github/sepehr_rs/Sudoku/icons/symbolic/actions/">
+    <file preprocess="xml-stripblanks" alias="pencil-symbolic.svg">../data/icons/hicolor/symbolic/actions/pencil-symbolic.svg</file>
   </gresource>
 
   <gresource prefix="/io/github/sepehr_rs/Sudoku/illustrations">
