@@ -1,5 +1,5 @@
 # Contributing Sudoku      
-Thank you for your interest in contributing Sudoku! This guide will help you contribute to make Sudoku better application for community.
+Thank you for your interest in contributing to Sudoku! This guide will help you contribute to making Sudoku a better application for the community.
 
 Note 1: The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, and OPTIONAL in this document are to be interpreted as described in [RFC 2119]"
 
