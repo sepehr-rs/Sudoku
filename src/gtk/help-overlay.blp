@@ -5,7 +5,6 @@ ShortcutsWindow help_overlay {
 
   ShortcutsSection {
     section-name: "shortcuts";
-    max-height: 10;
 
     ShortcutsGroup {
       title: C_("shortcut window", "Game");
@@ -13,6 +12,19 @@ ShortcutsWindow help_overlay {
       ShortcutsShortcut {
         title: C_("shortcut window", "Pencil Mode");
         action-name: "win.pencil-toggled";
+      }
+
+      ShortcutsShortcut {
+        title: C_("shortcut window", "Move between cells");
+        accelerator: "Up Down Left Right";
+      }
+      ShortcutsShortcut {
+        title: C_("shortcut window", "Jump between blocks");
+        accelerator: "<Primary>Up Down Left Right";
+      }
+      ShortcutsShortcut {
+        title: C_("shortcut window", "Open number pop-up");
+        accelerator: "Return";
       }
     }
 
@@ -27,6 +39,11 @@ ShortcutsWindow help_overlay {
       ShortcutsShortcut {
         title: C_("shortcut window", "Back to Main Menu");
         action-name: "win.back-to-menu";
+      }
+
+      ShortcutsShortcut {
+        title: C_("shortcut window", "How to play");
+        action-name: "app.how_to_play";
       }
 
       ShortcutsShortcut {

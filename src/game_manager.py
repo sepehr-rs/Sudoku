@@ -263,8 +263,13 @@ class GameManager:
             Gdk.KEY_Right: (0, -1 if is_rtl else 1),
         }
 
+        ctrl_pressed = state & Gdk.ModifierType.CONTROL_MASK
+
         if keyval in directions:
             d_row, d_col = directions[keyval]
+            if ctrl_pressed:
+                d_row *= 3
+                d_col *= 3
             new_row, new_col = row + d_row, col + d_col
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
