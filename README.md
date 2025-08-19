@@ -40,7 +40,7 @@ You can clone and run from GNOME Builder.
 
 ## Contribute
 We need your help to make Sudoku better!
-There are lots of features that can be added, and we would love to see your contributions.
+There are lots of features that can be added, and we would love to see your contributions. Please read our [contribution guidelines](CONTRIBUTING.md) for further info.
 
 If you want to contribute to this project, you can fork the repository and submit a pull request. You can also report a bug or request a feature by opening an issue.
 
