@@ -19,6 +19,7 @@
 
 import random
 from gi.repository import Gtk
+from gettext import gettext as _
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/finished-page.ui")

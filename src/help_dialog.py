@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Adw
+from gettext import gettext as _
 
 
 class HowToPlayDialog(Adw.Dialog):
@@ -32,18 +33,16 @@ class HowToPlayDialog(Adw.Dialog):
         toolbar_view.add_top_bar(header)
 
         label = Gtk.Label(
-            margin_top=10,
-            margin_bottom=10,
-            margin_start=10,
-            margin_end=10,
-            wrap=True
+            margin_top=10, margin_bottom=10, margin_start=10, margin_end=10, wrap=True
         )
 
         instructions_parts = [
             _("Welcome to Sudoku!"),
             "",
-            _("The goal is to fill the grid so that every row, column, "
-              "and 3x3 box contains the numbers 1 through 9 without repeats."),
+            _(
+                "The goal is to fill the grid so that every row, column, "
+                "and 3x3 box contains the numbers 1 through 9 without repeats."
+            ),
             "",
             _("How to play:"),
             _("– Click on an empty cell to select it."),

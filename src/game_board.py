@@ -99,7 +99,8 @@ class GameBoard:
         self.notes[row][col].append(value)
 
     def remove_note(self, row: int, col: int, value: str):
-        self.notes[row][col].remove(value)
+        if value in self.notes[row][col]:
+            self.notes[row][col].remove(value)
 
     def clear_notes(self, row: int, col: int):
         self.notes[row][col].clear()
