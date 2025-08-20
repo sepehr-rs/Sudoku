@@ -105,9 +105,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
 
         self.finished_page.set_back_button_callback
-        (
-            self.game_manager.on_back_to_menu_clicked_after_finish
-        )
+        (self.game_manager.on_back_to_menu_clicked_after_finish)
 
     def _setup_stack_observer(self):
         """Setup stack page change observer."""
@@ -129,9 +127,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._show_difficulty_dialog()
 
     def _show_difficulty_dialog(self):
-        dialog = DifficultySelectionDialog(
-            on_select=self.on_difficulty_selected
-        )
+        dialog = DifficultySelectionDialog(on_select=self.on_difficulty_selected)
         dialog.present(self)
 
     def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
