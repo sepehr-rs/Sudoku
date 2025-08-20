@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Adw
-
+from gettext import gettext as _
 from functools import partial
 
 from .game_board import (

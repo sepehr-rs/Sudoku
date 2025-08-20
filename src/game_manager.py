@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 from gi.repository import Gtk, Gdk, GLib, Gio
-
+from gettext import gettext as _
 from .game_board import GameBoard, GRID_SIZE
 from .sudoku_cell import SudokuCell
 from .ui_helpers import UIHelpers

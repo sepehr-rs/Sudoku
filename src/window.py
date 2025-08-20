@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gio
+from gettext import gettext as _
 
 from .game_board import GameBoard
 from .game_manager import GameManager

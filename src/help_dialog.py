@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Adw
-
+from gettext import gettext as _
 
 class HowToPlayDialog(Adw.Dialog):
     def __init__(self, parent=None):
