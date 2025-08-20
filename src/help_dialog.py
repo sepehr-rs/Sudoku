@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 from gi.repository import Gtk, Adw
+from gettext import gettext as _
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/how-to-play-dialog.ui")
@@ -52,6 +53,7 @@ class HowToPlayDialog(Adw.Dialog):
 
     def on_page_changed(self, carousel, index):
         self.update_button_sensitivity()
+
 
     def update_button_sensitivity(self):
         current_page = self.carousel.get_position()
