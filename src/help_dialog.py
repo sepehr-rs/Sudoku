@@ -17,7 +17,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 from gi.repository import Gtk, Adw
-from gettext import gettext as _
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/how-to-play-dialog.ui")
