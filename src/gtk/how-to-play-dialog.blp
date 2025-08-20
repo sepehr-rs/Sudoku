@@ -76,6 +76,21 @@ template $HowToPlayDialog: Adw.Dialog {
                         description: _("Incorrect entries will be highlighted in red.");
                     }
                 }
+                Box {
+                    orientation: vertical;
+                    width-request: 500;
+                    height-request: 500;
+                    Picture {
+                        halign: center;
+                        valign: center;
+                        vexpand: true;
+                        file: "resource://io/github/sepehr_rs/Sudoku/illustrations/pencil-mode.svg";
+                    }
+                    Adw.StatusPage {
+                        title: _("Make Notes");
+                        description: _("Use the pen mode to note the possibilities for each cell.");
+                    }
+                }
             }
             [overlay]
             Button prev {

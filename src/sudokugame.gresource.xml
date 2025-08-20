@@ -19,6 +19,7 @@
     <file preprocess="xml-stripblanks" alias="rows-and-columns.svg">../data/illustrations/rows-and-columns.svg</file>
     <file preprocess="xml-stripblanks" alias="blocks.svg">../data/illustrations/blocks.svg</file>
     <file preprocess="xml-stripblanks" alias="mistake.svg">../data/illustrations/mistake.svg</file>
+    <file preprocess="xml-stripblanks" alias="pencil-mode.svg">../data/illustrations/pencil-mode.svg</file>
   </gresource>
 
 </gresources>
