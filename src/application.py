@@ -75,7 +75,7 @@ class SudokuApplication(Adw.Application):
 
     def on_how_to_play(self, action, param):
         """Show how to play dialog."""
-        dialog = HowToPlayDialog(self.props.active_window)
+        dialog = HowToPlayDialog()
         dialog.present(self.props.active_window)
 
     def _on_close_request(self, *args):

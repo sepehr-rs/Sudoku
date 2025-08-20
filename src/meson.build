@@ -9,6 +9,7 @@ blueprint_files = files(
   'window.blp',
   'gtk/help-overlay.blp',
   'gtk/finished-page.blp',
+  'gtk/how-to-play-dialog.blp',
 )
 
 compiled_ui_dir_name = 'compiled_ui_files'
