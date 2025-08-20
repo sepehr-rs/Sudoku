@@ -54,7 +54,6 @@ class HowToPlayDialog(Adw.Dialog):
     def on_page_changed(self, carousel, index):
         self.update_button_sensitivity()
 
-
     def update_button_sensitivity(self):
         current_page = self.carousel.get_position()
         n_pages = self.carousel.get_n_pages()
