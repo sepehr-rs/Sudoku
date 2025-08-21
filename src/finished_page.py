@@ -22,7 +22,7 @@ from gi.repository import Gtk
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/finished-page.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/finished-page.ui")
 class FinishedPage(Gtk.Box):
     __gtype_name__ = "FinishedPage"
 

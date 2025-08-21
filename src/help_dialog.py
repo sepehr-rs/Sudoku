@@ -19,7 +19,7 @@
 from gi.repository import Gtk, Adw
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/how-to-play-dialog.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/how-to-play-dialog.ui")
 class HowToPlayDialog(Adw.Dialog):
     __gtype_name__ = "HowToPlayDialog"
     carousel = Gtk.Template.Child()

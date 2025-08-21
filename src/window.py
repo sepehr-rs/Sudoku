@@ -27,7 +27,7 @@ from .difficulty_selection_dialog import DifficultySelectionDialog
 from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/window.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
     """Main application window."""
 
