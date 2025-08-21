@@ -16,44 +16,45 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-
 from gi.repository import Gtk, Adw
-from gettext import gettext as _
 
 
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/how-to-play-dialog.ui")
 class HowToPlayDialog(Adw.Dialog):
-    def __init__(self, parent=None):
-        super().__init__()
-        self.set_title(_("How to Play Sudoku"))
-        self.set_content_width(500)
-        self.set_content_height(400)
+    __gtype_name__ = "HowToPlayDialog"
+    carousel = Gtk.Template.Child()
+    prev = Gtk.Template.Child()
+    next = Gtk.Template.Child()
 
-        toolbar_view = Adw.ToolbarView.new()
-        header = Adw.HeaderBar()
-        toolbar_view.add_top_bar(header)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prev.connect("clicked", self.on_prev_clicked)
+        self.next.connect("clicked", self.on_next_clicked)
+        self.carousel.connect("page-changed", self.on_page_changed)
+        self.update_button_sensitivity()
 
-        label = Gtk.Label(
-            margin_top=10, margin_bottom=10, margin_start=10, margin_end=10, wrap=True
-        )
+    def on_prev_clicked(self, button):
+        current_page = self.carousel.get_position()
+        if current_page > 0:
+            self.carousel.scroll_to(
+                self.carousel.get_nth_page(int(current_page) - 1),
+                True
+            )
 
-        instructions_parts = [
-            _("Welcome to Sudoku!"),
-            "",
-            _(
-                "The goal is to fill the grid so that every row, column, "
-                "and 3x3 box contains the numbers 1 through 9 without repeats."
-            ),
-            "",
-            _("How to play:"),
-            _("– Click on an empty cell to select it."),
-            _("– Use your keyboard or pencil tool to input a number."),
-            _("– Use the pencil tool to make notes."),
-            _("– Use the backspace key to clear a cell."),
-            _("– Try to solve the puzzle logically."),
-            "",
-            _("Good luck and have fun!"),
-        ]
+    def on_next_clicked(self, button):
+        current_page = self.carousel.get_position()
+        n_pages = self.carousel.get_n_pages()
+        if current_page < n_pages - 1:
+            self.carousel.scroll_to(
+                self.carousel.get_nth_page(int(current_page) + 1),
+                True
+            )
 
-        label.set_text("\n".join(instructions_parts))
-        toolbar_view.set_content(label)
-        self.set_child(toolbar_view)
+    def on_page_changed(self, carousel, index):
+        self.update_button_sensitivity()
+
+    def update_button_sensitivity(self):
+        current_page = self.carousel.get_position()
+        n_pages = self.carousel.get_n_pages()
+        self.prev.set_sensitive(current_page > 0)
+        self.next.set_sensitive(current_page < n_pages - 1)
