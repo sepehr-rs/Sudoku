@@ -104,9 +104,6 @@ class SudokuWindow(Adw.ApplicationWindow):
             "toggled", self.game_manager.on_pencil_toggled
         )
 
-        self.finished_page.set_back_button_callback
-        (self.game_manager.on_back_to_menu_clicked_after_finish)
-
     def _setup_stack_observer(self):
         """Setup stack page change observer."""
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)

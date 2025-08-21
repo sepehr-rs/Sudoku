@@ -58,5 +58,3 @@ class FinishedPage(Gtk.Box):
         message = random.choice(self.VICTORY_MESSAGES)
         self.finished_label.set_label(message)
 
-    def set_back_button_callback(self, callback):
-        self.back_button.connect("clicked", callback)
