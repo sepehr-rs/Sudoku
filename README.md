@@ -16,6 +16,8 @@
   **Solve puzzles in style**
 
   [![Persian GNOME][persian-gnome-badge]][persian-gnome-url]
+
+
   [![License][license-image]][license-url]
   [![Flathub][flathub-image]][flathub-url]
   [![Issues][issues-image]][issues-url]
