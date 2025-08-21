@@ -2,6 +2,11 @@
 [license-image]: https://img.shields.io/github/license/sepehr-rs/sudoku.svg?style=for-the-badge
 [issues-url]: https://github.com/sepehr-rs/Sudoku/issues
 [issues-image]: https://img.shields.io/github/issues/sepehr-rs/Sudoku?style=for-the-badge
+[flathub-url]: https://flathub.org/apps/io.github.sepehr_rs.Sudoku
+[flathub-image]: https://img.shields.io/flathub/v/io.github.sepehr_rs.Sudoku?logo=flathub&style=for-the-badge
+[installs-image]: https://img.shields.io/flathub/downloads/io.github.sepehr_rs.Sudoku?style=for-the-badge
+[persian-gnome-badge]: https://gnome-fa.github.io/assets/badges/persian-gnome.svg
+[persian-gnome-url]: https://gnome_fa.t.me/
 
 <div align="center">
   <img src="data/icons/hicolor/scalable/apps/io.github.sepehr_rs.Sudoku.svg" width="128" height="128">
@@ -10,8 +15,11 @@
 
   **Solve puzzles in style**
 
+  [![Persian GNOME][persian-gnome-badge]][persian-gnome-url]
   [![License][license-image]][license-url]
+  [![Flathub][flathub-image]][flathub-url]
   [![Issues][issues-image]][issues-url]
+  [![Installs][installs-image]][flathub-url]
 
 
   <img src="data/screenshots/sudoku-dark.png">
