@@ -24,6 +24,7 @@ from .game_board import GameBoard
 from .game_manager import GameManager
 from .ui_helpers import UIHelpers
 from .difficulty_selection_dialog import DifficultySelectionDialog
+from .help_overlay import HelpOverlay
 from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 
 
@@ -60,11 +61,18 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_controller(gesture)
         action = Gio.SimpleAction.new("show-primary-menu", None)
         action.connect("activate", self.on_show_primary_menu)
+        action = Gio.SimpleAction.new("show-help-overlay", None)
+        action.connect("activate", self.on_show_help_overlay)
         self.add_action(action)
 
     def on_show_primary_menu(self, action, param):
         """Open the hamburger menu popover."""
         self.primary_menu_button.popup()
+
+    def on_show_help_overlay(self, action, param):
+        help_overlay = HelpOverlay()
+        help_overlay.set_transient_for(self)
+        help_overlay.present()
 
     def _get_grid_widget(self):
         frame = self.grid_container.get_first_child()
