@@ -57,4 +57,3 @@ class FinishedPage(Gtk.Box):
     def _set_random_message(self):
         message = random.choice(self.VICTORY_MESSAGES)
         self.finished_label.set_label(message)
-
