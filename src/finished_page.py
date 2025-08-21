@@ -22,7 +22,7 @@ from gi.repository import Gtk
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/finished-page.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/finished-page.ui")
 class FinishedPage(Gtk.Box):
     __gtype_name__ = "FinishedPage"
 
@@ -57,6 +57,3 @@ class FinishedPage(Gtk.Box):
     def _set_random_message(self):
         message = random.choice(self.VICTORY_MESSAGES)
         self.finished_label.set_label(message)
-
-    def set_back_button_callback(self, callback):
-        self.back_button.connect("clicked", callback)

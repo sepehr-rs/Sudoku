@@ -1,3 +1,5 @@
+subdir('blueprints')
+
 desktop_file = i18n.merge_file(
         input: 'io.github.sepehr_rs.Sudoku.desktop.in',
        output: 'io.github.sepehr_rs.Sudoku.desktop',
@@ -11,6 +13,15 @@ desktop_utils = find_program('desktop-file-validate', required: false)
 if desktop_utils.found()
   test('Validate desktop file', desktop_utils, args: [desktop_file])
 endif
+
+gnome.compile_resources('sudokugame',
+  'sudokugame.gresource.xml.in',
+  gresource_bundle: true,
+  dependencies: compiled_blueprints,
+  source_dir: meson.current_build_dir(),
+  install: true,
+  install_dir: pkgdatadir
+)
 
 appstream_file = i18n.merge_file(
         input: 'io.github.sepehr_rs.Sudoku.metainfo.xml.in',

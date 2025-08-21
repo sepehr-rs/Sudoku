@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/io/github/sepehr_rs/Sudoku">
+    <file alias="style.css">style.css</file>
+    <file alias="style-dark.css">style-dark.css</file>
+    <file preprocess="xml-stripblanks">blueprints/window.ui</file>
+    <file preprocess="xml-stripblanks">blueprints/help-overlay.ui</file>
+    <file preprocess="xml-stripblanks">blueprints/finished-page.ui</file>
+    <file preprocess="xml-stripblanks">blueprints/how-to-play-dialog.ui</file>
+  </gresource>
+
+  <gresource prefix="/io/github/sepehr_rs/Sudoku">
+    <file preprocess="xml-stripblanks">icons/scalable/actions/pencil-symbolic.svg</file>
+  </gresource>
+
+  <gresource prefix="/io/github/sepehr_rs/Sudoku/illustrations">
+    <file preprocess="xml-stripblanks" alias="puzzle-complete-celebration.svg">illustrations/puzzle-complete-celebration.svg</file>
+    <file preprocess="xml-stripblanks" alias="basics.svg">illustrations/basics.svg</file>
+    <file preprocess="xml-stripblanks" alias="rows-and-columns.svg">illustrations/rows-and-columns.svg</file>
+    <file preprocess="xml-stripblanks" alias="blocks.svg">illustrations/blocks.svg</file>
+    <file preprocess="xml-stripblanks" alias="mistake.svg">illustrations/mistake.svg</file>
+    <file preprocess="xml-stripblanks" alias="pencil-mode.svg">illustrations/pencil-mode.svg</file>
+  </gresource>
+
+</gresources>
