@@ -28,7 +28,7 @@ template $HowToPlayDialog: Adw.Dialog {
                     }
                     Adw.StatusPage {
                         title: _("The Basics");
-                        description: _("The board consists of a 3x3 grid of blocks, each containing its own 3x3 subgrid. Fill the grid with 1 to 9s.");
+                        description: _("The board is a 9×9 grid, divided into nine 3×3 blocks. Fill every cell with numbers from 1 to 9.");
                     }
                 }
                 Box {
@@ -58,7 +58,7 @@ template $HowToPlayDialog: Adw.Dialog {
                     }
                     Adw.StatusPage {
                         title: _("Blocks Matter");
-                        description: _("Each block may also contain one of each number aswell.");
+                        description: _("Each 3×3 block must also contain the numbers 1 through 9, without repeats.");
                     }
                 }
                 Box {
@@ -73,7 +73,7 @@ template $HowToPlayDialog: Adw.Dialog {
                     }
                     Adw.StatusPage {
                         title: _("Mistakes Happen");
-                        description: _("Incorrect entries will be highlighted in red.");
+                        description: _("Mistakes are highlighted in red so you can spot them easily.");
                     }
                 }
                 Box {
@@ -88,7 +88,7 @@ template $HowToPlayDialog: Adw.Dialog {
                     }
                     Adw.StatusPage {
                         title: _("Make Notes");
-                        description: _("Use the pen mode to note the possible numbers for each cell.");
+                        description: _("Use pencil mode to note possible numbers for a cell.");
                     }
                 }
             }
