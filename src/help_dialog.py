@@ -39,8 +39,7 @@ class HowToPlayDialog(Adw.Dialog):
         current_page = self.carousel.get_position()
         if current_page > 0:
             self.carousel.scroll_to(
-                self.carousel.get_nth_page(int(current_page) - 1),
-                True
+                self.carousel.get_nth_page(int(current_page) - 1), True
             )
 
     def on_next_clicked(self, button):
@@ -48,8 +47,7 @@ class HowToPlayDialog(Adw.Dialog):
         n_pages = self.carousel.get_n_pages()
         if current_page < n_pages - 1:
             self.carousel.scroll_to(
-                self.carousel.get_nth_page(int(current_page) + 1),
-                True
+                self.carousel.get_nth_page(int(current_page) + 1), True
             )
 
     def on_page_changed(self, carousel, index):
