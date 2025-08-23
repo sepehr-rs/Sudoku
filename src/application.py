@@ -22,7 +22,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gio, Adw
+from gi.repository import Gio, Adw, Gtk
 from .window import SudokuWindow
 from .help_dialog import HowToPlayDialog
 
@@ -62,23 +62,21 @@ class SudokuApplication(Adw.Application):
 
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""
-        about = Adw.AboutWindow(
-            transient_for=self.props.active_window,
+        about = Adw.AboutDialog(
             application_name="Sudoku",
             application_icon="io.github.sepehr_rs.Sudoku",
             developer_name="Sepehr",
             version=self.version,
             developers=["Sepehr", "Revisto"],
             copyright="© 2025 sepehr-rs",
+            license_type=Gtk.License.GPL_3_0,
         )
-        about.present()
+        about.present(self.props.active_window)
 
     def on_how_to_play(self, action, param):
         """Show how to play dialog."""
-        dialog = HowToPlayDialog(self.props.active_window)
-        dialog.get_style_context().add_class("sudoku-dialog")
-        dialog.connect("response", lambda d, r: d.destroy())
-        dialog.show()
+        dialog = HowToPlayDialog()
+        dialog.present(self.props.active_window)
 
     def _on_close_request(self, *args):
         self.quit()

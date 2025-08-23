@@ -1,43 +1,60 @@
-from gi.repository import Gtk
+# help_dialog.py
+#
+# Copyright 2025 sepehr-rs, Alexander Vanhee
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+from gi.repository import Gtk, Adw
 
 
-class HowToPlayDialog(Gtk.Dialog):
-    def __init__(self, parent):
-        super().__init__(title="How to Play Sudoku", transient_for=parent, modal=True)
-        self.set_default_size(500, 400)
+@Gtk.Template(
+    resource_path="/io/github/sepehr_rs/Sudoku/blueprints/how-to-play-dialog.ui"
+)
+class HowToPlayDialog(Adw.Dialog):
+    __gtype_name__ = "HowToPlayDialog"
+    carousel = Gtk.Template.Child()
+    prev = Gtk.Template.Child()
+    next = Gtk.Template.Child()
 
-        content_area = self.get_content_area()
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        scrolled_window.set_vexpand(True)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prev.connect("clicked", self.on_prev_clicked)
+        self.next.connect("clicked", self.on_next_clicked)
+        self.carousel.connect("page-changed", self.on_page_changed)
+        self.update_button_sensitivity()
 
-        content_area.append(scrolled_window)
+    def on_prev_clicked(self, button):
+        current_page = self.carousel.get_position()
+        if current_page > 0:
+            self.carousel.scroll_to(
+                self.carousel.get_nth_page(int(current_page) - 1), True
+            )
 
-        textview = Gtk.TextView()
-        textview.get_style_context().add_class("sudoku-dialog")
-        textview.set_editable(False)
-        textview.set_cursor_visible(False)
-        textview.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
-        textview.set_margin_top(10)
-        textview.set_margin_bottom(10)
-        textview.set_margin_start(10)
-        textview.set_margin_end(10)
+    def on_next_clicked(self, button):
+        current_page = self.carousel.get_position()
+        n_pages = self.carousel.get_n_pages()
+        if current_page < n_pages - 1:
+            self.carousel.scroll_to(
+                self.carousel.get_nth_page(int(current_page) + 1), True
+            )
 
-        instructions = (
-            "Welcome to Sudoku!\n\n"
-            "The goal is to fill the grid so that every row, column, "
-            "and 3x3 box contains the numbers 1 through 9 without repeats.\n\n"
-            "How to play:\n"
-            "- Click on an empty cell to select it.\n"
-            "- Use your keyboard or pencil tool to input a number.\n"
-            "- Use the pencil tool to make notes.\n"
-            "- Use the backspace key to clear a cell.\n"
-            "- Try to solve the puzzle logically.\n\n"
-            "Good luck and have fun!"
-        )
-        buffer = textview.get_buffer()
-        buffer.set_text(instructions)
+    def on_page_changed(self, carousel, index):
+        self.update_button_sensitivity()
 
-        scrolled_window.set_child(textview)
-
-        self.add_buttons("OK", Gtk.ResponseType.OK)
+    def update_button_sensitivity(self):
+        current_page = self.carousel.get_position()
+        n_pages = self.carousel.get_n_pages()
+        self.prev.set_sensitive(current_page > 0)
+        self.next.set_sensitive(current_page < n_pages - 1)

@@ -18,21 +18,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, Gio
-from functools import partial
 from gettext import gettext as _
 
-from .game_board import (
-    GameBoard,
-    EASY_DIFFICULTY,
-    MEDIUM_DIFFICULTY,
-    HARD_DIFFICULTY,
-    EXTREME_DIFFICULTY,
-)
+from .game_board import GameBoard
 from .game_manager import GameManager
 from .ui_helpers import UIHelpers
+from .difficulty_selection_dialog import DifficultySelectionDialog
+from .help_overlay import HelpOverlay
+from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/window.ui")
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
     """Main application window."""
 
@@ -44,6 +40,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     new_game_button = Gtk.Template.Child()
     main_menu_box = Gtk.Template.Child()
     game_view_box = Gtk.Template.Child()
+    finished_page = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
     primary_menu_button = Gtk.Template.Child()
@@ -64,11 +61,18 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_controller(gesture)
         action = Gio.SimpleAction.new("show-primary-menu", None)
         action.connect("activate", self.on_show_primary_menu)
+        action = Gio.SimpleAction.new("show-help-overlay", None)
+        action.connect("activate", self.on_show_help_overlay)
         self.add_action(action)
 
     def on_show_primary_menu(self, action, param):
         """Open the hamburger menu popover."""
         self.primary_menu_button.popup()
+
+    def on_show_help_overlay(self, action, param):
+        help_overlay = HelpOverlay()
+        help_overlay.set_transient_for(self)
+        help_overlay.present()
 
     def _get_grid_widget(self):
         frame = self.grid_container.get_first_child()
@@ -128,49 +132,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._show_difficulty_dialog()
 
     def _show_difficulty_dialog(self):
-        """Show the difficulty selection dialog."""
-        dialog = Gtk.Dialog(
-            title="Select Difficulty",
-            transient_for=self,
-            modal=True,
-        )
+        dialog = DifficultySelectionDialog(on_select=self.on_difficulty_selected)
+        dialog.present(self)
 
-        box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=12,
-            margin_top=24,
-            margin_bottom=24,
-            margin_start=24,
-            margin_end=24,
-        )
-        dialog.get_content_area().append(box)
-        dialog.get_style_context().add_class("sudoku-dialog")
-
-        # Create difficulty buttons
-        difficulties = [
-            ("Easy", EASY_DIFFICULTY),
-            ("Medium", MEDIUM_DIFFICULTY),
-            ("Hard", HARD_DIFFICULTY),
-            ("Extreme", EXTREME_DIFFICULTY),
-        ]
-
-        for difficulty_label, difficulty in difficulties:
-            button = Gtk.Button(label=difficulty_label)
-            button.set_tooltip_text(
-                _("Start new game with {} difficulty").format(difficulty_label.lower())
-            )
-            button.connect(
-                "clicked",
-                partial(self.on_difficulty_selected, difficulty, difficulty_label),
-            )
-            box.append(button)
-
-        dialog.show()
-
-    def on_difficulty_selected(
-        self, difficulty: float, difficulty_label: str, button: Gtk.Button
-    ):
+    def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
         """Handle difficulty selection."""
         self.sudoku_window_title.set_subtitle(f"{difficulty_label}")
         self.game_manager.start_game(difficulty, difficulty_label)
-        button.get_root().destroy()

@@ -72,7 +72,20 @@
     <email>sepehrrasouli06_at_gmail.com</email>
   </developer>
 
-  <releases>
+  <releases  translate="no">
+      <release version="1.2.0" date="2025-08-23">
+        <description>
+        <p>New Features &amp; UI Changes:</p>
+          <ul>
+            <li>You can now remove your last added note with Backspace.</li>
+            <li>Delete button now removes all notes in a cell.</li>
+            <li>Clue cells are now less transparent than entry cells for better readability.</li>
+            <li>How to Play has been reworked for clarity.</li>
+            <li>Sudoku dialogs now have smoother transitions.</li>
+            <li>Fixed: Arrow directions were reversed in RTL (right-to-left) contexts.</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.1.3" date="2025-08-16">
         <description>
           <p>Fixed game not being remembered after re-opening Sudoku</p>
@@ -88,40 +101,6 @@
           </ul>
         </description>
       </release>
-      <release version="1.1.1" date="2025-08-13">
-      <description>
-        <p>Updated shortcuts:</p>
-        <ul>
-          <li>Added F10 as primary menu's shortcut</li>
-          <li>Added Ctrl + w to close Sudoku</li>
-        </ul>
-        <p>Additionally, a logging issue when pencil mode was turned on/off is now fixed.</p>
-      </description>
-    </release>
-      <release version="1.1.0" date="2025-08-11">
-      <description>
-        <p>Enhanced screen reader support for Sudoku, making the game more accessible and intuitive for players who rely on assistive technologies. With these improvements, users can now:</p>
-        <ul>
-          <li>Receive clear feedback on whether the number they entered is correct or incorrect</li>
-          <li>Navigate the Sudoku interface more easily and efficiently</li>
-        </ul>
-        <p>Additionally, a visual bug affecting the pencil icon has been fixed.</p>
-      </description>
-    </release>
-    <release version="1.0.0" date="2025-08-08">
-      <description>
-        <p>First stable release of Sudoku! A modern GTK4/libadwaita application for playing Sudoku puzzles.</p>
-        <p>Features:</p>
-        <ul>
-          <li>Modern GTK4 and libadwaita interface</li>
-          <li>Keyboard shortcuts for quick access to all functions</li>
-          <li>Save and load games seamlessly to continue your progress anytime</li>
-          <li>Highlight active row and cell to improve focus and ease of play</li>
-          <li>Conflict highlighting to help identify mistakes, ideal for beginners</li>
-          <li>Suitable for all skill levels, from beginners to experts</li>
-        </ul>
-      </description>
-    </release>
   </releases>
 
   <supports>

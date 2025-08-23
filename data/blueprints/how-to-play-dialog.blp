@@ -1,0 +1,118 @@
+using Gtk 4.0;
+using Adw 1;
+template $HowToPlayDialog: Adw.Dialog {
+    content-height: 500;
+    content-width: 600;
+    css-classes: ["how-to-play-dialog"];
+    Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+            title-widget: Adw.CarouselIndicatorDots {
+                carousel: carousel;
+            };
+        }
+        Overlay {
+            Adw.Carousel carousel {
+                allow-long-swipes: true;
+                allow-scroll-wheel: true;
+                spacing: 80;
+                Box {
+                    orientation: vertical;
+                    width-request: 500;
+                    height-request: 500;
+                    Picture {
+                        halign: center;
+                        valign: center;
+                        vexpand: true;
+                        file: "resource://io/github/sepehr_rs/Sudoku/illustrations/basics.svg";
+                    }
+                    Adw.StatusPage {
+                        title: _("The Basics");
+                        description: _("The board is a 9×9 grid, divided into nine 3×3 blocks. Fill every cell with numbers from 1 to 9.");
+                    }
+                }
+                Box {
+                    orientation: vertical;
+                    width-request: 500;
+                    height-request: 500;
+                    Picture {
+                        halign: center;
+                        valign: center;
+                        vexpand: true;
+                        file: "resource://io/github/sepehr_rs/Sudoku/illustrations/rows-and-columns.svg";
+                    }
+                    Adw.StatusPage {
+                        title: _("Rows & Columns");
+                        description: _("Each row and column must contain unique numbers without duplicates.");
+                    }
+                }
+                Box {
+                    orientation: vertical;
+                    width-request: 500;
+                    height-request: 500;
+                    Picture {
+                        halign: center;
+                        valign: center;
+                        vexpand: true;
+                        file: "resource://io/github/sepehr_rs/Sudoku/illustrations/blocks.svg";
+                    }
+                    Adw.StatusPage {
+                        title: _("Blocks Matter");
+                        description: _("Each 3×3 block must also contain the numbers 1 through 9, without repeats.");
+                    }
+                }
+                Box {
+                    orientation: vertical;
+                    width-request: 500;
+                    height-request: 500;
+                    Picture {
+                        halign: center;
+                        valign: center;
+                        vexpand: true;
+                        file: "resource://io/github/sepehr_rs/Sudoku/illustrations/mistake.svg";
+                    }
+                    Adw.StatusPage {
+                        title: _("Mistakes Happen");
+                        description: _("Mistakes are highlighted in red so you can spot them easily.");
+                    }
+                }
+                Box {
+                    orientation: vertical;
+                    width-request: 500;
+                    height-request: 500;
+                    Picture {
+                        halign: center;
+                        valign: center;
+                        vexpand: true;
+                        file: "resource://io/github/sepehr_rs/Sudoku/illustrations/pencil-mode.svg";
+                    }
+                    Adw.StatusPage {
+                        title: _("Make Notes");
+                        description: _("Use pencil mode to note possible numbers for a cell.");
+                    }
+                }
+            }
+            [overlay]
+            Button prev {
+                halign: start;
+                valign: center;
+                margin-start: 16;
+                can-focus: false;
+                icon-name: "go-previous-symbolic";
+                tooltip-text: _("Previous");
+                sensitive: false;
+                styles ["circular"]
+            }
+            [overlay]
+            Button next {
+                halign: end;
+                valign: center;
+                margin-end: 16;
+                can-focus: false;
+                icon-name: "go-next-symbolic";
+                tooltip-text: _("Next");
+                styles ["circular"]
+            }
+        }
+    }
+}

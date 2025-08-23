@@ -7,10 +7,10 @@ template $SudokuWindow: Adw.ApplicationWindow {
   ]
 
   title: _("Sudoku");
-  default-width: 800;
-  default-height: 600;
-  width-request: 360;
-  height-request: 420;
+  default-width: 750;
+  default-height: 750;
+  width-request: 725;
+  height-request: 725;
 
 
   content: Adw.ToolbarView {
@@ -44,7 +44,10 @@ template $SudokuWindow: Adw.ApplicationWindow {
       }
     }
 
-    content: Adw.ViewStack stack {
+    content: Stack stack {
+      transition-type:crossfade;
+      transition-duration: 300;
+
       ScrolledWindow main_menu_box {
         hscrollbar-policy: never;
 
@@ -118,6 +121,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
           vexpand: true;
         }
       }
+
+      $FinishedPage finished_page {}
     };
   };
 }

@@ -1,4 +1,4 @@
-# finished_overlay.py
+# finished_page.py
 #
 # Copyright 2025 sepehr-rs
 #
@@ -19,13 +19,12 @@
 
 import random
 from gi.repository import Gtk
-
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/gtk/finished-overlay.ui")
-class FinishedOverlay(Gtk.Overlay):
-    __gtype_name__ = "FinishedOverlay"
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/finished-page.ui")
+class FinishedPage(Gtk.Box):
+    __gtype_name__ = "FinishedPage"
 
     finished_label = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
@@ -50,6 +49,9 @@ class FinishedOverlay(Gtk.Overlay):
 
     def __init__(self):
         super().__init__()
+        self.connect("map", self._on_map)
+
+    def _on_map(self, widget):
         self._set_random_message()
 
     def _set_random_message(self):

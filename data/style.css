@@ -30,7 +30,13 @@ statuspage image {
     background-color: #f1e2c8;
 }
 
-.entry-cell, .clue-cell {
+.entry-cell {
+    color: rgba(34, 26, 21,1);
+    font-size: 20px;
+}
+
+.clue-cell {
+    color: rgba(34, 26, 21, 0.60);
     font-size: 20px;
 }
 
@@ -45,7 +51,7 @@ statuspage image {
 }
 
 #sudoku-parent-grid button.entry-cell.wrong {
-    background-color: rgba(206, 106, 64, 0.50)
+    background-color: rgba(206, 106, 64, 0.50);
 }
 
 #sudoku-parent-grid button.entry-cell.correct.highlight {

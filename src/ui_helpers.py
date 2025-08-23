@@ -21,7 +21,6 @@ from gi.repository import Gtk, Gdk, GLib
 from gettext import gettext as _
 
 from .game_board import GRID_SIZE, BLOCK_SIZE
-from .finished_overlay import FinishedOverlay
 
 
 class UIHelpers:
@@ -158,12 +157,3 @@ class UIHelpers:
         dialog.get_style_context().add_class("sudoku-dialog")
 
         return dialog, box
-
-    @staticmethod
-    def create_finished_overlay(game_view_box: Gtk.Box, callback):
-        """Create the puzzle finished overlay."""
-        overlay = FinishedOverlay()
-        overlay.set_child(game_view_box)
-        overlay.back_button.connect("clicked", callback)
-
-        return overlay

@@ -18,9 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 from gi.repository import Gtk, Gdk, GLib, Gio
-
 from gettext import gettext as _
-
 from .game_board import GameBoard, GRID_SIZE
 from .sudoku_cell import SudokuCell
 from .ui_helpers import UIHelpers
@@ -156,17 +154,31 @@ class GameManager:
         self.cell_inputs[row][col].grab_focus()
         UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
 
-    def _clear_cell(self, cell: SudokuCell):
+    def _clear_cell(self, cell: SudokuCell, clear_all: bool = False):
         row, col = cell.row, cell.col
-        if self.pencil_mode:
-            self.game_board.clear_notes(row, col)
-            cell.update_notes(set())
+        if clear_all:
+            self._clear_cell_notes(cell)
+            self._clear_cell_value(cell)
+        elif self.pencil_mode:
+            if len(self.game_board.get_notes(row, col)) > 0:
+                self.game_board.get_notes(row, col).pop()
+                cell.update_notes(self.game_board.get_notes(row, col))
         else:
-            cell.set_value("")
-            cell.set_tooltip_text("")
-            UIHelpers.clear_feedback_classes(cell.get_style_context())
-            self.game_board.set_input(row, col, None)
+            self._clear_cell_notes(cell)
+            self._clear_cell_value(cell)
         self.game_board.save_to_file()
+
+    def _clear_cell_notes(self, cell: SudokuCell):
+        row, col = cell.row, cell.col
+        self.game_board.clear_notes(row, col)
+        cell.update_notes(set())
+
+    def _clear_cell_value(self, cell: SudokuCell):
+        row, col = cell.row, cell.col
+        cell.set_value("")
+        cell.set_tooltip_text("")
+        UIHelpers.clear_feedback_classes(cell.get_style_context())
+        self.game_board.set_input(row, col, None)
 
     def _fill_cell(self, cell: SudokuCell, number: str):
         UIHelpers.clear_conflicts(self.conflict_cells)
@@ -210,7 +222,7 @@ class GameManager:
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 
-        clear_button = Gtk.Button(label="Clear Cell")
+        clear_button = Gtk.Button(label=_("Clear Cell"))
         clear_button.set_size_request(40 * 3 + 10, 40)
         clear_button.connect("clicked", self.on_clear_selected, cell, popover)
         grid.attach(clear_button, 0, 3, 3, 1)
@@ -240,15 +252,24 @@ class GameManager:
             cell.grab_focus()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row: int, col: int):
+        # Left and right gets needs to be swapped in RTL as whole board is flipped
+        direction = self.window.get_direction()
+        is_rtl = direction == Gtk.TextDirection.RTL
+
         directions = {
             Gdk.KEY_Up: (-1, 0),
             Gdk.KEY_Down: (1, 0),
-            Gdk.KEY_Left: (0, -1),
-            Gdk.KEY_Right: (0, 1),
+            Gdk.KEY_Left: (0, 1 if is_rtl else -1),
+            Gdk.KEY_Right: (0, -1 if is_rtl else 1),
         }
+
+        ctrl_pressed = state & Gdk.ModifierType.CONTROL_MASK
 
         if keyval in directions:
             d_row, d_col = directions[keyval]
+            if ctrl_pressed:
+                d_row *= 3
+                d_col *= 3
             new_row, new_col = row + d_row, col + d_col
             if 0 <= new_row < 9 and 0 <= new_col < 9:
                 self._focus_cell(new_row, new_col)
@@ -266,7 +287,7 @@ class GameManager:
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
-            self._clear_cell(cell)
+            self._clear_cell(cell, clear_all=(keyval == Gdk.KEY_Delete))
             return True
 
         return False
@@ -302,12 +323,9 @@ class GameManager:
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 
-        overlay = UIHelpers.create_finished_overlay(
-            self.window.game_view_box, self._on_back_to_menu_clicked_after_finish
-        )
-        self.window.grid_container.append(overlay)
+        self.window.stack.set_visible_child(self.window.finished_page)
 
-    def _on_back_to_menu_clicked_after_finish(self, button):
+    def on_back_to_menu_clicked_after_finish(self, button):
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
         self.window.grid_container.append(self.window.game_view_box)
