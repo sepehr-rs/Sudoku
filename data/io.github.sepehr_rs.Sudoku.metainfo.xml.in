@@ -75,7 +75,7 @@
   <releases  translate="no">
       <release version="1.2.0" date="2025-08-23">
         <description>
-        <p>New Features & UI Changes:</p>
+        <p>New Features &amp; UI Changes:</p>
           <ul>
             <li>You can now remove your last added note with Backspace.</li>
             <li>Delete button now removes all notes in a cell.</li>
