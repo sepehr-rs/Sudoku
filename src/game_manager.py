@@ -264,7 +264,6 @@ class GameManager:
         }
 
         ctrl_pressed = state & Gdk.ModifierType.CONTROL_MASK
-
         if keyval in directions:
             d_row, d_col = directions[keyval]
             if ctrl_pressed:
@@ -283,7 +282,14 @@ class GameManager:
             return True
 
         if keyval in self.key_map and cell.editable:
-            self._fill_cell(cell, self.key_map[keyval])
+            if ctrl_pressed:
+                if self.key_map[keyval] in self.game_board.get_notes(row, col):
+                    self.game_board.remove_note(row, col, self.key_map[keyval])
+                else:
+                    self.game_board.add_note(row, col, self.key_map[keyval])
+                cell.update_notes(self.game_board.get_notes(row, col))
+            else:
+                self._fill_cell(cell, self.key_map[keyval])
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
