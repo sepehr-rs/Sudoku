@@ -40,6 +40,65 @@ save_dir.mkdir(parents=True, exist_ok=True)
 SAVE_PATH = save_dir / "save.json"
 
 
+def optimized_difficulty_fast(self, difficulty):
+    assert 0 <= difficulty < 1, "Difficulty must be between 0 and 1"
+
+    solved_board = self.solve().board
+    size = self.size
+    total_cells = size * size
+
+    indices = list(range(total_cells))
+    random.shuffle(indices)
+    problem_board = [row[:] for row in solved_board]
+
+    def has_one_solution(board):
+        counter = [0]
+
+        def is_valid(b, r, c, num):
+            for i in range(9):
+                if b[r][i] == num or b[i][c] == num:
+                    return False
+            start_r, start_c = 3 * (r // 3), 3 * (c // 3)
+            for i in range(start_r, start_r + 3):
+                for j in range(start_c, start_c + 3):
+                    if b[i][j] == num:
+                        return False
+            return True
+
+        def count_solutions(pos=0):
+            if counter[0] > 1:
+                return
+            if pos == total_cells:
+                counter[0] += 1
+                return
+
+            r, c = divmod(pos, 9)
+            if board[r][c] != 0:
+                count_solutions(pos + 1)
+            else:
+                for num in range(1, 10):
+                    if is_valid(board, r, c, num):
+                        board[r][c] = num
+                        count_solutions(pos + 1)
+                        board[r][c] = 0
+
+        count_solutions()
+        return counter[0] == 1
+
+    cells_to_remove = int(difficulty * total_cells)
+    for idx in indices[:cells_to_remove]:
+        row, col = divmod(idx, size)
+        removed = problem_board[row][col]
+        problem_board[row][col] = 0
+        if not has_one_solution(problem_board):
+            problem_board[row][col] = removed
+
+    return PySudoku(self.width, self.height, problem_board, difficulty)
+
+
+PySudoku.difficulty = optimized_difficulty_fast
+
+
 class GameBoard:
     def __init__(
         self,
