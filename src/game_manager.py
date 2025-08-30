@@ -180,11 +180,11 @@ class GameManager:
         UIHelpers.clear_feedback_classes(cell.get_style_context())
         self.game_board.set_input(row, col, None)
 
-    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_state):
+    def _fill_cell(self, cell: SudokuCell, number: str, state):
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
 
-        if self.pencil_mode or ctrl_state:
+        if self.pencil_mode or state: # state being the ctrl_pressed varible
             if number in self.game_board.get_notes(row, col):
                 self.game_board.remove_note(row, col, number)
             else:
