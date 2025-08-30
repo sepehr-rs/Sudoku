@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
+import threading
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gettext import gettext as _
 from .game_board import GameBoard, GRID_SIZE
@@ -31,9 +32,8 @@ class GameManager:
         self.cell_inputs = None
         self.conflict_cells = []
         self.pencil_mode = False
-
         self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
-
+        self.loading_message_source_id = None
         self._setup_actions()
 
     def _setup_actions(self):
@@ -48,10 +48,33 @@ class GameManager:
         self.window.add_action(pencil_action)
 
     def start_game(self, difficulty: float, difficulty_label: str):
+        self.window.stack.set_visible_child(self.window.loading_screen)
+        self.window.loading_screen._set_random_message()
         logging.info(f"Starting game with difficulty: {difficulty}")
-        self.game_board = GameBoard(difficulty, difficulty_label)
+        self.loading_message_source_id = GLib.timeout_add(
+            3000, self._update_loading_message
+        )
+
+        def worker():
+            game_board = GameBoard(difficulty, difficulty_label)
+            GLib.idle_add(self._on_game_ready, game_board)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _update_loading_message(self):
+        """Change loading message periodically."""
+        self.window.loading_screen._set_random_message()
+        return True
+
+    def _on_game_ready(self, game_board):
+        if self.loading_message_source_id:
+            GLib.source_remove(self.loading_message_source_id)
+            self.loading_message_source_id = None
+
+        self.game_board = game_board
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_view_box)
+        return False
 
     def load_saved_game(self):
         self.game_board = GameBoard.load_from_file()
