@@ -190,6 +190,7 @@ class GameManager:
             else:
                 self.game_board.add_note(row, col, number)
             cell.update_notes(self.game_board.get_notes(row, col))
+            self.game_board.save_to_file()
             return
 
         cell.set_value(number)
