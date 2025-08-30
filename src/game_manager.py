@@ -184,7 +184,7 @@ class GameManager:
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
 
-        if self.pencil_mode or state: # state being the ctrl_pressed varible
+        if self.pencil_mode or state:
             if number in self.game_board.get_notes(row, col):
                 self.game_board.remove_note(row, col, number)
             else:
