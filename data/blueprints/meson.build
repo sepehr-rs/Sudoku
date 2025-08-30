@@ -4,7 +4,8 @@ blueprint_files = files(
   'window.blp',
   'help-overlay.blp',
   'finished-page.blp',
-  'how-to-play-dialog.blp'
+  'how-to-play-dialog.blp',
+  'loading-screen.blp'
 )
 
 compiled_ui_files = []

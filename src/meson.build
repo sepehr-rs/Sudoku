@@ -28,7 +28,8 @@ sudoku_sources = [
   'difficulty_selection_dialog.py',
   'ui_helpers.py',
   'finished_page.py',
-  'help_overlay.py'
+  'help_overlay.py',
+  'loading_screen.py',
 ]
 
 install_data(sudoku_sources, install_dir: moduledir)
