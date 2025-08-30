@@ -41,6 +41,7 @@ save_dir.mkdir(parents=True, exist_ok=True)
 SAVE_PATH = save_dir / "save.json"
 
 
+# noqa: C901
 def unique_difficulty(self, difficulty: float):
     """
     Modified version of py-sudoku's difficulty function that generates
