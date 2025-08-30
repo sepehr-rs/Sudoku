@@ -180,11 +180,11 @@ class GameManager:
         UIHelpers.clear_feedback_classes(cell.get_style_context())
         self.game_board.set_input(row, col, None)
 
-    def _fill_cell(self, cell: SudokuCell, number: str):
+    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
 
-        if self.pencil_mode:
+        if self.pencil_mode or ctrl_is_pressed:
             if number in self.game_board.get_notes(row, col):
                 self.game_board.remove_note(row, col, number)
             else:
@@ -265,7 +265,6 @@ class GameManager:
         }
 
         ctrl_pressed = state & Gdk.ModifierType.CONTROL_MASK
-
         if keyval in directions:
             d_row, d_col = directions[keyval]
             if ctrl_pressed:
@@ -284,7 +283,7 @@ class GameManager:
             return True
 
         if keyval in self.key_map and cell.editable:
-            self._fill_cell(cell, self.key_map[keyval])
+            self._fill_cell(cell, self.key_map[keyval], ctrl_pressed)
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
