@@ -65,28 +65,27 @@ class UIHelpers:
         """Highlight all cells related to the
         given cell (row, column, block, and same-value cells)."""
         UIHelpers.clear_highlights(cells, "highlight")
-        UIHelpers.clear_highlights(cells, "same_cell_highlight")
 
         selected_value = cells[row][col].get_value()
+        if selected_value == "":
+            # Highlight row and column
+            for i in range(GRID_SIZE):
+                UIHelpers.highlight_cell(cells, row, i, "highlight")
+                UIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        # Highlight row and column
-        for i in range(GRID_SIZE):
-            UIHelpers.highlight_cell(cells, row, i, "highlight")
-            UIHelpers.highlight_cell(cells, i, col, "highlight")
+            # Highlight block only once per cell
+            block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
+            block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
+            for r in range(block_row_start, block_row_start + BLOCK_SIZE):
+                for c in range(block_col_start, block_col_start + BLOCK_SIZE):
+                    UIHelpers.highlight_cell(cells, r, c, "highlight")
 
-        # Highlight block only once per cell
-        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
-        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
-        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
-            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
-                UIHelpers.highlight_cell(cells, r, c, "highlight")
-
-        # Highlight all cells with the same number as the selected cell
-        if selected_value not in (None, 0, ""):  # Only if there's a number
-            for r in range(GRID_SIZE):
-                for c in range(GRID_SIZE):
-                    if cells[r][c].get_value() == selected_value:
-                        UIHelpers.highlight_cell(cells, r, c, "same_cell_highlight")
+        else:
+            if selected_value not in (None, 0, ""):  # Only if there's a number
+                for r in range(GRID_SIZE):
+                    for c in range(GRID_SIZE):
+                        if cells[r][c].get_value() == selected_value:
+                            UIHelpers.highlight_cell(cells, r, c, "highlight")
 
     @staticmethod
     def highlight_conflicts(cells: list, row: int, col: int, label: str) -> list:

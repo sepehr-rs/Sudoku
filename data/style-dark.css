@@ -31,12 +31,6 @@
     transition: background-color 0.3s ease-in-out;
 }
 
-#sudoku-parent-grid button.same_cell_highlight {
-    background-color: rgba(210, 178, 95, 0.40); /* pale gold */
-    box-shadow: 0 0 10px rgba(210, 178, 95, 0.22);
-    transition: background-color 0.3s ease-in-out;
-}
-
 #sudoku-parent-grid button.entry-cell.correct {
     background-color: rgba(136, 163, 108, 0.45);
 }

@@ -74,12 +74,6 @@ statuspage image {
     transition: background-color 0.3s ease-in-out;
 }
 
-#sudoku-parent-grid button.same_cell_highlight {
-    background-color: rgba(245, 200, 100, 0.9); /* bright amber */
-    box-shadow: 0 0 12px rgba(245, 200, 100, 0.7); /* stronger glow */
-    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
-
 @keyframes pulse {
     20% { background-color: rgba(226, 126, 86, 0.64); }
     80% { background-color: rgba(226, 126, 86, 0.64); }
