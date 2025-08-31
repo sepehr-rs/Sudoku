@@ -338,4 +338,3 @@ class GameManager:
         self.window.sudoku_window_title.set_subtitle("")
         self.window.stack.set_visible_child(self.window.main_menu_box)
         self.window.continue_button.set_sensitive(GameBoard.has_saved_game())
-
