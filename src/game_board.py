@@ -21,6 +21,7 @@ import json
 import os
 import logging
 import random
+import multiprocessing
 from sudoku import Sudoku as PySudoku
 from pathlib import Path
 
@@ -57,8 +58,7 @@ class GameBoard:
             self.puzzle = puzzle
             self.solution = solution
         else:
-            random_seed = random.randint(1, 1000000)
-            sudoku = PySudoku(3, seed=random_seed).difficulty(difficulty)
+            sudoku = self.build_sudoku_grid(difficulty=difficulty)
             self.puzzle = sudoku.board
             self.solution = sudoku.solve().board
 
@@ -152,3 +152,23 @@ class GameBoard:
                 return True
         except Exception:
             return False
+
+    def generate_sudoku(self, difficulty, result_queue):
+        random_seed = random.randint(1, 1000000)
+        sudoku = PySudoku(3, seed=random_seed).unique_difficulty(difficulty)
+        result_queue.put(sudoku)
+
+    def build_sudoku_grid(self, difficulty, timeout=5):
+        while True:
+            result_queue = multiprocessing.Queue()
+            process = multiprocessing.Process(
+                target=self.generate_sudoku, args=(difficulty, result_queue)
+            )
+            process.start()
+            process.join(timeout)
+
+            if process.is_alive():
+                process.terminate()
+                process.join()
+            else:
+                return result_queue.get()

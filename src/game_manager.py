@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
+import threading
 import unicodedata
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gettext import gettext as _
@@ -32,9 +33,7 @@ class GameManager:
         self.cell_inputs = None
         self.conflict_cells = []
         self.pencil_mode = False
-
         self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
-
         self._setup_actions()
 
     def _setup_actions(self):
@@ -49,10 +48,20 @@ class GameManager:
         self.window.add_action(pencil_action)
 
     def start_game(self, difficulty: float, difficulty_label: str):
+        self.window.stack.set_visible_child(self.window.loading_screen)
         logging.info(f"Starting game with difficulty: {difficulty}")
-        self.game_board = GameBoard(difficulty, difficulty_label)
+
+        def worker():
+            game_board = GameBoard(difficulty, difficulty_label)
+            GLib.idle_add(self._on_game_ready, game_board)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_game_ready(self, game_board):
+        self.game_board = game_board
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_view_box)
+        return False
 
     def load_saved_game(self):
         self.game_board = GameBoard.load_from_file()
