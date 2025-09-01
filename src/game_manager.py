@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import threading
+import unicodedata
 from gi.repository import Gtk, Gdk, GLib, Gio
 from gettext import gettext as _
 from .game_board import GameBoard, GRID_SIZE
@@ -288,12 +289,22 @@ class GameManager:
             return True
 
         cell = self.cell_inputs[row][col]
-        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter) and cell.editable:
-            self._show_popover(cell)
+        number_str = None
+        uni = Gdk.keyval_to_unicode(keyval)
+        if uni != 0:
+            char = chr(uni)
+            try:
+                digit = unicodedata.digit(char)
+                number_str = str(digit)
+            except (TypeError, ValueError):
+                pass
+
+        if number_str and cell.editable:
+            self._fill_cell(cell, number_str, ctrl_pressed)
             return True
 
-        if keyval in self.key_map and cell.editable:
-            self._fill_cell(cell, self.key_map[keyval], ctrl_pressed)
+        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter) and cell.editable:
+            self._show_popover(cell)
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
