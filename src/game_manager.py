@@ -129,6 +129,7 @@ class GameManager:
 
                 # Gesture click controller
                 gesture = Gtk.GestureClick.new()
+                gesture.set_button(0)
                 gesture.connect("pressed", self.on_cell_clicked, cell)
                 cell.add_controller(gesture)
 
@@ -189,16 +190,17 @@ class GameManager:
         UIHelpers.clear_feedback_classes(cell.get_style_context())
         self.game_board.set_input(row, col, None)
 
-    def _fill_cell(self, cell: SudokuCell, number: str):
+    def _fill_cell(self, cell: SudokuCell, number: str, write_note=False):
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
 
-        if self.pencil_mode:
+        if self.pencil_mode or write_note:
             if number in self.game_board.get_notes(row, col):
                 self.game_board.remove_note(row, col, number)
             else:
                 self.game_board.add_note(row, col, number)
             cell.update_notes(self.game_board.get_notes(row, col))
+            self.game_board.save_to_file()
             return
 
         cell.set_value(number)
@@ -215,7 +217,7 @@ class GameManager:
         if self.game_board.is_solved():
             self._show_puzzle_finished_dialog()
 
-    def _show_popover(self, cell: SudokuCell):
+    def _show_popover(self, cell: SudokuCell, mouse_button):
         popover = Gtk.Popover()
         popover.set_has_arrow(False)
         popover.set_position(Gtk.PositionType.BOTTOM)
@@ -226,7 +228,7 @@ class GameManager:
         num_buttons = {}
         for i in range(1, 10):
             b = UIHelpers.create_number_button(
-                str(i), self.on_number_selected, cell, popover
+                str(i), self.on_number_selected, cell, popover, mouse_button
             )
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
@@ -256,7 +258,7 @@ class GameManager:
     def on_cell_clicked(self, gesture, n_press, x: int, y: int, cell: SudokuCell):
         UIHelpers.highlight_related_cells(self.cell_inputs, cell.row, cell.col)
         if cell.editable and n_press == 1:
-            self._show_popover(cell)
+            self._show_popover(cell, gesture.get_current_button())
         else:
             cell.grab_focus()
 
@@ -273,7 +275,6 @@ class GameManager:
         }
 
         ctrl_pressed = state & Gdk.ModifierType.CONTROL_MASK
-
         if keyval in directions:
             d_row, d_col = directions[keyval]
             if ctrl_pressed:
@@ -292,7 +293,7 @@ class GameManager:
             return True
 
         if keyval in self.key_map and cell.editable:
-            self._fill_cell(cell, self.key_map[keyval])
+            self._fill_cell(cell, self.key_map[keyval], ctrl_pressed)
             return True
 
         if keyval in self.remove_cell_keybindings and cell.editable:
@@ -301,9 +302,14 @@ class GameManager:
 
         return False
 
-    def on_number_selected(self, num_button: Gtk.Button, cell: SudokuCell, popover):
+    def on_number_selected(
+            self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
+    ):
         number = num_button.get_label()
-        self._fill_cell(cell, number)
+        if mouse_button == 1:
+            self._fill_cell(cell, number)
+        elif mouse_button == 3:
+            self._fill_cell(cell, number, True)
         popover.popdown()
 
     def on_clear_selected(self, clear_button, cell: SudokuCell, popover):
