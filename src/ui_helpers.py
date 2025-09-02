@@ -62,20 +62,30 @@ class UIHelpers:
 
     @staticmethod
     def highlight_related_cells(cells: list, row: int, col: int):
-        """Highlight all cells related to the given cell (row, column, block)."""
+        """Highlight all cells related to the
+        given cell (row, column, block, and same-value cells)."""
         UIHelpers.clear_highlights(cells, "highlight")
 
-        # Highlight row and column
-        for i in range(GRID_SIZE):
-            UIHelpers.highlight_cell(cells, row, i, "highlight")
-            UIHelpers.highlight_cell(cells, i, col, "highlight")
+        selected_value = cells[row][col].get_value()
+        if selected_value == "":
+            # Highlight row and column
+            for i in range(GRID_SIZE):
+                UIHelpers.highlight_cell(cells, row, i, "highlight")
+                UIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        # Highlight block only once per cell
-        block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
-        block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
-        for r in range(block_row_start, block_row_start + BLOCK_SIZE):
-            for c in range(block_col_start, block_col_start + BLOCK_SIZE):
-                UIHelpers.highlight_cell(cells, r, c, "highlight")
+            # Highlight block only once per cell
+            block_row_start = (row // BLOCK_SIZE) * BLOCK_SIZE
+            block_col_start = (col // BLOCK_SIZE) * BLOCK_SIZE
+            for r in range(block_row_start, block_row_start + BLOCK_SIZE):
+                for c in range(block_col_start, block_col_start + BLOCK_SIZE):
+                    UIHelpers.highlight_cell(cells, r, c, "highlight")
+
+        else:
+            if selected_value not in (None, 0, ""):  # Only if there's a number
+                for r in range(GRID_SIZE):
+                    for c in range(GRID_SIZE):
+                        if cells[r][c].get_value() == selected_value:
+                            UIHelpers.highlight_cell(cells, r, c, "highlight")
 
     @staticmethod
     def highlight_conflicts(cells: list, row: int, col: int, label: str) -> list:
@@ -120,21 +130,40 @@ class UIHelpers:
     def specify_cell_correctness(
         cell, number: str, correct: str, conflict_cells: list, cell_inputs: list
     ):
-        """Handle cell correctness feedback."""
+        """Handle cell correctness feedback immediately removing previous highlights."""
+        def cancel_feedback():
+            """Cancel any pending feedback timers and clear previous highlights."""
+            tids = getattr(cell, "feedback_timeout_ids", [])
+            for tid in tids:
+                GLib.source_remove(tid)
+            cell.feedback_timeout_ids = []
+            cell.unhighlight("correct")
+            cell.unhighlight("wrong")
+            cell.set_tooltip_text("")
+
+        def schedule_feedback(action, delay=3000):
+            """Schedule a GLib timeout and track its ID."""
+            tid = GLib.timeout_add(delay, action)
+            cell.feedback_timeout_ids.append(tid)
+
+        cancel_feedback()
+
         if number == correct:
             cell.editable = False
             cell.highlight("correct")
             cell.set_tooltip_text(_("Correct"))
-            GLib.timeout_add(3000, lambda: cell.unhighlight("correct"))
-            GLib.timeout_add(3000, lambda: cell.set_tooltip_text(""))
+
+            schedule_feedback(lambda: cell.unhighlight("correct"))
+            schedule_feedback(lambda: cell.set_tooltip_text(""))
         else:
             cell.highlight("wrong")
             cell.set_tooltip_text(_("Wrong"))
+
             new_conflicts = UIHelpers.highlight_conflicts(
                 cell_inputs, cell.row, cell.col, number
             )
             conflict_cells.extend(new_conflicts)
-            GLib.timeout_add(3000, lambda: UIHelpers.clear_conflicts(conflict_cells))
+            schedule_feedback(lambda: UIHelpers.clear_conflicts(conflict_cells))
 
     @staticmethod
     def create_difficulty_dialog(parent_window: Gtk.Window, difficulties: list):

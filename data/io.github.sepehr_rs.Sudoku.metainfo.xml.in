@@ -73,6 +73,20 @@
   </developer>
 
   <releases  translate="no">
+      <release version="1.3.0" date="2025-09-02">
+        <description>
+          <p>New Features &amp; UI Changes:</p>
+          <ul>
+            <li>Sudoku now generates puzzles with a single unique solution.</li>
+            <li>You can now add notes using CTRL + number keys.</li>
+            <li>The pencil shortcut has been changed from CTRL + P to P for easier use.</li>
+            <li>Entry cells now support keyboard input from any keyboard layout.</li>
+            <li>A bug causing incorrect cell conflict highlighting has been fixed.</li>
+            <li>Notes are now autosaved.</li>
+            <li>Focusing on a clue cell now highlights all cells with the same number.</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.2.0" date="2025-08-23">
         <description>
         <p>New Features &amp; UI Changes:</p>

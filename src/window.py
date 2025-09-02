@@ -26,6 +26,7 @@ from .ui_helpers import UIHelpers
 from .difficulty_selection_dialog import DifficultySelectionDialog
 from .help_overlay import HelpOverlay
 from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
+from .loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
@@ -41,6 +42,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     main_menu_box = Gtk.Template.Child()
     game_view_box = Gtk.Template.Child()
     finished_page = Gtk.Template.Child()
+    loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
     primary_menu_button = Gtk.Template.Child()
