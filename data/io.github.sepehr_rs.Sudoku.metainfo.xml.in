@@ -73,6 +73,11 @@
   </developer>
 
   <releases  translate="no">
+      <release version="1.3.1" date="2025-09-03">
+        <description>
+          <p>Fixed endless gameloading screen.</p>
+        </description>
+      </release>
       <release version="1.3.0" date="2025-09-02">
         <description>
           <p>New Features &amp; UI Changes:</p>
