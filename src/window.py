@@ -63,6 +63,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_controller(gesture)
         action = Gio.SimpleAction.new("show-primary-menu", None)
         action.connect("activate", self.on_show_primary_menu)
+        self.add_action(action)
         action = Gio.SimpleAction.new("show-help-overlay", None)
         action.connect("activate", self.on_show_help_overlay)
         self.add_action(action)
