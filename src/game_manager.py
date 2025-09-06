@@ -60,7 +60,7 @@ class GameManager:
     def _on_game_ready(self, game_board):
         self.game_board = game_board
         self.build_grid()
-        self.window.stack.set_visible_child(self.window.game_view_box)
+        self.window.stack.set_visible_child(self.window.game_view_scroll)
         return False
 
     def load_saved_game(self):
@@ -70,7 +70,7 @@ class GameManager:
             self.window.sudoku_window_title.set_subtitle(f"{difficulty_label}")
             self.build_grid()
             self._restore_game_state()
-            self.window.stack.set_visible_child(self.window.game_view_box)
+            self.window.stack.set_visible_child(self.window.game_view_scroll)
             logging.info("Game successfully loaded from save.")
             if self.game_board.is_solved():
                 self._show_puzzle_finished_dialog()
@@ -154,10 +154,9 @@ class GameManager:
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
         frame.set_hexpand(True)
         frame.set_vexpand(True)
-        frame.set_halign(Gtk.Align.FILL)  # ensure fills horizontal space
-        frame.set_valign(Gtk.Align.FILL)  # ensure fills vertical space
+        frame.set_halign(Gtk.Align.FILL)
+        frame.set_valign(Gtk.Align.FILL)
         frame.set_child(parent_grid)
-
         self.window.grid_container.append(frame)
         frame.show()
 

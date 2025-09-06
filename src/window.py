@@ -40,7 +40,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     continue_button = Gtk.Template.Child()
     new_game_button = Gtk.Template.Child()
     main_menu_box = Gtk.Template.Child()
-    game_view_box = Gtk.Template.Child()
+    game_view_scroll = Gtk.Template.Child()
     finished_page = Gtk.Template.Child()
     loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()

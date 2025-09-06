@@ -12,11 +12,10 @@ template $SudokuWindow: Adw.ApplicationWindow {
   width-request: 725;
   height-request: 725;
 
-
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
-      title-widget: Adw.WindowTitle sudoku_window_title{
+      title-widget: Adw.WindowTitle sudoku_window_title {
         title: _("Sudoku");
       };
 
@@ -24,7 +23,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
       Button home_button {
         icon-name: "user-home-symbolic";
         tooltip-text: _("Back to main menu");
-        action-name:  "win.back-to-menu";
+        action-name: "win.back-to-menu";
       }
 
       [end]
@@ -37,13 +36,12 @@ template $SudokuWindow: Adw.ApplicationWindow {
       [end]
       ToggleButton pencil_toggle_button {
         icon-name: "pencil-symbolic";
-
         tooltip-text: _("Toggle Pencil Mode");
       }
     }
 
     content: Stack stack {
-      transition-type:crossfade;
+      transition-type: crossfade;
       transition-duration: 300;
 
       ScrolledWindow main_menu_box {
@@ -101,26 +99,32 @@ template $SudokuWindow: Adw.ApplicationWindow {
         };
       }
 
-      Box game_view_box {
-        orientation: vertical;
-        halign: fill;
-        valign: fill;
-        hexpand: true;
-        vexpand: true;
-        spacing: 12;
-        margin-top: 24;
-        margin-bottom: 24;
-        margin-start: 24;
-        margin-end: 24;
+      ScrolledWindow game_view_scroll {
+        hscrollbar-policy: automatic;
+        vscrollbar-policy: automatic;
 
-        Box grid_container {
+        child: Box game_view_box {
           orientation: vertical;
+          halign: fill;
+          valign: fill;
           hexpand: true;
           vexpand: true;
-        }
+          spacing: 12;
+          margin-top: 24;
+          margin-bottom: 24;
+          margin-start: 24;
+          margin-end: 24;
+
+          Box grid_container {
+            orientation: vertical;
+            hexpand: true;
+            vexpand: true;
+          }
+        };
       }
 
       $FinishedPage finished_page {}
+
       $LoadingScreen loading_screen {}
     };
   };
