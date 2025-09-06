@@ -194,8 +194,7 @@ class GameManager:
     def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
-        valid_numbers = "123456789"
-        if number in valid_numbers:
+        if number != "0":
             if self.pencil_mode or ctrl_is_pressed:
                 if number in self.game_board.get_notes(row, col):
                     self.game_board.remove_note(row, col, number)
