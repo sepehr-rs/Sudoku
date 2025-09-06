@@ -194,29 +194,30 @@ class GameManager:
     def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
+        valid_numbers = "123456789"
+        if number in valid_numbers:
+            if self.pencil_mode or ctrl_is_pressed:
+                if number in self.game_board.get_notes(row, col):
+                    self.game_board.remove_note(row, col, number)
+                else:
+                    self.game_board.add_note(row, col, number)
+                cell.update_notes(self.game_board.get_notes(row, col))
+                self.game_board.save_to_file()
+                return
 
-        if self.pencil_mode or ctrl_is_pressed:
-            if number in self.game_board.get_notes(row, col):
-                self.game_board.remove_note(row, col, number)
-            else:
-                self.game_board.add_note(row, col, number)
-            cell.update_notes(self.game_board.get_notes(row, col))
+            cell.set_value(number)
+            self.game_board.set_input(row, col, number)
             self.game_board.save_to_file()
-            return
 
-        cell.set_value(number)
-        self.game_board.set_input(row, col, number)
-        self.game_board.save_to_file()
+            correct = self.game_board.get_correct_value(row, col)
+            context = cell.get_style_context()
+            UIHelpers.clear_feedback_classes(context)
+            UIHelpers.specify_cell_correctness(
+                cell, number, correct, self.conflict_cells, self.cell_inputs
+            )
 
-        correct = self.game_board.get_correct_value(row, col)
-        context = cell.get_style_context()
-        UIHelpers.clear_feedback_classes(context)
-        UIHelpers.specify_cell_correctness(
-            cell, number, correct, self.conflict_cells, self.cell_inputs
-        )
-
-        if self.game_board.is_solved():
-            self._show_puzzle_finished_dialog()
+            if self.game_board.is_solved():
+                self._show_puzzle_finished_dialog()
 
     def _show_popover(self, cell: SudokuCell, mouse_button):
         popover = Gtk.Popover()
