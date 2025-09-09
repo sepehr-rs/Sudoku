@@ -33,7 +33,7 @@ class SudokuCell(Gtk.Button):
         self.set_margin_end(0)
         self.set_margin_top(0)
         self.set_margin_bottom(0)
-
+        self.compact_mode = False
         self._setup_ui()
         self._setup_initial_state(value)
 
@@ -98,23 +98,20 @@ class SudokuCell(Gtk.Button):
         # Clear old labels
         for child in list(self.notes_grid):
             self.notes_grid.remove(child)
-
         self.note_labels.clear()
-
         # If cell has a main value, don't show notes
         if not notes or self.main_label.get_text():
             return
-
         sorted_notes = sorted(notes, key=int)
-
+        size = 4 if self.compact_mode else 12
         for n in sorted_notes:
             note_label = Gtk.Label(label=n)
             note_label.get_style_context().add_class("note-cell-label")
 
             # Enforce fixed small size on each note label to avoid resizing cell
-            note_label.set_size_request(10, 10)  # tweak if needed
-            note_label.set_hexpand(True)
-            note_label.set_vexpand(True)
+            note_label.set_size_request(size, size)
+            note_label.set_hexpand(False)
+            note_label.set_vexpand(False)
             note_label.set_halign(Gtk.Align.FILL)
             note_label.set_valign(Gtk.Align.FILL)
 
@@ -135,6 +132,14 @@ class SudokuCell(Gtk.Button):
                 label.set_text("")
         self.notes_grid.set_halign(Gtk.Align.FILL)
         self.notes_grid.set_valign(Gtk.Align.FILL)
+
+    def set_compact(self, compact: bool):
+        if self.compact_mode != compact:
+            self.compact_mode = compact
+            size = 10 if compact else 40
+            self.set_size_request(size, size)
+            current_notes = set(self.note_labels.keys())
+            self.update_notes(current_notes)
 
     def highlight(self, class_name: str):
         """Add a highlight class to the cell."""

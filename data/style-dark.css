@@ -69,3 +69,23 @@
 .note-cell-label {
     color: #d9c3ae;
 }
+
+.width-compact #sudoku-parent-grid {
+    padding: 10px; /* shrink board padding */
+    border-radius: 6px;
+}
+
+.width-compact .sudoku-cell-button {
+    min-width: 5px;
+    min-height: 5px;
+}
+
+.width-compact  .entry-cell,
+.width-compact  .clue-cell {
+    font-size: 16px;
+}
+
+.width-compact .note-cell-label {
+    font-size: 4px;
+    padding: 0.3px;
+}

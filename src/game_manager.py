@@ -35,6 +35,8 @@ class GameManager:
         self.pencil_mode = False
         self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
         self._setup_actions()
+        self.parent_grid = None
+        self.blocks = []
 
     def _setup_actions(self):
         back_action = Gio.SimpleAction.new("back-to-menu", None)
@@ -96,17 +98,17 @@ class GameManager:
             self.window.grid_container.remove(child)
 
         # Parent grid (3x3) holding 9 blocks
-        parent_grid = Gtk.Grid(
+        self.parent_grid = Gtk.Grid(
             row_spacing=10,
             column_spacing=10,
             column_homogeneous=True,
             row_homogeneous=True,
         )
-        parent_grid.set_name("sudoku-parent-grid")
-
+        self.parent_grid.set_name("sudoku-parent-grid")
         # Prepare 9 block grids (3x3 each)
-        blocks = [[None for _ in range(3)] for _ in range(3)]
+        self.blocks = []
         for block_row in range(3):
+            row_blocks = []
             for block_col in range(3):
                 block = Gtk.Grid(
                     row_spacing=4,
@@ -115,8 +117,9 @@ class GameManager:
                     row_homogeneous=True,
                 )
                 block.get_style_context().add_class("sudoku-block")
-                blocks[block_row][block_col] = block
-                parent_grid.attach(block, block_col, block_row, 1, 1)
+                row_blocks.append(block)
+                self.parent_grid.attach(block, block_col, block_row, 1, 1)
+            self.blocks.append(row_blocks)
 
         # Initialize the 9x9 cell grid
         self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
@@ -147,7 +150,7 @@ class GameManager:
                 inner_row = row % 3
                 inner_col = col % 3
 
-                block = blocks[block_row][block_col]
+                block = self.blocks[block_row][block_col]
                 block.attach(cell, inner_col, inner_row, 1, 1)
 
         # Wrap grid in an AspectFrame to maintain square shape
@@ -156,10 +159,19 @@ class GameManager:
         frame.set_vexpand(True)
         frame.set_halign(Gtk.Align.FILL)  # ensure fills horizontal space
         frame.set_valign(Gtk.Align.FILL)  # ensure fills vertical space
-        frame.set_child(parent_grid)
+        frame.set_child(self.parent_grid)
 
+        self.board_frame = frame
         self.window.grid_container.append(frame)
         frame.show()
+
+        compact_active = False
+        bp = getattr(self.window, "bp_bin", None)
+        if bp and bp.get_style_context().has_class("width-compact"):
+            compact_active = True
+
+        self.window._apply_width_compact(compact_active)
+        self.window.grid_container.queue_allocate()
 
     def _focus_cell(self, row: int, col: int):
         self.cell_inputs[row][col].grab_focus()
@@ -314,7 +326,7 @@ class GameManager:
         return False
 
     def on_number_selected(
-            self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
+        self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
     ):
         number = num_button.get_label()
         if mouse_button == 1:

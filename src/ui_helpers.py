@@ -131,6 +131,7 @@ class UIHelpers:
         cell, number: str, correct: str, conflict_cells: list, cell_inputs: list
     ):
         """Handle cell correctness feedback immediately removing previous highlights."""
+
         def cancel_feedback():
             """Cancel any pending feedback timers and clear previous highlights."""
             tids = getattr(cell, "feedback_timeout_ids", [])
