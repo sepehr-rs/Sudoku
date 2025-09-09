@@ -218,7 +218,7 @@ class GameManager:
             if self.game_board.is_solved():
                 self._show_puzzle_finished_dialog()
 
-    def _show_popover(self, cell: SudokuCell, mouse_button):
+    def _show_popover(self, cell: SudokuCell, mouse_button=None):
         popover = Gtk.Popover()
         popover.set_has_arrow(False)
         popover.set_position(Gtk.PositionType.BOTTOM)
