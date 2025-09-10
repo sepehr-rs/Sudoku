@@ -165,12 +165,17 @@ class GameManager:
         self.window.grid_container.append(frame)
         frame.show()
 
-        compact_active = False
+        width_mode_active, height_mode_active = False, False
         bp = getattr(self.window, "bp_bin", None)
         if bp and bp.get_style_context().has_class("width-compact"):
-            compact_active = True
+            width_mode_active = True
+        elif bp and bp.get_style_context().has_class("height-compact"):
+            height_mode_active = True
 
-        self.window._apply_width_compact(compact_active)
+        self.window._apply_width_compact(
+            any([width_mode_active, height_mode_active]),
+            "width" if width_mode_active else "height"
+        )
         self.window.grid_container.queue_allocate()
 
     def _focus_cell(self, row: int, col: int):

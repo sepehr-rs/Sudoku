@@ -79,8 +79,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         height_condition = Adw.BreakpointCondition.parse("max-height: 500px")
         height_bp = Adw.Breakpoint.new(height_condition)
         height_bp.name = "compact-height"
-        height_bp.connect("apply", lambda bp, *_: print("Height breakpoint applied"))
-        height_bp.connect("unapply", lambda bp, *_: print("Height breakpoint applied"))
+        height_bp.connect(
+            "apply", lambda bp, *_: self._apply_width_compact(True, "height")
+        )
+        height_bp.connect(
+            "unapply", lambda bp, *_: self._apply_width_compact(False, "height")
+        )
         bp_bin.add_breakpoint(height_bp)
 
         # --- WIDTH BREAKPOINT (custom behavior) ---
@@ -88,29 +92,53 @@ class SudokuWindow(Adw.ApplicationWindow):
         width_bp = Adw.Breakpoint.new(width_condition)
         width_bp.name = "compact-width"
         # TEMP: no logic yet — you can write your own later
-        width_bp.connect("apply", lambda bp, *_: self._apply_width_compact(True))
-        width_bp.connect("unapply", lambda bp, *_: self._apply_width_compact(False))
+        width_bp.connect(
+            "apply", lambda bp, *_: self._apply_width_compact(True, "width")
+        )
+        width_bp.connect(
+            "unapply", lambda bp, *_: self._apply_width_compact(False, "width")
+        )
         bp_bin.add_breakpoint(width_bp)
 
-    def _apply_width_compact(self, compact: bool):
-        print("WIDTH COMPACT ON" if compact else "WIDTH COMPACT OFF")
-        target = self.bp_bin or self
-        if compact:
-            target.add_css_class("width-compact")
+    def _apply_width_compact(self, compact: bool, mode):
+        if mode == "width":
+            print(f"{mode} COMPACT ON" if compact else f"{mode} COMPACT OFF")
+            target = self.bp_bin or self
+            if compact:
+                target.add_css_class("width-compact")
+            else:
+                target.remove_css_class("width-compact")
+
+            # Grid spacing
+            parent_spacing = 8 if compact else 10
+            block_spacing = 2 if compact else 4
+
+            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
+            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
+
+            for row in self.game_manager.blocks:
+                for block in row:
+                    block.set_row_spacing(block_spacing)
+                    block.set_column_spacing(block_spacing)
         else:
-            target.remove_css_class("width-compact")
+            print(f"{mode} COMPACT ON" if compact else f"{mode} COMPACT OFF")
+            target = self.bp_bin or self
+            if compact:
+                target.add_css_class("height-compact")
+            else:
+                target.remove_css_class("height-compact")
 
-        # Grid spacing
-        parent_spacing = 8 if compact else 10
-        block_spacing = 2 if compact else 4
+            # Grid spacing
+            parent_spacing = 8 if compact else 10
+            block_spacing = 2 if compact else 4
 
-        self.game_manager.parent_grid.set_row_spacing(parent_spacing)
-        self.game_manager.parent_grid.set_column_spacing(parent_spacing)
+            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
+            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
 
-        for row in self.game_manager.blocks:
-            for block in row:
-                block.set_row_spacing(block_spacing)
-                block.set_column_spacing(block_spacing)
+            for row in self.game_manager.blocks:
+                for block in row:
+                    block.set_row_spacing(block_spacing)
+                    block.set_column_spacing(block_spacing)
 
         # Update each cell
         for r in range(9):
