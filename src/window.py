@@ -72,10 +72,8 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _setup_breakpoints(self):
         """Setup separate breakpoints for width and height."""
-        # ensure bp_bin exists (either from XML or create it)
         bp_bin = self.bp_bin
-
-        # --- HEIGHT BREAKPOINT (rotated devices) ---
+        bp_bin.set_size_request(10, 10)
         height_condition = Adw.BreakpointCondition.parse("max-height: 500px")
         height_bp = Adw.Breakpoint.new(height_condition)
         height_bp.name = "compact-height"
@@ -86,12 +84,9 @@ class SudokuWindow(Adw.ApplicationWindow):
             "unapply", lambda bp, *_: self._apply_width_compact(False, "height")
         )
         bp_bin.add_breakpoint(height_bp)
-
-        # --- WIDTH BREAKPOINT (custom behavior) ---
-        width_condition = Adw.BreakpointCondition.parse("max-width: 600px")
+        width_condition = Adw.BreakpointCondition.parse("max-width: 650px")
         width_bp = Adw.Breakpoint.new(width_condition)
         width_bp.name = "compact-width"
-        # TEMP: no logic yet — you can write your own later
         width_bp.connect(
             "apply", lambda bp, *_: self._apply_width_compact(True, "width")
         )

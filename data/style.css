@@ -41,8 +41,8 @@ statuspage image {
 }
 
 .sudoku-cell-button {
-    min-width: 40px;
-    min-height: 40px;
+    min-width: 10px;
+    min-height: 10px;
 }
 
 #sudoku-parent-grid button.entry-cell.correct {
@@ -87,11 +87,6 @@ statuspage image {
 .width-compact #sudoku-parent-grid {
     padding: 10px; /* shrink board padding */
     border-radius: 6px;
-}
-
-.width-compact .sudoku-cell-button {
-    min-width: 10px;
-    min-height: 10px;
 }
 
 .width-compact  .entry-cell,

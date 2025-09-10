@@ -75,11 +75,6 @@
     border-radius: 6px;
 }
 
-.width-compact .sudoku-cell-button {
-    min-width: 10px;
-    min-height: 10px;
-}
-
 .width-compact  .entry-cell,
 .width-compact  .clue-cell {
     font-size: 16px;
