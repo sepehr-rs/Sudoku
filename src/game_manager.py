@@ -174,7 +174,7 @@ class GameManager:
 
         self.window._apply_width_compact(
             any([width_mode_active, height_mode_active]),
-            "width" if width_mode_active else "height"
+            "width" if width_mode_active else "height",
         )
         self.window.grid_container.queue_allocate()
 
