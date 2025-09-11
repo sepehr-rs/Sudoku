@@ -76,19 +76,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         """Setup separate breakpoints for width and height."""
         # No need for bp_bin or size_request now
 
-        small_condition = Adw.BreakpointCondition.parse("max-height: 480px")
-        small_bp = Adw.Breakpoint.new(small_condition)
-        small_bp.name = "compact-height"
-        small_bp.connect(
-            "apply",   lambda bp, *_: self._apply_compact(True, "height")
-        )
-        small_bp.connect(
-            "unapply", lambda bp, *_: self._apply_compact(False, "height")
-        )
-        self.add_breakpoint(small_bp)
-
         compact_condition = Adw.BreakpointCondition.parse(
-            "max-width: 550px or max-height:580px"
+            "max-width: 550px or max-height:600px"
         )
         compact_bp = Adw.Breakpoint.new(compact_condition)
         compact_bp.name = "compact-width"
@@ -99,6 +88,19 @@ class SudokuWindow(Adw.ApplicationWindow):
             "unapply", lambda bp, *_: self._apply_compact(False, "width")
         )
         self.add_breakpoint(compact_bp)
+
+        small_condition = Adw.BreakpointCondition.parse(
+            "max-width: 400px or max-height:400px"
+        )
+        small_bp = Adw.Breakpoint.new(small_condition)
+        small_bp.name = "compact-height"
+        small_bp.connect(
+            "apply",   lambda bp, *_: self._apply_compact(True, "height")
+        )
+        small_bp.connect(
+            "unapply", lambda bp, *_: self._apply_compact(False, "height")
+        )
+        self.add_breakpoint(small_bp)
 
     def on_size_changed(self, widget, _param):
         width = self.get_allocated_width()
