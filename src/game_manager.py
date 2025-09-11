@@ -169,7 +169,7 @@ class GameManager:
         bp = getattr(self.window, "bp_bin", None)
         if bp and bp.get_style_context().has_class("width-compact"):
             width_mode_active = True
-        elif bp and bp.get_style_context().has_class("height-compact"):
+        if bp and bp.get_style_context().has_class("height-compact"):
             height_mode_active = True
 
         self.window._apply_compact(
