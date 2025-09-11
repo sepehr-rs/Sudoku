@@ -58,49 +58,12 @@
 
 .entry-cell {
     color: rgba(240, 230, 219, 1);
-    font-size: 20px;
 }
 
 .clue-cell {
     color: rgba(240, 230, 219, 0.65);
-    font-size: 20px;
 }
 
 .note-cell-label {
     color: #d9c3ae;
-}
-
-.width-compact #sudoku-parent-grid {
-    padding: 10px; /* shrink board padding */
-    border-radius: 6px;
-}
-
-.width-compact  .entry-cell,
-.width-compact  .clue-cell {
-    font-size: 16px;
-}
-
-.width-compact .note-cell-label {
-    font-size: 5px;
-    padding: 0.01px;
-}
-
-.height-compact #sudoku-parent-grid {
-    padding: 10px; /* shrink board padding */
-    border-radius: 6px;
-}
-
-.height-compact .sudoku-cell-button {
-    min-width: 5px;
-    min-height: 5px;
-}
-
-.height-compact  .entry-cell,
-.height-compact .clue-cell {
-    font-size: 10px;
-}
-
-.height-compact .note-cell-label {
-    font-size: 2px;
-    padding: 0.1px;
 }
