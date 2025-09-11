@@ -84,7 +84,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             "unapply", lambda bp, *_: self._apply_compact(False, "height")
         )
         bp_bin.add_breakpoint(height_bp)
-        width_condition = Adw.BreakpointCondition.parse("max-width: 650px")
+        width_condition = Adw.BreakpointCondition.parse("max-width: 550px")
         width_bp = Adw.Breakpoint.new(width_condition)
         width_bp.name = "compact-width"
         width_bp.connect(
@@ -109,20 +109,21 @@ class SudokuWindow(Adw.ApplicationWindow):
         parent_spacing = 8 if compact else 10
         block_spacing = 2 if compact else 4
 
-        self.game_manager.parent_grid.set_row_spacing(parent_spacing)
-        self.game_manager.parent_grid.set_column_spacing(parent_spacing)
+        if self.game_manager.parent_grid:
+            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
+            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
 
-        for row in self.game_manager.blocks:
-            for block in row:
-                block.set_row_spacing(block_spacing)
-                block.set_column_spacing(block_spacing)
+            for row in self.game_manager.blocks:
+                for block in row:
+                    block.set_row_spacing(block_spacing)
+                    block.set_column_spacing(block_spacing)
 
-        # Update each cell
-        for r in range(9):
-            for c in range(9):
-                cell = self.game_manager.cell_inputs[r][c]
-                if cell:
-                    cell.set_compact(compact)
+            # Update each cell
+            for r in range(9):
+                for c in range(9):
+                    cell = self.game_manager.cell_inputs[r][c]
+                    if cell:
+                        cell.set_compact(compact)
 
     def on_show_primary_menu(self, action, param):
         """Open the hamburger menu popover."""
