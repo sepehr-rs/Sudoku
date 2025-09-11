@@ -9,14 +9,13 @@ template $SudokuWindow: Adw.ApplicationWindow {
   title: _("Sudoku");
   default-width: 750;
   default-height: 750;
-  width-request: 725;
-  height-request: 725;
-
+  width-request: 360;
+  height-request: 420;
 
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
-      title-widget: Adw.WindowTitle sudoku_window_title{
+      title-widget: Adw.WindowTitle sudoku_window_title {
         title: _("Sudoku");
       };
 
@@ -24,7 +23,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
       Button home_button {
         icon-name: "user-home-symbolic";
         tooltip-text: _("Back to main menu");
-        action-name:  "win.back-to-menu";
+        action-name: "win.back-to-menu";
       }
 
       [end]
@@ -37,91 +36,96 @@ template $SudokuWindow: Adw.ApplicationWindow {
       [end]
       ToggleButton pencil_toggle_button {
         icon-name: "pencil-symbolic";
-
         tooltip-text: _("Toggle Pencil Mode");
       }
     }
 
-    content: Stack stack {
-      transition-type:crossfade;
-      transition-duration: 300;
+    content: Adw.BreakpointBin bp_bin {
+      child: Stack stack {
+        transition-type: crossfade;
+        transition-duration: 300;
 
-      ScrolledWindow main_menu_box {
-        hscrollbar-policy: never;
+        ScrolledWindow main_menu_box {
+          hscrollbar-policy: never;
 
-        child: Adw.Clamp {
-          child: Box main_menu_page_box {
-            orientation: vertical;
-            margin-bottom: 24;
-            valign: center;
-
-            Adw.StatusPage overlay_placeholder {
-              icon-name: "io.github.sepehr_rs.Sudoku";
-              valign: center;
-              tooltip-text: _("Sudoku Game Icon");
-            }
-
-            Label {
-              label: _("Sudoku Game");
-              tooltip-text: _("Sudoku Game");
-
-              styles [
-                "title-1",
-              ]
-            }
-
-            Box menu_box {
+          child: Adw.Clamp {
+            child: Box main_menu_page_box {
               orientation: vertical;
-              spacing: 12;
-              margin-top: 24;
-              valign: center;
               halign: center;
+              valign: center;
+              spacing: 24;
+
+              Adw.StatusPage overlay_placeholder {
+                icon-name: "io.github.sepehr_rs.Sudoku";
+                tooltip-text: _("Sudoku Game Icon");
+                halign: center;
+                valign: center;
+              }
+
+              Label {
+                label: _("Sudoku Game");
+                tooltip-text: _("Sudoku Game");
+                styles [
+                  "title-1",
+                ]
+
+                halign: center;
+                valign: center;
+              }
+
+              Box menu_box {
+                orientation: vertical;
+                spacing: 12;
+                halign: center;
+                hexpand: false;
+                vexpand: false;
+
+                Button continue_button {
+                  label: _("_Continue Game");
+                  use-underline: true;
+
+                  styles [
+                    "pill",
+                  ]
+                }
+
+                Button new_game_button {
+                  label: _("_New Game");
+                  use-underline: true;
+
+                  styles [
+                    "pill",
+                  ]
+                }
+              }
+            };
+          };
+        }
+
+        Adw.Clamp game_view_box {
+          child: Box {
+            orientation: vertical;
+            halign: fill;
+            valign: fill;
+            hexpand: true;
+            vexpand: true;
+            spacing: 12;
+            margin-top: 24;
+            margin-bottom: 24;
+            margin-start: 24;
+            margin-end: 24;
+
+            Box grid_container {
+              orientation: vertical;
               hexpand: true;
               vexpand: true;
-
-              Button continue_button {
-                label: _("_Continue Game");
-                use-underline: true;
-
-                styles [
-                  "pill",
-                ]
-              }
-
-              Button new_game_button {
-                label: _("_New Game");
-                use-underline: true;
-
-                styles [
-                  "pill",
-                ]
-              }
             }
           };
-        };
-      }
-
-      Box game_view_box {
-        orientation: vertical;
-        halign: fill;
-        valign: fill;
-        hexpand: true;
-        vexpand: true;
-        spacing: 12;
-        margin-top: 24;
-        margin-bottom: 24;
-        margin-start: 24;
-        margin-end: 24;
-
-        Box grid_container {
-          orientation: vertical;
-          hexpand: true;
-          vexpand: true;
         }
-      }
 
-      $FinishedPage finished_page {}
-      $LoadingScreen loading_screen {}
+        $FinishedPage finished_page {}
+        $LoadingScreen loading_screen {}
+      };
     };
   };
 }

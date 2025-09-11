@@ -47,6 +47,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     pencil_toggle_button = Gtk.Template.Child()
     primary_menu_button = Gtk.Template.Child()
     sudoku_window_title = Gtk.Template.Child()
+    bp_bin = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -67,6 +68,66 @@ class SudokuWindow(Adw.ApplicationWindow):
         action = Gio.SimpleAction.new("show-help-overlay", None)
         action.connect("activate", self.on_show_help_overlay)
         self.add_action(action)
+        self._setup_breakpoints()
+        self.connect("notify::default-width", self.on_size_changed)
+        self.connect("notify::default-height", self.on_size_changed)
+
+    def _setup_breakpoints(self):
+        """Setup separate breakpoints for width and height."""
+        # No need for bp_bin or size_request now
+
+        compact_condition = Adw.BreakpointCondition.parse(
+            "max-width: 550px or max-height:600px"
+        )
+        compact_bp = Adw.Breakpoint.new(compact_condition)
+        compact_bp.name = "compact-width"
+        compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "width"))
+        compact_bp.connect(
+            "unapply", lambda bp, *_: self._apply_compact(False, "width")
+        )
+        self.add_breakpoint(compact_bp)
+
+        small_condition = Adw.BreakpointCondition.parse(
+            "max-width: 400px or max-height:400px"
+        )
+        small_bp = Adw.Breakpoint.new(small_condition)
+        small_bp.name = "compact-height"
+        small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "height"))
+        small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "height"))
+        self.add_breakpoint(small_bp)
+
+    def on_size_changed(self, widget, _param):
+        width = self.get_allocated_width()
+        height = self.get_allocated_height()
+        print(f"Window size: {width}x{height}")
+
+    def _apply_compact(self, compact: bool, mode):
+        css_class = f"{mode}-compact"
+        target = self.bp_bin or self
+        if compact:
+            target.add_css_class(css_class)
+        else:
+            target.remove_css_class(css_class)
+
+        # Grid spacing (same for both width/height)
+        parent_spacing = 8 if compact else 10
+        block_spacing = 2 if compact else 4
+
+        if self.game_manager.parent_grid:
+            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
+            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
+
+            for row in self.game_manager.blocks:
+                for block in row:
+                    block.set_row_spacing(block_spacing)
+                    block.set_column_spacing(block_spacing)
+
+            # Update each cell
+            for r in range(9):
+                for c in range(9):
+                    cell = self.game_manager.cell_inputs[r][c]
+                    if cell:
+                        cell.set_compact(compact)
 
     def on_show_primary_menu(self, action, param):
         """Open the hamburger menu popover."""
