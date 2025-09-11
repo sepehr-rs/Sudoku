@@ -35,6 +35,8 @@ class GameManager:
         self.pencil_mode = False
         self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
         self._setup_actions()
+        self.parent_grid = None
+        self.blocks = []
 
     def _setup_actions(self):
         back_action = Gio.SimpleAction.new("back-to-menu", None)
@@ -96,17 +98,17 @@ class GameManager:
             self.window.grid_container.remove(child)
 
         # Parent grid (3x3) holding 9 blocks
-        parent_grid = Gtk.Grid(
+        self.parent_grid = Gtk.Grid(
             row_spacing=10,
             column_spacing=10,
             column_homogeneous=True,
             row_homogeneous=True,
         )
-        parent_grid.set_name("sudoku-parent-grid")
-
+        self.parent_grid.set_name("sudoku-parent-grid")
         # Prepare 9 block grids (3x3 each)
-        blocks = [[None for _ in range(3)] for _ in range(3)]
+        self.blocks = []
         for block_row in range(3):
+            row_blocks = []
             for block_col in range(3):
                 block = Gtk.Grid(
                     row_spacing=4,
@@ -115,8 +117,9 @@ class GameManager:
                     row_homogeneous=True,
                 )
                 block.get_style_context().add_class("sudoku-block")
-                blocks[block_row][block_col] = block
-                parent_grid.attach(block, block_col, block_row, 1, 1)
+                row_blocks.append(block)
+                self.parent_grid.attach(block, block_col, block_row, 1, 1)
+            self.blocks.append(row_blocks)
 
         # Initialize the 9x9 cell grid
         self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
@@ -147,7 +150,7 @@ class GameManager:
                 inner_row = row % 3
                 inner_col = col % 3
 
-                block = blocks[block_row][block_col]
+                block = self.blocks[block_row][block_col]
                 block.attach(cell, inner_col, inner_row, 1, 1)
 
         # Wrap grid in an AspectFrame to maintain square shape
@@ -156,10 +159,24 @@ class GameManager:
         frame.set_vexpand(True)
         frame.set_halign(Gtk.Align.FILL)  # ensure fills horizontal space
         frame.set_valign(Gtk.Align.FILL)  # ensure fills vertical space
-        frame.set_child(parent_grid)
+        frame.set_child(self.parent_grid)
 
+        self.board_frame = frame
         self.window.grid_container.append(frame)
         frame.show()
+
+        width_mode_active, height_mode_active = False, False
+        bp = getattr(self.window, "bp_bin", None)
+        if bp and bp.get_style_context().has_class("width-compact"):
+            width_mode_active = True
+        if bp and bp.get_style_context().has_class("height-compact"):
+            height_mode_active = True
+
+        self.window._apply_compact(
+            any([width_mode_active, height_mode_active]),
+            "width" if width_mode_active else "height",
+        )
+        self.window.grid_container.queue_allocate()
 
     def _focus_cell(self, row: int, col: int):
         self.cell_inputs[row][col].grab_focus()
@@ -191,34 +208,34 @@ class GameManager:
         UIHelpers.clear_feedback_classes(cell.get_style_context())
         self.game_board.set_input(row, col, None)
 
-    def _fill_cell(self, cell: SudokuCell, number: str, write_note=False):
+    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
         UIHelpers.clear_conflicts(self.conflict_cells)
         row, col = cell.row, cell.col
+        if number != "0":
+            if self.pencil_mode or ctrl_is_pressed:
+                if number in self.game_board.get_notes(row, col):
+                    self.game_board.remove_note(row, col, number)
+                else:
+                    self.game_board.add_note(row, col, number)
+                cell.update_notes(self.game_board.get_notes(row, col))
+                self.game_board.save_to_file()
+                return
 
-        if self.pencil_mode or write_note:
-            if number in self.game_board.get_notes(row, col):
-                self.game_board.remove_note(row, col, number)
-            else:
-                self.game_board.add_note(row, col, number)
-            cell.update_notes(self.game_board.get_notes(row, col))
+            cell.set_value(number)
+            self.game_board.set_input(row, col, number)
             self.game_board.save_to_file()
-            return
 
-        cell.set_value(number)
-        self.game_board.set_input(row, col, number)
-        self.game_board.save_to_file()
+            correct = self.game_board.get_correct_value(row, col)
+            context = cell.get_style_context()
+            UIHelpers.clear_feedback_classes(context)
+            UIHelpers.specify_cell_correctness(
+                cell, number, correct, self.conflict_cells, self.cell_inputs
+            )
 
-        correct = self.game_board.get_correct_value(row, col)
-        context = cell.get_style_context()
-        UIHelpers.clear_feedback_classes(context)
-        UIHelpers.specify_cell_correctness(
-            cell, number, correct, self.conflict_cells, self.cell_inputs
-        )
+            if self.game_board.is_solved():
+                self._show_puzzle_finished_dialog()
 
-        if self.game_board.is_solved():
-            self._show_puzzle_finished_dialog()
-
-    def _show_popover(self, cell: SudokuCell, mouse_button):
+    def _show_popover(self, cell: SudokuCell, mouse_button=None):
         popover = Gtk.Popover()
         popover.set_has_arrow(False)
         popover.set_position(Gtk.PositionType.BOTTOM)
@@ -314,7 +331,7 @@ class GameManager:
         return False
 
     def on_number_selected(
-            self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
+        self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
     ):
         number = num_button.get_label()
         if mouse_button == 1:

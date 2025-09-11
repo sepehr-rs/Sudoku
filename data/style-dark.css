@@ -58,12 +58,10 @@
 
 .entry-cell {
     color: rgba(240, 230, 219, 1);
-    font-size: 20px;
 }
 
 .clue-cell {
     color: rgba(240, 230, 219, 0.65);
-    font-size: 20px;
 }
 
 .note-cell-label {
