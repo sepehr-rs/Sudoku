@@ -69,31 +69,41 @@ class SudokuWindow(Adw.ApplicationWindow):
         action.connect("activate", self.on_show_help_overlay)
         self.add_action(action)
         self._setup_breakpoints()
+        self.connect("notify::default-width", self.on_size_changed)
+        self.connect("notify::default-height", self.on_size_changed)
 
     def _setup_breakpoints(self):
         """Setup separate breakpoints for width and height."""
-        bp_bin = self.bp_bin
-        bp_bin.set_size_request(10, 10)
-        height_condition = Adw.BreakpointCondition.parse("max-height: 500px")
-        height_bp = Adw.Breakpoint.new(height_condition)
-        height_bp.name = "compact-height"
-        height_bp.connect(
-            "apply", lambda bp, *_: self._apply_compact(True, "height")
+        # No need for bp_bin or size_request now
+
+        small_condition = Adw.BreakpointCondition.parse("max-height: 480px")
+        small_bp = Adw.Breakpoint.new(small_condition)
+        small_bp.name = "compact-height"
+        small_bp.connect(
+            "apply",   lambda bp, *_: self._apply_compact(True, "height")
         )
-        height_bp.connect(
+        small_bp.connect(
             "unapply", lambda bp, *_: self._apply_compact(False, "height")
         )
-        bp_bin.add_breakpoint(height_bp)
-        width_condition = Adw.BreakpointCondition.parse("max-width: 550px")
-        width_bp = Adw.Breakpoint.new(width_condition)
-        width_bp.name = "compact-width"
-        width_bp.connect(
-            "apply", lambda bp, *_: self._apply_compact(True, "width")
+        self.add_breakpoint(small_bp)
+
+        compact_condition = Adw.BreakpointCondition.parse(
+            "max-width: 550px or max-height:580px"
         )
-        width_bp.connect(
+        compact_bp = Adw.Breakpoint.new(compact_condition)
+        compact_bp.name = "compact-width"
+        compact_bp.connect(
+            "apply",   lambda bp, *_: self._apply_compact(True, "width")
+        )
+        compact_bp.connect(
             "unapply", lambda bp, *_: self._apply_compact(False, "width")
         )
-        bp_bin.add_breakpoint(width_bp)
+        self.add_breakpoint(compact_bp)
+
+    def on_size_changed(self, widget, _param):
+        width = self.get_allocated_width()
+        height = self.get_allocated_height()
+        print(f"Window size: {width}x{height}")
 
     def _apply_compact(self, compact: bool, mode):
         css_class = f"{mode}-compact"
