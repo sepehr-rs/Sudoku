@@ -78,62 +78,44 @@ class SudokuWindow(Adw.ApplicationWindow):
         height_bp = Adw.Breakpoint.new(height_condition)
         height_bp.name = "compact-height"
         height_bp.connect(
-            "apply", lambda bp, *_: self._apply_width_compact(True, "height")
+            "apply", lambda bp, *_: self._apply_compact(True, "height")
         )
         height_bp.connect(
-            "unapply", lambda bp, *_: self._apply_width_compact(False, "height")
+            "unapply", lambda bp, *_: self._apply_compact(False, "height")
         )
         bp_bin.add_breakpoint(height_bp)
         width_condition = Adw.BreakpointCondition.parse("max-width: 650px")
         width_bp = Adw.Breakpoint.new(width_condition)
         width_bp.name = "compact-width"
         width_bp.connect(
-            "apply", lambda bp, *_: self._apply_width_compact(True, "width")
+            "apply", lambda bp, *_: self._apply_compact(True, "width")
         )
         width_bp.connect(
-            "unapply", lambda bp, *_: self._apply_width_compact(False, "width")
+            "unapply", lambda bp, *_: self._apply_compact(False, "width")
         )
         bp_bin.add_breakpoint(width_bp)
 
-    def _apply_width_compact(self, compact: bool, mode):
-        if mode == "width":
-            print(f"{mode} COMPACT ON" if compact else f"{mode} COMPACT OFF")
-            target = self.bp_bin or self
-            if compact:
-                target.add_css_class("width-compact")
-            else:
-                target.remove_css_class("width-compact")
+    def _apply_compact(self, compact: bool, mode):
+        css_class = f"{mode}-compact"
+        print(f"{mode} COMPACT {'ON' if compact else 'OFF'}")
 
-            # Grid spacing
-            parent_spacing = 8 if compact else 10
-            block_spacing = 2 if compact else 4
-
-            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
-            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
-
-            for row in self.game_manager.blocks:
-                for block in row:
-                    block.set_row_spacing(block_spacing)
-                    block.set_column_spacing(block_spacing)
+        target = self.bp_bin or self
+        if compact:
+            target.add_css_class(css_class)
         else:
-            print(f"{mode} COMPACT ON" if compact else f"{mode} COMPACT OFF")
-            target = self.bp_bin or self
-            if compact:
-                target.add_css_class("height-compact")
-            else:
-                target.remove_css_class("height-compact")
+            target.remove_css_class(css_class)
 
-            # Grid spacing
-            parent_spacing = 8 if compact else 10
-            block_spacing = 2 if compact else 4
+        # Grid spacing (same for both width/height)
+        parent_spacing = 8 if compact else 10
+        block_spacing = 2 if compact else 4
 
-            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
-            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
+        self.game_manager.parent_grid.set_row_spacing(parent_spacing)
+        self.game_manager.parent_grid.set_column_spacing(parent_spacing)
 
-            for row in self.game_manager.blocks:
-                for block in row:
-                    block.set_row_spacing(block_spacing)
-                    block.set_column_spacing(block_spacing)
+        for row in self.game_manager.blocks:
+            for block in row:
+                block.set_row_spacing(block_spacing)
+                block.set_column_spacing(block_spacing)
 
         # Update each cell
         for r in range(9):
