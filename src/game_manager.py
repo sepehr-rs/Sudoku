@@ -16,232 +16,289 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-import logging
+"""Game Manager module to control game logic."""
 import threading
-import unicodedata
-from gi.repository import Gtk, Gdk, GLib, Gio
 from gettext import gettext as _
-from .game_board import GameBoard, GRID_SIZE
-from .sudoku_cell import SudokuCell
+
+import gi
+
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
+from gi.repository import Adw, Gdk, GLib, Gtk
+
+from . import GameBoard, SudokuCell
+from .finished_page import FinishedPage
 from .ui_helpers import UIHelpers
 
 
 class GameManager:
+    """Main game manager to control game logic."""
+
     def __init__(self, window):
         self.window = window
         self.game_board = None
-        self.cell_inputs = None
-        self.conflict_cells = []
-        self.pencil_mode = False
-        self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
-        self._setup_actions()
+        self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
+        self.blocks = [[None for _ in range(3)] for _ in range(3)]
         self.parent_grid = None
-        self.blocks = []
+        self.game_running = False
+        self.pencil_mode = False
+        self.conflict_cells = []
 
-    def _setup_actions(self):
-        back_action = Gio.SimpleAction.new("back-to-menu", None)
-        back_action.connect("activate", self.on_back_to_menu)
-        self.window.add_action(back_action)
+        # Key bindings
+        self.key_map = {
+            Gdk.KEY_1: "1",
+            Gdk.KEY_2: "2",
+            Gdk.KEY_3: "3",
+            Gdk.KEY_4: "4",
+            Gdk.KEY_5: "5",
+            Gdk.KEY_6: "6",
+            Gdk.KEY_7: "7",
+            Gdk.KEY_8: "8",
+            Gdk.KEY_9: "9",
+            Gdk.KEY_KP_1: "1",
+            Gdk.KEY_KP_2: "2",
+            Gdk.KEY_KP_3: "3",
+            Gdk.KEY_KP_4: "4",
+            Gdk.KEY_KP_5: "5",
+            Gdk.KEY_KP_6: "6",
+            Gdk.KEY_KP_7: "7",
+            Gdk.KEY_KP_8: "8",
+            Gdk.KEY_KP_9: "9",
+        }
 
-        pencil_action = Gio.SimpleAction.new_stateful(
-            "pencil-toggled", None, GLib.Variant.new_boolean(False)
-        )
-        pencil_action.connect("change-state", self.on_pencil_action_toggled)
-        self.window.add_action(pencil_action)
+        self.remove_cell_keybindings = [
+            Gdk.KEY_Delete,
+            Gdk.KEY_KP_Delete,
+            Gdk.KEY_BackSpace,
+            Gdk.KEY_0,
+            Gdk.KEY_KP_0,
+        ]
 
-    def start_game(self, difficulty: float, difficulty_label: str):
-        self.window.stack.set_visible_child(self.window.loading_screen)
-        logging.info(f"Starting game with difficulty: {difficulty}")
+    def new_game(self, difficulty):
+        """Start a new game with the given difficulty."""
 
-        def worker():
-            game_board = GameBoard(difficulty, difficulty_label)
-            GLib.idle_add(self._on_game_ready, game_board)
+        def generate_and_display():
+            try:
+                self.game_board = GameBoard(difficulty)
+                GLib.idle_add(self._setup_grid)
+            except Exception as e:
+                print(f"Error generating game: {e}")
+                GLib.idle_add(self.window.set_visible_child_name, "start")
 
-        threading.Thread(target=worker, daemon=True).start()
+        # Show loading screen
+        self.window.set_visible_child_name("loading")
+        # Generate game in a separate thread
+        threading.Thread(target=generate_and_display, daemon=True).start()
 
-    def _on_game_ready(self, game_board):
-        self.game_board = game_board
-        self.build_grid()
-        self.window.stack.set_visible_child(self.window.game_view_box)
-        return False
+    def continue_game(self):
+        """Continue a saved game."""
+        try:
+            self.game_board = GameBoard.load_from_file()
+            self._setup_grid()
+        except Exception as e:
+            print(f"Error loading game: {e}")
+            self.window.set_visible_child_name("start")
 
-    def load_saved_game(self):
-        self.game_board = GameBoard.load_from_file()
-        if self.game_board:
-            difficulty_label = self.game_board.difficulty_label
-            self.window.sudoku_window_title.set_subtitle(f"{difficulty_label}")
-            self.build_grid()
-            self._restore_game_state()
-            self.window.stack.set_visible_child(self.window.game_view_box)
-            logging.info("Game successfully loaded from save.")
-            if self.game_board.is_solved():
-                self._show_puzzle_finished_dialog()
-        else:
-            logging.error("Failed to load saved game")
+    def _setup_grid(self):
+        """Setup the Sudoku grid."""
+        if self.parent_grid:
+            self.window.grid_container.remove(self.parent_grid)
 
-    def _restore_game_state(self):
-        for row in range(GRID_SIZE):
-            for col in range(GRID_SIZE):
-                value = self.game_board.user_inputs[row][col]
-                notes = self.game_board.get_notes(row, col)
-                cell = self.cell_inputs[row][col]
-                if value:
-                    cell.set_value(str(value))
-                    if str(value) != self.game_board.get_correct_value(row, col):
-                        cell.highlight("wrong")
-                        cell.set_tooltip_text(_("Wrong"))
-                cell.update_notes(notes)
-
-    def build_grid(self):
-        # Clear previous children from the container
-        while child := self.window.grid_container.get_first_child():
-            self.window.grid_container.remove(child)
-
-        # Parent grid (3x3) holding 9 blocks
         self.parent_grid = Gtk.Grid(
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
             row_spacing=10,
             column_spacing=10,
-            column_homogeneous=True,
-            row_homogeneous=True,
         )
-        self.parent_grid.set_name("sudoku-parent-grid")
-        # Prepare 9 block grids (3x3 each)
-        self.blocks = []
-        for block_row in range(3):
-            row_blocks = []
-            for block_col in range(3):
-                block = Gtk.Grid(
-                    row_spacing=4,
-                    column_spacing=4,
-                    column_homogeneous=True,
-                    row_homogeneous=True,
-                )
-                block.get_style_context().add_class("sudoku-block")
-                row_blocks.append(block)
-                self.parent_grid.attach(block, block_col, block_row, 1, 1)
-            self.blocks.append(row_blocks)
 
-        # Initialize the 9x9 cell grid
-        self.cell_inputs = [[None for _ in range(9)] for _ in range(9)]
-
-        # Fill blocks with SudokuCell widgets
-        for row in range(GRID_SIZE):
-            for col in range(GRID_SIZE):
-                value = self.game_board.puzzle[row][col]
-                editable = not self.game_board.is_clue(row, col)
-                cell = SudokuCell(row, col, value, editable)
-
-                # Gesture click controller
-                gesture = Gtk.GestureClick.new()
-                gesture.set_button(0)
-                gesture.connect("pressed", self.on_cell_clicked, cell)
-                cell.add_controller(gesture)
-
-                # Keyboard input controller
-                key_controller = Gtk.EventControllerKey()
-                key_controller.connect("key-pressed", self.on_key_pressed, row, col)
-                cell.add_controller(key_controller)
-
-                self.cell_inputs[row][col] = cell
-
-                # Determine block and cell's position inside block
-                block_row = row // 3
-                block_col = col // 3
-                inner_row = row % 3
-                inner_col = col % 3
-
-                block = self.blocks[block_row][block_col]
-                block.attach(cell, inner_col, inner_row, 1, 1)
-
-        # Wrap grid in an AspectFrame to maintain square shape
-        frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
-        frame.set_hexpand(True)
-        frame.set_vexpand(True)
-        frame.set_halign(Gtk.Align.FILL)  # ensure fills horizontal space
-        frame.set_valign(Gtk.Align.FILL)  # ensure fills vertical space
+        frame = Gtk.Frame(css_classes=["sudoku-grid"])
         frame.set_child(self.parent_grid)
+        self.window.grid_container.set_child(frame)
 
-        self.board_frame = frame
-        self.window.grid_container.append(frame)
-        frame.show()
+        # Create 3x3 blocks
+        for block_row in range(3):
+            for block_col in range(3):
+                block_grid = Gtk.Grid(row_spacing=4, column_spacing=4)
+                block_grid.add_css_class("sudoku-block")
+                self.blocks[block_row][block_col] = block_grid
+                self.parent_grid.attach(block_grid, block_col, block_row, 1, 1)
 
-        width_mode_active, height_mode_active = False, False
-        bp = getattr(self.window, "bp_bin", None)
-        if bp and bp.get_style_context().has_class("width-compact"):
-            width_mode_active = True
-        if bp and bp.get_style_context().has_class("height-compact"):
-            height_mode_active = True
+                # Create cells within each block
+                for cell_row in range(3):
+                    for cell_col in range(3):
+                        row = block_row * 3 + cell_row
+                        col = block_col * 3 + cell_col
 
-        self.window._apply_compact(
-            any([width_mode_active, height_mode_active]),
-            "width" if width_mode_active else "height",
-        )
-        self.window.grid_container.queue_allocate()
+                        value = self.game_board.get_current_value(row, col)
+                        correct_value = self.game_board.get_correct_value(row, col)
+                        editable = self.game_board.is_editable(row, col)
+                        notes = self.game_board.get_notes(row, col)
 
-    def _focus_cell(self, row: int, col: int):
-        self.cell_inputs[row][col].grab_focus()
-        UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
+                        cell = SudokuCell(
+                            row,
+                            col,
+                            value,
+                            correct_value,
+                            editable,
+                            self.on_cell_clicked,
+                            self.on_key_pressed,
+                            notes,
+                        )
+                        self.cell_inputs[row][col] = cell
+                        block_grid.attach(cell, cell_col, cell_row, 1, 1)
 
-    def _clear_cell(self, cell: SudokuCell, clear_all: bool = False):
-        row, col = cell.row, cell.col
-        if clear_all:
-            self._clear_cell_notes(cell)
-            self._clear_cell_value(cell)
-        elif self.pencil_mode:
-            if len(self.game_board.get_notes(row, col)) > 0:
-                self.game_board.get_notes(row, col).pop()
-                cell.update_notes(self.game_board.get_notes(row, col))
+        self.game_running = True
+        self.window.set_visible_child_name("game")
+
+        # Clear any previous highlights and set focus
+        UIHelpers.clear_highlights(self.cell_inputs, "highlight")
+        if self.cell_inputs[0][0].editable:
+            self.cell_inputs[0][0].grab_focus()
         else:
-            self._clear_cell_notes(cell)
-            self._clear_cell_value(cell)
+            for row in range(9):
+                for col in range(9):
+                    if self.cell_inputs[row][col].editable:
+                        self.cell_inputs[row][col].grab_focus()
+                        return
+
+    def _show_puzzle_finished_dialog(self):
+        """Show puzzle finished dialog."""
+        self.game_running = False
+        self.game_board.delete_saved_game()
+
+        self.window.set_visible_child_name("finished")
+        finished_page = self.window.get_visible_child()
+        if isinstance(finished_page, FinishedPage):
+            time_taken = self.game_board.get_time_taken()
+            finished_page.set_time_taken(time_taken)
+
+    def on_pencil_toggled(self, button):
+        """Handle pencil mode toggle."""
+        self.pencil_mode = button.get_active()
+
+    def on_number_selected(self, button, cell: SudokuCell, popover, mouse_button):
+        """Handle number selection from popover."""
+        popover.hide()
+        number = int(button.get_label())
+        row, col = cell.row, cell.col
+
+        if not cell.editable:
+            return
+
+        # Determine if we're in note mode
+        ctrl_is_pressed = mouse_button == 3  # Right click
+        in_note_mode = self.pencil_mode or ctrl_is_pressed
+
+        if in_note_mode:
+            if number in self.game_board.get_notes(row, col):
+                self.game_board.remove_note(row, col, number)
+            else:
+                self.game_board.add_note(row, col, number)
+            cell.update_notes(self.game_board.get_notes(row, col))
+            self.game_board.save_to_file()
+            return
+
+        cell.set_value(number)
+        self.game_board.set_input(row, col, number)
         self.game_board.save_to_file()
 
-    def _clear_cell_notes(self, cell: SudokuCell):
-        row, col = cell.row, cell.col
-        self.game_board.clear_notes(row, col)
-        cell.update_notes(set())
+        correct = self.game_board.get_correct_value(row, col)
+        context = cell.get_style_context()
+        UIHelpers.clear_feedback_classes(context)
+        UIHelpers.specify_cell_correctness(
+            cell, number, correct, self.conflict_cells, self.cell_inputs
+        )
 
-    def _clear_cell_value(self, cell: SudokuCell):
-        row, col = cell.row, cell.col
-        cell.set_value("")
-        cell.set_tooltip_text("")
-        UIHelpers.clear_feedback_classes(cell.get_style_context())
-        self.game_board.set_input(row, col, None)
+        if self.game_board.is_solved():
+            self._show_puzzle_finished_dialog()
 
-    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
-        UIHelpers.clear_conflicts(self.conflict_cells)
-        row, col = cell.row, cell.col
-        if number != "0":
-            if self.pencil_mode or ctrl_is_pressed:
-                if number in self.game_board.get_notes(row, col):
-                    self.game_board.remove_note(row, col, number)
-                else:
-                    self.game_board.add_note(row, col, number)
-                cell.update_notes(self.game_board.get_notes(row, col))
-                self.game_board.save_to_file()
-                return
+    def on_clear_selected(self, button, cell: SudokuCell, popover):
+        """Handle clear cell selection."""
+        popover.hide()
+        if not cell.editable:
+            return
 
-            cell.set_value(number)
-            self.game_board.set_input(row, col, number)
+        row, col = cell.row, cell.col
+        self.game_board.clear_cell(row, col)
+        cell.set_value(0)
+        cell.update_notes([])
+        self.game_board.save_to_file()
+
+    def on_number_input(self, cell: SudokuCell, number: int):
+        """Handle number input."""
+        row, col = cell.row, cell.col
+
+        if not cell.editable:
+            return
+
+        # Check if Ctrl is pressed for note mode
+        # This is a fallback for direct keyboard input
+        ctrl_is_pressed = False  # You might need to track this separately
+
+        if self.pencil_mode or ctrl_is_pressed:
+            if number in self.game_board.get_notes(row, col):
+                self.game_board.remove_note(row, col, number)
+            else:
+                self.game_board.add_note(row, col, number)
+            cell.update_notes(self.game_board.get_notes(row, col))
             self.game_board.save_to_file()
+            return
 
-            correct = self.game_board.get_correct_value(row, col)
-            context = cell.get_style_context()
-            UIHelpers.clear_feedback_classes(context)
-            UIHelpers.specify_cell_correctness(
-                cell, number, correct, self.conflict_cells, self.cell_inputs
-            )
+        cell.set_value(number)
+        self.game_board.set_input(row, col, number)
+        self.game_board.save_to_file()
 
-            if self.game_board.is_solved():
-                self._show_puzzle_finished_dialog()
+        correct = self.game_board.get_correct_value(row, col)
+        context = cell.get_style_context()
+        UIHelpers.clear_feedback_classes(context)
+        UIHelpers.specify_cell_correctness(
+            cell, number, correct, self.conflict_cells, self.cell_inputs
+        )
+
+        if self.game_board.is_solved():
+            self._show_puzzle_finished_dialog()
 
     def _show_popover(self, cell: SudokuCell, mouse_button=None):
         popover = Gtk.Popover()
         popover.set_has_arrow(False)
         popover.set_position(Gtk.PositionType.BOTTOM)
         popover.set_parent(cell)
+        
+        # Main container
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        main_box.set_margin_top(8)
+        main_box.set_margin_bottom(8)
+        main_box.set_margin_start(8)
+        main_box.set_margin_end(8)
+        popover.set_child(main_box)
+
+        # Determine mode
+        ctrl_is_pressed = mouse_button == 3  # Right click
+        in_note_mode = self.pencil_mode or ctrl_is_pressed
+
+        # Add header with mode indication
+        if in_note_mode:
+            header_label = Gtk.Label(label=_("Add Note:"))
+            header_label.add_css_class("caption-heading")
+            header_label.add_css_class("note-mode-header")
+            header_label.set_halign(Gtk.Align.START)
+            main_box.append(header_label)
+            
+            # Add CSS class to popover for styling
+            popover.add_css_class("note-mode-popover")
+        else:
+            header_label = Gtk.Label(label=_("Add Number:"))
+            header_label.add_css_class("caption-heading")
+            header_label.add_css_class("number-mode-header")
+            header_label.set_halign(Gtk.Align.START)
+            main_box.append(header_label)
+            
+            # Add CSS class to popover for styling
+            popover.add_css_class("number-mode-popover")
+
+        # Number grid
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
-        popover.set_child(grid)
+        main_box.append(grid)
 
         num_buttons = {}
         for i in range(1, 10):
@@ -267,10 +324,10 @@ class GameManager:
 
         key_controller = Gtk.EventControllerKey()
         key_controller.connect("key-pressed", on_key_pressed)
-        grid.add_controller(key_controller)
+        main_box.add_controller(key_controller)
 
-        grid.set_focus_on_click(True)
-        grid.grab_focus()
+        main_box.set_focus_on_click(True)
+        main_box.grab_focus()
         popover.show()
 
     def on_cell_clicked(self, gesture, n_press, x: int, y: int, cell: SudokuCell):
@@ -296,82 +353,47 @@ class GameManager:
         if keyval in directions:
             d_row, d_col = directions[keyval]
             if ctrl_pressed:
-                d_row *= 3
-                d_col *= 3
-            new_row, new_col = row + d_row, col + d_col
-            if 0 <= new_row < 9 and 0 <= new_col < 9:
-                self._focus_cell(new_row, new_col)
+                # Jump to edge of 3x3 block
+                block_row, block_col = row // 3, col // 3
+                if d_row != 0:
+                    new_row = (
+                        block_row * 3 + (2 if d_row > 0 else 0)
+                        if d_row > 0
+                        else block_row * 3
+                    )
+                    new_row = max(0, min(8, new_row))
+                else:
+                    new_row = row
+
+                if d_col != 0:
+                    new_col = (
+                        block_col * 3 + (2 if d_col > 0 else 0)
+                        if d_col > 0
+                        else block_col * 3
+                    )
+                    new_col = max(0, min(8, new_col))
+                else:
+                    new_col = col
             else:
-                return False
+                new_row = max(0, min(8, row + d_row))
+                new_col = max(0, min(8, col + d_col))
+
+            self.cell_inputs[new_row][new_col].grab_focus()
+            UIHelpers.highlight_related_cells(self.cell_inputs, new_row, new_col)
             return True
 
-        cell = self.cell_inputs[row][col]
-        number_str = None
-        uni = Gdk.keyval_to_unicode(keyval)
-        if uni != 0:
-            char = chr(uni)
-            try:
-                digit = unicodedata.digit(char)
-                number_str = str(digit)
-            except (TypeError, ValueError):
-                pass
-
-        if number_str and cell.editable:
-            self._fill_cell(cell, number_str, ctrl_pressed)
+        if keyval in self.key_map:
+            number = int(self.key_map[keyval])
+            cell = self.cell_inputs[row][col]
+            self.on_number_input(cell, number)
             return True
-
-        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter) and cell.editable:
-            self._show_popover(cell)
-            return True
-
-        if keyval in self.remove_cell_keybindings and cell.editable:
-            self._clear_cell(cell, clear_all=(keyval == Gdk.KEY_Delete))
+        elif keyval in self.remove_cell_keybindings:
+            cell = self.cell_inputs[row][col]
+            if cell.editable:
+                self.game_board.clear_cell(row, col)
+                cell.set_value(0)
+                cell.update_notes([])
+                self.game_board.save_to_file()
             return True
 
         return False
-
-    def on_number_selected(
-        self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
-    ):
-        number = num_button.get_label()
-        if mouse_button == 1:
-            self._fill_cell(cell, number)
-        elif mouse_button == 3:
-            self._fill_cell(cell, number, True)
-        popover.popdown()
-
-    def on_clear_selected(self, clear_button, cell: SudokuCell, popover):
-        self._clear_cell(cell)
-        popover.popdown()
-
-    def on_pencil_toggled(self, button: Gtk.ToggleButton):
-        self.pencil_mode = button.get_active()
-        logging.info(
-            "Pencil Mode is now ON" if self.pencil_mode else "Pencil mode is now OFF"
-        )
-
-    def on_pencil_action_toggled(self, action, value):
-        new_state = not action.get_state().get_boolean()
-        action.set_state(GLib.Variant.new_boolean(new_state))
-        self.window.pencil_toggle_button.set_active(new_state)
-
-    def on_back_to_menu(self, action, parameter):
-        self.window.continue_button.set_sensitive(GameBoard.has_saved_game())
-        self.window.stack.set_visible_child(self.window.main_menu_box)
-        self.window.sudoku_window_title.set_subtitle("")
-
-    def _show_puzzle_finished_dialog(self):
-        self.window.pencil_toggle_button.set_visible(False)
-
-        while child := self.window.grid_container.get_first_child():
-            self.window.grid_container.remove(child)
-
-        self.window.stack.set_visible_child(self.window.finished_page)
-
-    def on_back_to_menu_clicked_after_finish(self, button):
-        while child := self.window.grid_container.get_first_child():
-            self.window.grid_container.remove(child)
-        self.window.grid_container.append(self.window.game_view_box)
-        self.window.sudoku_window_title.set_subtitle("")
-        self.window.stack.set_visible_child(self.window.main_menu_box)
-        self.window.continue_button.set_sensitive(GameBoard.has_saved_game())
