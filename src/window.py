@@ -69,8 +69,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         action.connect("activate", self.on_show_help_overlay)
         self.add_action(action)
         self._setup_breakpoints()
-        self.connect("notify::default-width", self.on_size_changed)
-        self.connect("notify::default-height", self.on_size_changed)
 
     def _setup_breakpoints(self):
         """Setup separate breakpoints for width and height."""
@@ -95,11 +93,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "height"))
         small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "height"))
         self.add_breakpoint(small_bp)
-
-    def on_size_changed(self, widget, _param):
-        width = self.get_allocated_width()
-        height = self.get_allocated_height()
-        print(f"Window size: {width}x{height}")
 
     def _apply_compact(self, compact: bool, mode):
         css_class = f"{mode}-compact"
