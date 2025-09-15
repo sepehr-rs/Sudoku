@@ -19,7 +19,6 @@
 
 import logging
 import io
-import sys
 from gi.repository import GLib
 
 
@@ -50,17 +49,6 @@ def glib_log_handler(domain, level, message, user_data):
         logging.debug(f"[{domain}] {message}")
 
 
-class StderrLogger:
-    """Redirect stderr output into logging (DEBUG level)."""
-
-    def write(self, msg):
-        if msg.strip():
-            logging.debug(f"[stderr] {msg.strip()}")
-
-    def flush(self):  # Needed for compatibility
-        pass
-
-
 def setup_logging():
     """Configure logging for the application.
 
@@ -77,7 +65,5 @@ def setup_logging():
         GLib.log_set_handler(
             domain, GLib.LogLevelFlags.LEVEL_MASK, glib_log_handler, None
         )
-
-    sys.stderr = StderrLogger()
 
     return log_handler
