@@ -30,6 +30,7 @@ sudoku_sources = [
   'finished_page.py',
   'help_overlay.py',
   'loading_screen.py',
+  'log_utils.py'
 ]
 
 install_data(sudoku_sources, install_dir: moduledir)

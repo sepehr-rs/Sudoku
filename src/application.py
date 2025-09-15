@@ -18,13 +18,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import gi
+import platform
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gio, Adw, Gtk
+from gi.repository import Gio, Adw, Gtk, GLib
 from .window import SudokuWindow
 from .help_dialog import HowToPlayDialog
+from .log_utils import setup_logging
+from pathlib import Path
+import xml.etree.ElementTree as ET
 
 
 class SudokuApplication(Adw.Application):
@@ -36,6 +40,7 @@ class SudokuApplication(Adw.Application):
         self.version = version
         self._setup_actions()
         self._setup_accelerators()
+        self.log_handler = setup_logging()
 
     def _setup_actions(self):
         """Set up application actions."""
@@ -61,8 +66,50 @@ class SudokuApplication(Adw.Application):
             win = SudokuWindow(application=self)
         win.present()
 
-    def on_about_action(self, widget, _):
-        """Callback for the app.about action."""
+    def generate_debug_info(self) -> str:
+        system = platform.system()
+        dist = (
+            f"Dist: {platform.freedesktop_os_release()['PRETTY_NAME']}"
+            if system == "Linux"
+            else ""
+        )
+
+        info = (
+            f"Sudoku {self.version}\n"
+            f"System: {system}\n"
+            f"{dist}\n"
+            f"Python {platform.python_version()}\n"
+            f"GTK {Gtk.MAJOR_VERSION}.{Gtk.MINOR_VERSION}.{Gtk.MICRO_VERSION}\n"
+            f"Adwaita {Adw.MAJOR_VERSION}.{Adw.MINOR_VERSION}.{Adw.MICRO_VERSION}\n"
+            f"PyGObject {'.'.join(map(str, gi.version_info))}\n"
+            "\n--- Logs ---\n"
+            f"{self.log_handler.get_logs()}"
+        )
+        return info
+
+    def on_about_action(self, *_):
+        # Inline metainfo lookup and release notes extraction
+        release_notes = ""
+        for dir in GLib.get_system_data_dirs():
+            metainfo = (
+                Path(dir) / "metainfo" / "io.github.sepehr_rs.Sudoku.metainfo.xml"
+            )
+            if metainfo.exists():
+                root = ET.parse(metainfo).getroot()
+                ns = {"m": root.tag.split("}")[0].strip("{")} if "}" in root.tag else {}
+                releases = root.find("m:releases" if ns else "releases", ns)
+                if releases:
+                    # Find release with matching version and get its description
+                    release_notes = "".join(
+                        ET.tostring(e, encoding="unicode")
+                        for r in releases.findall("m:release" if ns else "release", ns)
+                        if r.get("version") == self.version
+                        for e in (
+                            r.find("m:description" if ns else "description", ns) or []
+                        )
+                    )
+                break  # stop after first found file
+
         about = Adw.AboutDialog(
             application_name="Sudoku",
             application_icon="io.github.sepehr_rs.Sudoku",
@@ -71,6 +118,9 @@ class SudokuApplication(Adw.Application):
             developers=["Sepehr", "Revisto"],
             copyright="© 2025 sepehr-rs",
             license_type=Gtk.License.GPL_3_0,
+            debug_info=self.generate_debug_info(),
+            issue_url="https://github.com/sepehr-rs/sudoku/issues",
+            release_notes=release_notes,
         )
         about.present(self.props.active_window)
 
