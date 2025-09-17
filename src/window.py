@@ -44,6 +44,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     finished_page = Gtk.Template.Child()
     loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
+    cell_highlight_toggle_button = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
     primary_menu_button = Gtk.Template.Child()
     sudoku_window_title = Gtk.Template.Child()
@@ -163,6 +164,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
         self.new_game_button.set_tooltip_text(_("New Game"))
+        # Setup cell highlight button
+        self.cell_highlight_toggle_button.set_active(True)
+        self.cell_highlight_toggle_button.connect(
+            "toggled", self.game_manager.on_cell_highlight_toggled
+        )
         # Setup pencil button
         self.pencil_toggle_button.set_active(False)
         self.pencil_toggle_button.connect(
@@ -176,8 +182,11 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_stack_page_changed(self, stack, param):
         """Handle stack page changes."""
-        is_game_page = stack.get_visible_child() != self.main_menu_box
-        self.lookup_action("back-to-menu").set_enabled(is_game_page)
+        visible_child = stack.get_visible_child()
+        can_go_back = visible_child != self.main_menu_box
+        self.lookup_action("back-to-menu").set_enabled(can_go_back)
+        is_game_page = (visible_child == self.game_view_box)
+        self.cell_highlight_toggle_button.set_visible(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
 
     def on_continue_clicked(self, button):

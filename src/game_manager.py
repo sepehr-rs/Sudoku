@@ -32,6 +32,7 @@ class GameManager:
         self.game_board = None
         self.cell_inputs = None
         self.conflict_cells = []
+        self.cell_highlight = True
         self.pencil_mode = False
         self.key_map, self.remove_cell_keybindings = UIHelpers.setup_key_mappings()
         self._setup_actions()
@@ -42,6 +43,13 @@ class GameManager:
         back_action = Gio.SimpleAction.new("back-to-menu", None)
         back_action.connect("activate", self.on_back_to_menu)
         self.window.add_action(back_action)
+
+        cell_highlight_action = Gio.SimpleAction.new_stateful(
+            "cell-highlight-toggled", None, GLib.Variant.new_boolean(True)
+        )
+        cell_highlight_action.connect(
+            "change-state", self.on_cell_highlight_action_toggled)
+        self.window.add_action(cell_highlight_action)
 
         pencil_action = Gio.SimpleAction.new_stateful(
             "pencil-toggled", None, GLib.Variant.new_boolean(False)
@@ -87,7 +95,8 @@ class GameManager:
                 cell = self.cell_inputs[row][col]
                 if value:
                     cell.set_value(str(value))
-                    if str(value) != self.game_board.get_correct_value(row, col):
+                    if str(value) != self.game_board.get_correct_value(row, col) \
+                       and self.cell_highlight:
                         cell.highlight("wrong")
                         cell.set_tooltip_text(_("Wrong"))
                 cell.update_notes(notes)
@@ -180,7 +189,8 @@ class GameManager:
 
     def _focus_cell(self, row: int, col: int):
         self.cell_inputs[row][col].grab_focus()
-        UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
+        if self.cell_highlight:
+            UIHelpers.highlight_related_cells(self.cell_inputs, row, col)
 
     def _clear_cell(self, cell: SudokuCell, clear_all: bool = False):
         row, col = cell.row, cell.col
@@ -227,10 +237,12 @@ class GameManager:
 
             correct = self.game_board.get_correct_value(row, col)
             context = cell.get_style_context()
-            UIHelpers.clear_feedback_classes(context)
-            UIHelpers.specify_cell_correctness(
-                cell, number, correct, self.conflict_cells, self.cell_inputs
-            )
+
+            if self.cell_highlight:
+                UIHelpers.clear_feedback_classes(context)
+                UIHelpers.specify_cell_correctness(
+                    cell, number, correct, self.conflict_cells, self.cell_inputs
+                )
 
             if self.game_board.is_solved():
                 self._show_puzzle_finished_dialog()
@@ -274,7 +286,8 @@ class GameManager:
         popover.show()
 
     def on_cell_clicked(self, gesture, n_press, x: int, y: int, cell: SudokuCell):
-        UIHelpers.highlight_related_cells(self.cell_inputs, cell.row, cell.col)
+        if self.cell_highlight:
+            UIHelpers.highlight_related_cells(self.cell_inputs, cell.row, cell.col)
         if cell.editable and n_press == 1:
             self._show_popover(cell, gesture.get_current_button())
         else:
@@ -345,6 +358,18 @@ class GameManager:
         self._clear_cell(cell)
         popover.popdown()
 
+    def on_cell_highlight_toggled(self, button: Gtk.ToggleButton):
+        self.cell_highlight = button.get_active()
+        logging.info("Cell Highlight is now ON" if self.cell_highlight
+                     else "Cell Highlight is now OFF")
+        if not self.cell_highlight:
+            UIHelpers.clear_highlights(self.cell_inputs, "highlight")
+
+    def on_cell_highlight_action_toggled(self, action, value):
+        new_state = not action.get_state().get_boolean()
+        action.set_state(GLib.Variant.new_boolean(new_state))
+        self.window.cell_highlight_toggle_button.set_active(new_state)
+
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
         logging.info(
@@ -362,8 +387,6 @@ class GameManager:
         self.window.sudoku_window_title.set_subtitle("")
 
     def _show_puzzle_finished_dialog(self):
-        self.window.pencil_toggle_button.set_visible(False)
-
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 

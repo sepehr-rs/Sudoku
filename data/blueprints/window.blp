@@ -38,6 +38,12 @@ template $SudokuWindow: Adw.ApplicationWindow {
         icon-name: "pencil-symbolic";
         tooltip-text: _("Toggle Pencil Mode");
       }
+
+      [end]
+      ToggleButton cell_highlight_toggle_button {
+        icon-name: "sparkles-symbolic";
+        tooltip-text: _("Toggle Cell Highlight");
+      }
     }
 
     content: Adw.BreakpointBin bp_bin {
