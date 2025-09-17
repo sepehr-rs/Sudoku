@@ -279,7 +279,6 @@ class GameManager:
             self._show_popover(cell, gesture.get_current_button())
         else:
             cell.grab_focus()
-        gesture.reset()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row: int, col: int):
         # Left and right gets needs to be swapped in RTL as whole board is flipped
