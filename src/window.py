@@ -33,6 +33,16 @@ class SudokuWindow(Adw.ApplicationWindow):
         # Initialize the manager (replaces GameManager/GameBoard)
         self.manager = ClassicSudokuManager(self)
 
+        # Primary menu and help actions
+        for name, callback in [
+            ("show-primary-menu", self.on_show_primary_menu),
+            ("show-help-overlay", self.on_show_help_overlay),
+            ("back-to-menu", self.on_back_to_menu),
+        ]:
+            action = Gio.SimpleAction.new(name, None)
+            action.connect("activate", callback)
+            self.add_action(action)
+
         # Setup UI
         self._setup_ui()
         self._setup_stack_observer()
@@ -43,17 +53,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         gesture.connect("pressed", self.on_window_clicked)
         self.add_controller(gesture)
 
-        # Primary menu and help actions
-        for name, callback in [
-            ("show-primary-menu", self.on_show_primary_menu),
-            ("show-help-overlay", self.on_show_help_overlay),
-        ]:
-            action = Gio.SimpleAction.new(name, None)
-            action.connect("activate", callback)
-            self.add_action(action)
-
     def _setup_ui(self):
-        self.continue_button.set_sensitive(self.manager.board_class.has_saved_game())
+        self.continue_button.set_sensitive(self.manager.board_cls.has_saved_game())
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.continue_button.set_tooltip_text(_("Continue Game"))
 
@@ -143,3 +144,7 @@ class SudokuWindow(Adw.ApplicationWindow):
                     cell = self.manager.cell_inputs[r][c]
                     if cell:
                         cell.set_compact(compact)
+
+    def on_back_to_menu(self, action, param):
+        self.stack.set_visible_child(self.main_menu_box)
+        self.pencil_toggle_button.set_visible(False)

@@ -13,7 +13,8 @@ class ClassicSudokuGenerator(GeneratorBase):
             sudoku_cls=ClassicSudoku,
             size=9,
             difficulty=difficulty,
-            ensure_unique=True
+            ensure_unique=True,
+            seed=random_seed,
         )
         puzzle = sudoku.board
         solution = sudoku.solve().board

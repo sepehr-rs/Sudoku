@@ -4,6 +4,10 @@ from ...base.rules_base import RulesBase
 class ClassicSudokuRules(RulesBase):
     block_size: int = 3
 
+    @property
+    def size(self) -> int:
+        return self.block_size * self.block_size  # 9 for classic Sudoku
+
     def is_valid(self, grid, row, col, value) -> bool:
         # Row
         if value in grid[row]:
