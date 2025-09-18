@@ -251,10 +251,23 @@ class GameManager:
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 
-        clear_button = Gtk.Button(label=_("Clear Cell"))
-        clear_button.set_size_request(40 * 3 + 10, 40)
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        grid.attach(button_box, 0, 3, 3, 1)
+
+        clear_button = Gtk.Button(label=_("Clear"))
+        clear_button.set_size_request(-1, 40)
+        clear_button.set_hexpand(True)
+        clear_button.set_tooltip_text(_("Clear cell (Del/Backspace)"))
         clear_button.connect("clicked", self.on_clear_selected, cell, popover)
-        grid.attach(clear_button, 0, 3, 3, 1)
+        button_box.append(clear_button)
+
+        if self.pencil_mode or mouse_button == 3:
+            done_button = Gtk.Button(label=_("Done"))
+            done_button.set_size_request(-1, 40)
+            done_button.set_hexpand(True)
+            done_button.set_tooltip_text(_("Finish editing cell"))
+            done_button.connect("clicked", lambda _: popover.popdown())
+            button_box.append(done_button)
 
         def on_key_pressed(controller, keyval, keycode, state):
             if keyval in self.key_map and (num := self.key_map[keyval]) in num_buttons:
@@ -339,7 +352,9 @@ class GameManager:
             self._fill_cell(cell, number)
         elif mouse_button == 3:
             self._fill_cell(cell, number, True)
-        popover.popdown()
+
+        if not self.pencil_mode and mouse_button != 3:
+            popover.popdown()
 
     def on_clear_selected(self, clear_button, cell: SudokuCell, popover):
         self._clear_cell(cell)
