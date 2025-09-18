@@ -12,6 +12,7 @@
 
   <gresource prefix="/io/github/sepehr_rs/Sudoku">
     <file preprocess="xml-stripblanks">icons/scalable/actions/pencil-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/sparkles-symbolic.svg</file>
   </gresource>
 
   <gresource prefix="/io/github/sepehr_rs/Sudoku/illustrations">
