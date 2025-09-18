@@ -1,7 +1,7 @@
 import random
 from sudoku.base_sudoku import PuzzleGenerator
-from sudoku.variations.classic_sudoku import ClassicSudoku
-from ....base.generator_base import GeneratorBase
+from sudoku import ClassicSudoku
+from ...base.generator_base import GeneratorBase
 
 
 class ClassicSudokuGenerator(GeneratorBase):

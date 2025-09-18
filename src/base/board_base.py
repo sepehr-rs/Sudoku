@@ -5,13 +5,15 @@ import os
 class BoardBase:
     """Handles puzzle state, notes, persistence, and correctness."""
 
+    DEFAULT_SAVE_PATH = os.path.expanduser("~/.local/share/io.github.sepehr_rs.Sudoku/save.json")
+
     def __init__(self, rules, generator, difficulty: float, difficulty_label: str):
         self.rules = rules
         self.generator = generator
         self.difficulty = difficulty
         self.difficulty_label = difficulty_label
 
-        # Generate puzzle + solution
+        # Generate puzzle + solution if no existing puzzle provided
         self.puzzle, self.solution = generator.generate(difficulty)
 
         # Track user inputs & notes
@@ -56,7 +58,8 @@ class BoardBase:
         return True
 
     # --- Persistence ---
-    def save_to_file(self, filename: str):
+    def save_to_file(self, filename: str = None):
+        filename = filename or self.DEFAULT_SAVE_PATH
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
@@ -65,21 +68,31 @@ class BoardBase:
             "user_inputs": self.user_inputs,
             "notes": [[list(n) for n in row] for row in self.notes],
         }
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(state, f)
 
-    def load_from_file(self, filename: str):
+    def load_from_file(cls, filename: str = None):
+        """Load a board from file and return a fully constructed board instance."""
+        filename = filename or cls.DEFAULT_SAVE_PATH
         if not os.path.exists(filename):
-            return False
+            return None
         with open(filename, "r", encoding="utf-8") as f:
             state = json.load(f)
+
+        # Create instance without generating a new puzzle
+        self = cls.__new__(cls)  # bypass __init__
+        self.rules = cls.__init__.__globals__["ClassicSudokuRules"]()
+        self.generator = cls.__init__.__globals__["ClassicSudokuGenerator"]()
         self.difficulty = state["difficulty"]
         self.difficulty_label = state["difficulty_label"]
         self.puzzle = state["puzzle"]
         self.solution = state["solution"]
         self.user_inputs = state["user_inputs"]
         self.notes = state["notes"]
-        return True
+        return self
 
-    def has_saved_game(self, filename: str):
+    @classmethod
+    def has_saved_game(cls, filename: str = None):
+        filename = filename or cls.DEFAULT_SAVE_PATH
         return os.path.exists(filename)

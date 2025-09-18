@@ -1,4 +1,4 @@
-from ....base.board_base import BoardBase
+from ...base.board_base import BoardBase
 from .rules import ClassicSudokuRules
 from .generator import ClassicSudokuGenerator
 

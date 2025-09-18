@@ -15,3 +15,10 @@ class UIHelpers:
         key_map.update({getattr(Gdk, f"KEY_KP_{i}"): str(i) for i in range(1, 10)})
         remove_keys = (Gdk.KEY_BackSpace, Gdk.KEY_Delete, Gdk.KEY_KP_Delete)
         return key_map, remove_keys
+
+
+    @staticmethod
+    def clear_highlights(cells, css_class):
+        for row in cells:
+            for cell in row:
+                cell.remove_highlight(css_class)

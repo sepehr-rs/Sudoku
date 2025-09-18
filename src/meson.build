@@ -23,13 +23,14 @@ sudoku_sources = [
   'window.py',
   'game_board.py',
   'game_manager.py',
-  'sudoku_cell.py',
   'help_dialog.py',
   'difficulty_selection_dialog.py',
-  'ui_helpers.py',
   'finished_page.py',
   'help_overlay.py',
   'loading_screen.py',
 ]
+
+subdir('base')
+subdir('variants/classic_sudoku')
 
 install_data(sudoku_sources, install_dir: moduledir)

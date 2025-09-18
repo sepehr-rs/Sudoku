@@ -1,8 +1,8 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 
-from variants.classic_sudoku.manager import ClassicSudokuManager
-from .ui_helpers import UIHelpers
+from .variants.classic_sudoku.manager import ClassicSudokuManager
+from .base.ui_helpers import UIHelpers
 from .difficulty_selection_dialog import DifficultySelectionDialog
 from .help_overlay import HelpOverlay
 from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
@@ -53,7 +53,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.add_action(action)
 
     def _setup_ui(self):
-        self.continue_button.set_sensitive(self.manager.board.has_saved_game())
+        self.continue_button.set_sensitive(self.manager.board_class.has_saved_game())
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.continue_button.set_tooltip_text(_("Continue Game"))
 

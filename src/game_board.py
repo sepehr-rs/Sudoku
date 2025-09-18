@@ -22,7 +22,7 @@ import os
 import logging
 import random
 import multiprocessing
-from sudoku import Sudoku as PySudoku
+from .variants.classic_sudoku.generator import ClassicSudokuGenerator
 from pathlib import Path
 
 GRID_SIZE = 9
@@ -58,9 +58,7 @@ class GameBoard:
             self.puzzle = puzzle
             self.solution = solution
         else:
-            sudoku = self.build_sudoku_grid(difficulty=difficulty)
-            self.puzzle = sudoku.board
-            self.solution = sudoku.solve().board
+            self.puzzle, self.solution = self.build_sudoku_grid(difficulty)
 
         self.user_inputs = (
             user_inputs
@@ -153,22 +151,8 @@ class GameBoard:
         except Exception:
             return False
 
-    def generate_sudoku(self, difficulty, result_queue):
-        random_seed = random.randint(1, 1000000)
-        sudoku = PySudoku(3, seed=random_seed).unique_difficulty(difficulty)
-        result_queue.put(sudoku)
-
-    def build_sudoku_grid(self, difficulty, timeout=5):
-        while True:
-            result_queue = multiprocessing.Queue()
-            process = multiprocessing.Process(
-                target=self.generate_sudoku, args=(difficulty, result_queue)
-            )
-            process.start()
-            process.join(timeout)
-
-            if process.is_alive():
-                process.terminate()
-                process.join()
-            else:
-                return result_queue.get()
+    def build_sudoku_grid(self, difficulty: float):
+        """Generate a puzzle using ClassicSudokuGenerator."""
+        generator = ClassicSudokuGenerator()
+        puzzle, solution = generator._generate_impl(difficulty)
+        return puzzle, solution

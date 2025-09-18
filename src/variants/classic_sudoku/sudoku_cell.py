@@ -145,6 +145,6 @@ class SudokuCell(Gtk.Button):
         """Add a highlight class to the cell."""
         self.get_style_context().add_class(class_name)
 
-    def unhighlight(self, class_name: str):
+    def remove_highlight(self, class_name: str):
         """Remove a highlight class from the cell."""
         self.get_style_context().remove_class(class_name)

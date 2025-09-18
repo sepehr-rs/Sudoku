@@ -1,4 +1,4 @@
-from ....base.rules_base import RulesBase
+from ...base.rules_base import RulesBase
 
 
 class ClassicSudokuRules(RulesBase):
