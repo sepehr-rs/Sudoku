@@ -261,12 +261,13 @@ class GameManager:
         clear_button.connect("clicked", self.on_clear_selected, cell, popover)
         button_box.append(clear_button)
 
-        done_button = Gtk.Button(label=_("Done"))
-        done_button.set_size_request(-1, 40)
-        done_button.set_hexpand(True)
-        done_button.set_tooltip_text(_("Finish editing cell"))
-        done_button.connect("clicked", lambda _: popover.popdown())
-        button_box.append(done_button)
+        if self.pencil_mode or mouse_button == 3:
+            done_button = Gtk.Button(label=_("Done"))
+            done_button.set_size_request(-1, 40)
+            done_button.set_hexpand(True)
+            done_button.set_tooltip_text(_("Finish editing cell"))
+            done_button.connect("clicked", lambda _: popover.popdown())
+            button_box.append(done_button)
 
         def on_key_pressed(controller, keyval, keycode, state):
             if keyval in self.key_map and (num := self.key_map[keyval]) in num_buttons:
