@@ -217,65 +217,84 @@ class ClassicSudokuManager(ManagerBase):
             cell.grab_focus()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row, col):
+        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
+
+        if self._handle_arrow_keys(keyval, ctrl, row, col):
+            return True
+
+        if self._handle_number_keys(keyval, ctrl, row, col):
+            return True
+
+        if self._handle_unicode_digit(keyval, ctrl, row, col):
+            return True
+
+        if self._handle_enter_key(keyval, row, col):
+            return True
+
+        if self._handle_remove_keys(keyval, row, col):
+            return True
+
+        return False
+
+    def _handle_arrow_keys(self, keyval, ctrl, row, col):
         directions = {
             Gdk.KEY_Up: (-1, 0),
             Gdk.KEY_Down: (1, 0),
             Gdk.KEY_Left: (0, -1),
             Gdk.KEY_Right: (0, 1),
         }
-        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
-
-        # Arrow navigation (with optional ctrl to jump 3 cells)
-        if keyval in directions:
-            dr, dc = directions[keyval]
-            if ctrl:
-                dr *= 3
-                dc *= 3
-            new_r, new_c = row + dr, col + dc
-            if (
-                0 <= new_r < self.board.rules.size
-                and 0 <= new_c < self.board.rules.size
-            ):
-                self._focus_cell(new_r, new_c)
-            return True
-
-        # If the key matches our explicit mapping (covers keypad + top row)
-        if keyval in self.key_map:
-            num = self.key_map[keyval]
-            # ensure only 1-9 (defensive)
-            if num and num != 0:
-                self._fill_cell(self.cell_inputs[row][col], num, ctrl_is_pressed=ctrl)
-                return True
+        if keyval not in directions:
             return False
 
-        # Fallback: try unicode digit (e.g., some exotic keyboard)
-        uni = Gdk.keyval_to_unicode(keyval)
-        if uni != 0:
-            char = chr(uni)
-            try:
-                digit = unicodedata.digit(char)
-                # Only accept 1..9, reject 0
-                if 1 <= digit <= 9:
-                    self._fill_cell(
-                        self.cell_inputs[row][col], str(digit), ctrl_is_pressed=ctrl
-                    )
-                    return True
-            except (ValueError, TypeError):
-                pass
+        dr, dc = directions[keyval]
+        if ctrl:
+            dr *= 3
+            dc *= 3
+        new_r, new_c = row + dr, col + dc
+        if (
+            0 <= new_r < self.board.rules.size
+            and 0 <= new_c < self.board.rules.size
+        ):
+            self._focus_cell(new_r, new_c)
+        return True
 
-        # Enter => show popover
+    def _handle_number_keys(self, keyval, ctrl, row, col):
+        if keyval not in self.key_map:
+            return False
+        num = self.key_map[keyval]
+        if num and num != 0:
+            self._fill_cell(self.cell_inputs[row][col], num, ctrl_is_pressed=ctrl)
+            return True
+        return False
+
+    def _handle_unicode_digit(self, keyval, ctrl, row, col):
+        uni = Gdk.keyval_to_unicode(keyval)
+        if uni == 0:
+            return False
+        try:
+            digit = unicodedata.digit(chr(uni))
+            if 1 <= digit <= 9:
+                self._fill_cell(
+                    self.cell_inputs[row][col], str(digit), ctrl_is_pressed=ctrl
+                )
+                return True
+        except (ValueError, TypeError):
+            return False
+        return False
+
+    def _handle_enter_key(self, keyval, row, col):
         if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
             self._show_popover(self.cell_inputs[row][col])
             return True
-
-        # Remove keys
-        if keyval in self.remove_keys:
-            self._clear_cell(
-                self.cell_inputs[row][col], clear_all=(keyval == Gdk.KEY_Delete)
-            )
-            return True
-
         return False
+
+    def _handle_remove_keys(self, keyval, row, col):
+        if keyval not in self.remove_keys:
+            return False
+        self._clear_cell(
+            self.cell_inputs[row][col], clear_all=(keyval == Gdk.KEY_Delete)
+        )
+        return True
 
     def on_number_selected(
         self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
