@@ -24,7 +24,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw, Gtk
 from .window import SudokuWindow
-from .help_dialog import HowToPlayDialog
+from .screens.help_dialog import HowToPlayDialog
 
 
 class SudokuApplication(Adw.Application):

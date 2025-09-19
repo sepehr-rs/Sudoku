@@ -21,12 +21,10 @@ from gi.repository import Gtk, Adw
 from gettext import gettext as _
 from functools import partial
 
-from .game_board import (
-    EASY_DIFFICULTY,
-    MEDIUM_DIFFICULTY,
-    HARD_DIFFICULTY,
-    EXTREME_DIFFICULTY,
-)
+EASY_DIFFICULTY = 0.2
+MEDIUM_DIFFICULTY = 0.5
+HARD_DIFFICULTY = 0.7
+EXTREME_DIFFICULTY = 0.9
 
 
 class DifficultySelectionDialog(Adw.Dialog):

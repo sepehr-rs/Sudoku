@@ -3,10 +3,10 @@ from gettext import gettext as _
 
 from .variants.classic_sudoku.manager import ClassicSudokuManager
 from .base.ui_helpers import UIHelpers
-from .difficulty_selection_dialog import DifficultySelectionDialog
-from .help_overlay import HelpOverlay
-from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
-from .loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
+from .screens.difficulty_selection_dialog import DifficultySelectionDialog
+from .screens.help_overlay import HelpOverlay
+from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
+from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
@@ -38,6 +38,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             ("show-primary-menu", self.on_show_primary_menu),
             ("show-help-overlay", self.on_show_help_overlay),
             ("back-to-menu", self.on_back_to_menu),
+            ("pencil-toggled", self._on_pencil_toggled_action)
         ]:
             action = Gio.SimpleAction.new(name, None)
             action.connect("activate", callback)
@@ -148,3 +149,6 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_back_to_menu(self, action, param):
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
+
+    def _on_pencil_toggled_action(self, action, param):
+        self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())

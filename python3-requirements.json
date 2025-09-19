@@ -8,7 +8,7 @@
         {
             "type": "git",
             "url": "https://github.com/sepehr-rs/sudoku-engine.git",
-            "commit": "8b3a0f3e60e25e33b7eb91c028fade30db38d5d1",
+            "commit": "9e1cd674d2768d473b28b6f54cd1d28c602b97be",
             "dest": "sudoku-engine"
         }
     ]
