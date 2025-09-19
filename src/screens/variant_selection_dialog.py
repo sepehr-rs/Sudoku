@@ -27,7 +27,7 @@ class VariantSelectionDialog(Adw.Dialog):
         super().__init__()
         self.set_title(_("Select Variant"))
         self.set_content_width(250)
-        self.set_content_height(290)
+        self.set_content_height(190)
 
         toolbar_view = Adw.ToolbarView.new()
         header = Adw.HeaderBar()
