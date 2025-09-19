@@ -3,6 +3,7 @@ from sudoku import DiagonalSudoku
 from sudoku.base_sudoku import PuzzleGenerator
 from ..classic_sudoku.generator import ClassicSudokuGenerator
 
+
 class DiagonalSudokuGenerator(ClassicSudokuGenerator):
     """Puzzle generator for diagonal Sudoku, reusing Classic logic."""
 

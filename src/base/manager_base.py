@@ -1,5 +1,6 @@
-from gi.repository import Gtk, Gdk, GLib
+from gi.repository import Gtk
 from .ui_helpers import UIHelpers
+import logging
 
 
 class ManagerBase:
@@ -37,7 +38,6 @@ class ManagerBase:
             return True
         return False
 
-
     def _fill_cell(self, cell, number: str, ctrl_is_pressed=False):
         pass
 
@@ -47,13 +47,14 @@ class ManagerBase:
     def on_cell_filled(self, cell, number: str):
         """
         Abstract correctness feedback.
-        Subclasses can override, or rely on default behavior using specify_cell_correctness.
+        Subclasses can override, or rely on default
+        behavior using specify_cell_correctness.
         """
         pass
 
     def _show_puzzle_finished_dialog(self):
         pass
-        #TODO: FIX THIS
+        # TODO: FIX THIS
 
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         """Shared handler for pencil mode toggling."""

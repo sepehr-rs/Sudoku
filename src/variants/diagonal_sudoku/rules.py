@@ -1,5 +1,6 @@
 from ..classic_sudoku.rules import ClassicSudokuRules
 
+
 class DiagonalSudokuRules(ClassicSudokuRules):
     def is_valid(self, grid, row, col, value) -> bool:
         if not super().is_valid(grid, row, col, value):

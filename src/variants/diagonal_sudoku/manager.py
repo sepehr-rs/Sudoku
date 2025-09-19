@@ -31,5 +31,9 @@ class DiagonalSudokuManager(ClassicSudokuManager):
                 cell.grab_focus()
                 # Use diagonal-aware highlighting
                 self.ui_helpers.highlight_related_cells(
-                    self.cell_inputs, row, col, self.board.rules.block_size, cell.is_editable()
+                    self.cell_inputs,
+                    row,
+                    col,
+                    self.board.rules.block_size,
+                    cell.is_editable(),
                 )

@@ -15,12 +15,12 @@ class ClassicSudokuManager(ManagerBase):
         self.parent_grid = None
         self.blocks = []
 
-    def start_game(self, difficulty: float, difficulty_label: str):
+    def start_game(self, difficulty: float, difficulty_label: str, variant: str):
         self.window.stack.set_visible_child(self.window.loading_screen)
         logging.info(f"Starting Classic Sudoku with difficulty: {difficulty}")
 
         def worker():
-            self.board = ClassicSudokuBoard(difficulty, difficulty_label)
+            self.board = ClassicSudokuBoard(difficulty, difficulty_label, variant)
             GLib.idle_add(self._on_game_ready)
 
         threading.Thread(target=worker, daemon=True).start()
@@ -33,7 +33,9 @@ class ClassicSudokuManager(ManagerBase):
     def load_saved_game(self):
         self.board = ClassicSudokuBoard.load_from_file()
         if self.board:
-            self.window.sudoku_window_title.set_subtitle(f"{self.board.difficulty_label}")
+            self.window.sudoku_window_title.set_subtitle(
+                f"{self.board.variant.capitalize()} - {self.board.difficulty_label}"
+            )
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_view_box)
@@ -201,7 +203,9 @@ class ClassicSudokuManager(ManagerBase):
         self.board.save_to_file()
 
     def _show_popover(self, cell: SudokuCell, mouse_button=None):
-        ClassicUIHelpers.show_number_popover(cell, mouse_button, self.on_number_selected, self.on_clear_selected)
+        ClassicUIHelpers.show_number_popover(
+            cell, mouse_button, self.on_number_selected, self.on_clear_selected
+        )
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell: SudokuCell):
         ClassicUIHelpers.highlight_related_cells(
@@ -228,7 +232,10 @@ class ClassicSudokuManager(ManagerBase):
                 dr *= 3
                 dc *= 3
             new_r, new_c = row + dr, col + dc
-            if 0 <= new_r < self.board.rules.size and 0 <= new_c < self.board.rules.size:
+            if (
+                0 <= new_r < self.board.rules.size
+                and 0 <= new_c < self.board.rules.size
+            ):
                 self._focus_cell(new_r, new_c)
             return True
 
@@ -249,7 +256,9 @@ class ClassicSudokuManager(ManagerBase):
                 digit = unicodedata.digit(char)
                 # Only accept 1..9, reject 0
                 if 1 <= digit <= 9:
-                    self._fill_cell(self.cell_inputs[row][col], str(digit), ctrl_is_pressed=ctrl)
+                    self._fill_cell(
+                        self.cell_inputs[row][col], str(digit), ctrl_is_pressed=ctrl
+                    )
                     return True
             except (ValueError, TypeError):
                 pass
@@ -261,12 +270,16 @@ class ClassicSudokuManager(ManagerBase):
 
         # Remove keys
         if keyval in self.remove_keys:
-            self._clear_cell(self.cell_inputs[row][col], clear_all=(keyval == Gdk.KEY_Delete))
+            self._clear_cell(
+                self.cell_inputs[row][col], clear_all=(keyval == Gdk.KEY_Delete)
+            )
             return True
 
         return False
 
-    def on_number_selected(self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button):
+    def on_number_selected(
+        self, num_button: Gtk.Button, cell: SudokuCell, popover, mouse_button
+    ):
         number = num_button.get_label()
         self._fill_cell(cell, number, ctrl_is_pressed=(mouse_button == 3))
         popover.popdown()
@@ -277,7 +290,9 @@ class ClassicSudokuManager(ManagerBase):
 
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
-        logging.info("Pencil Mode is now ON" if self.pencil_mode else "Pencil Mode is now OFF")
+        logging.info(
+            "Pencil Mode is now ON" if self.pencil_mode else "Pencil Mode is now OFF"
+        )
 
     def _show_puzzle_finished_dialog(self):
         self.window.pencil_toggle_button.set_visible(False)
@@ -305,7 +320,10 @@ class ClassicSudokuManager(ManagerBase):
             cell.set_tooltip_text("Correct")
 
             # Remove highlight after delay
-            tid1 = GLib.timeout_add(3000, lambda: (cell.remove_highlight("correct"), cell.set_tooltip_text("")))
+            tid1 = GLib.timeout_add(
+                3000,
+                lambda: (cell.remove_highlight("correct"), cell.set_tooltip_text("")),
+            )
             cell.feedback_timeout_ids.append(tid1)
 
         else:
@@ -319,5 +337,7 @@ class ClassicSudokuManager(ManagerBase):
             self.conflict_cells.extend(new_conflicts)
 
             # Clear conflicts after delay
-            tid2 = GLib.timeout_add(3000, lambda: ClassicUIHelpers.clear_conflicts(self.conflict_cells))
+            tid2 = GLib.timeout_add(
+                3000, lambda: ClassicUIHelpers.clear_conflicts(self.conflict_cells)
+            )
             cell.feedback_timeout_ids.append(tid2)

@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gdk, GLib
+from gi.repository import Gtk, Gdk
 from gettext import gettext as _
 
 from ...base.ui_helpers import UIHelpers
@@ -70,7 +70,9 @@ class ClassicUIHelpers(UIHelpers):
 
         num_buttons = {}
         for i in range(1, 10):
-            b = ClassicUIHelpers.create_number_button(str(i), on_number_selected, cell, popover, mouse_button)
+            b = ClassicUIHelpers.create_number_button(
+                str(i), on_number_selected, cell, popover, mouse_button
+            )
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 

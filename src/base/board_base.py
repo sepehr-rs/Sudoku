@@ -6,16 +6,22 @@ from abc import ABC, abstractclassmethod
 class BoardBase(ABC):
     DEFAULT_SAVE_PATH = "saves/board.json"
 
-    def __init__(self, rules, generator, difficulty: float, difficulty_label: str):
+    def __init__(
+        self, rules, generator, difficulty: float, difficulty_label: str, variant: str
+    ):
         self.rules = rules
         self.generator = generator
         self.difficulty = difficulty
         self.difficulty_label = difficulty_label
+        self.variant = variant
 
         self.puzzle, self.solution = self.generator.generate(difficulty)
-        print(self.solution)
-        self.user_inputs = [[None for _ in range(self.rules.size)] for _ in range(self.rules.size)]
-        self.notes = [[set() for _ in range(self.rules.size)] for _ in range(self.rules.size)]
+        self.user_inputs = [
+            [None for _ in range(self.rules.size)] for _ in range(self.rules.size)
+        ]
+        self.notes = [
+            [set() for _ in range(self.rules.size)] for _ in range(self.rules.size)
+        ]
 
     @abstractclassmethod
     def load_from_file(cls, filename: str = None):
@@ -28,6 +34,7 @@ class BoardBase(ABC):
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
+            "variant": self.variant,
             "puzzle": self.puzzle,
             "solution": self.solution,
             "user_inputs": self.user_inputs,
@@ -49,10 +56,6 @@ class BoardBase(ABC):
 
     def get_correct_value(self, row, col):
         return self.solution[row][col]
-
-    # --- User input methods ---
-    def set_input(self, row, col, value):
-        self.user_inputs[row][col] = value
 
     def get_input(self, row, col):
         return self.user_inputs[row][col]

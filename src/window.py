@@ -1,7 +1,5 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
-
-from .base.ui_helpers import UIHelpers
 from .screens.difficulty_selection_dialog import DifficultySelectionDialog
 from .screens.help_overlay import HelpOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
@@ -9,6 +7,9 @@ from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprin
 from .screens.variant_selection_dialog import VariantSelectionDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
+import os
+import json
+
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
@@ -40,7 +41,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             ("show-primary-menu", self.on_show_primary_menu),
             ("show-help-overlay", self.on_show_help_overlay),
             ("back-to-menu", self.on_back_to_menu),
-            ("pencil-toggled", self._on_pencil_toggled_action)
+            ("pencil-toggled", self._on_pencil_toggled_action),
         ]:
             action = Gio.SimpleAction.new(name, None)
             action.connect("activate", callback)
@@ -74,7 +75,21 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.lookup_action("back-to-menu").set_enabled(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
 
+    def get_manager_type(self, filename: str = None):
+        filename = filename or "saves/board.json"
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r", encoding="utf-8") as f:
+            state = json.load(f)
+
+        return state.get("variant", "Unknown")
+
     def on_continue_clicked(self, button):
+        if self.selected_variant in ("classic", "Unknown"):
+            self.manager = ClassicSudokuManager(self)
+        elif self.selected_variant == "diagonal":
+            self.manager = DiagonalSudokuManager(self)
         self.manager.load_saved_game()
         self._setup_ui()
 
@@ -95,7 +110,6 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
         """Initialize the manager based on variant and start game."""
-        self.sudoku_window_title.set_subtitle(f"{difficulty_label}")
 
         if self.selected_variant == "classic":
             self.manager = ClassicSudokuManager(self)
@@ -104,8 +118,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         else:
             raise ValueError(f"Unknown Sudoku variant: {self.selected_variant}")
 
+        self.sudoku_window_title.set_subtitle(
+            f"{self.selected_variant.capitalize()} - {difficulty_label}"
+        )
+
         self._setup_ui()
-        self.manager.start_game(difficulty, difficulty_label)
+        self.manager.start_game(difficulty, difficulty_label, self.selected_variant)
 
     def on_show_primary_menu(self, action, param):
         self.primary_menu_button.popup()
@@ -121,18 +139,27 @@ class SudokuWindow(Adw.ApplicationWindow):
             return
         grid = frame.get_child()
         alloc = grid.get_allocation()
-        if not (alloc.x <= x < alloc.x + alloc.width and alloc.y <= y < alloc.y + alloc.height):
+        if not (
+            alloc.x <= x < alloc.x + alloc.width
+            and alloc.y <= y < alloc.y + alloc.height
+        ):
             self.manager.on_grid_unfocus()
 
     def _setup_breakpoints(self):
-        compact_condition = Adw.BreakpointCondition.parse("max-width: 550px or max-height:600px")
+        compact_condition = Adw.BreakpointCondition.parse(
+            "max-width: 550px or max-height:600px"
+        )
         compact_bp = Adw.Breakpoint.new(compact_condition)
         compact_bp.name = "compact-width"
         compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "width"))
-        compact_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "width"))
+        compact_bp.connect(
+            "unapply", lambda bp, *_: self._apply_compact(False, "width")
+        )
         self.add_breakpoint(compact_bp)
 
-        small_condition = Adw.BreakpointCondition.parse("max-width: 400px or max-height:400px")
+        small_condition = Adw.BreakpointCondition.parse(
+            "max-width: 400px or max-height:400px"
+        )
         small_bp = Adw.Breakpoint.new(small_condition)
         small_bp.name = "compact-height"
         small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "height"))

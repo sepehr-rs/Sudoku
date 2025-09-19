@@ -1,5 +1,5 @@
 from gi.repository import Gtk, Gdk
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class UIHelpers(ABC):
@@ -37,7 +37,8 @@ class UIHelpers(ABC):
     def highlight_conflicts(cells, row: int, col: int, label: str, block_size: int):
         """
         Highlight conflicting cells and return list of conflicts.
-        A conflict is any other cell in the same row, column, or block with the same label.
+        A conflict is any other cell in the same row, column,
+        or block with the same label.
         """
         conflict_cells = []
         size = len(cells)
@@ -50,7 +51,10 @@ class UIHelpers(ABC):
                     and (
                         r == row
                         or c == col
-                        or (r // block_size == row // block_size and c // block_size == col // block_size)
+                        or (
+                            r // block_size == row // block_size
+                            and c // block_size == col // block_size
+                        )
                     )
                 ):
                     cell.highlight("conflict")

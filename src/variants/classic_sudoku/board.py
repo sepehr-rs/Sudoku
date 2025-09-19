@@ -1,16 +1,18 @@
-import json, os
+import json
+import os
 from ...base.board_base import BoardBase
 from .rules import ClassicSudokuRules
 from .generator import ClassicSudokuGenerator
 
 
 class ClassicSudokuBoard(BoardBase):
-    def __init__(self, difficulty: float, difficulty_label: str):
+    def __init__(self, difficulty: float, difficulty_label: str, variant: str):
         super().__init__(
             ClassicSudokuRules(),
             ClassicSudokuGenerator(),
             difficulty,
-            difficulty_label
+            difficulty_label,
+            variant,
         )
 
     @classmethod
@@ -26,7 +28,8 @@ class ClassicSudokuBoard(BoardBase):
         self.rules = ClassicSudokuRules()
         self.generator = ClassicSudokuGenerator()
         self.difficulty = state["difficulty"]
-        self.difficulty_label = state["difficulty_label"]
+        self.difficulty_label = state.get("difficulty_label", "Unknown")
+        self.variant = state.get("variant", "Unknown")
         self.puzzle = state["puzzle"]
         self.solution = state["solution"]
         self.user_inputs = state["user_inputs"]
