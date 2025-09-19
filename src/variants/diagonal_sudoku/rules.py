@@ -1,27 +1,17 @@
-from ...base.rules_base import RulesBase
+from ..classic_sudoku.rules import ClassicSudokuRules
 
-
-class ClassicSudokuRules(RulesBase):
-    block_size: int = 3
-
-    @property
-    def size(self) -> int:
-        return self.block_size * self.block_size  # 9 for classic Sudoku
-
+class DiagonalSudokuRules(ClassicSudokuRules):
     def is_valid(self, grid, row, col, value) -> bool:
-        # Row
-        if value in grid[row]:
+        if not super().is_valid(grid, row, col, value):
             return False
-        # Column
-        if value in [grid[r][col] for r in range(self.size)]:
-            return False
-        # Block
-        br, bc = row // self.block_size, col // self.block_size
-        for r in range(br * self.block_size, (br + 1) * self.block_size):
-            for c in range(bc * self.block_size, (bc + 1) * self.block_size):
-                if grid[r][c] == value:
-                    return False
-        return True
 
-    def is_solved(self, user_inputs, solution) -> bool:
-        return user_inputs == solution
+        size = self.size
+        # Main diagonal
+        if row == col:
+            if value in [grid[i][i] for i in range(size) if i != row]:
+                return False
+        # Anti-diagonal
+        if row + col == size - 1:
+            if value in [grid[i][size - 1 - i] for i in range(size) if i != row]:
+                return False
+        return True

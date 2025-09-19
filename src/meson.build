@@ -25,6 +25,7 @@ sudoku_sources = [
 
 subdir('base')
 subdir('variants/classic_sudoku')
+subdir('variants/diagonal_sudoku')
 subdir('screens')
 
 install_data(sudoku_sources, install_dir: moduledir)

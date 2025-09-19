@@ -6,6 +6,7 @@ services_sources = [
     'help_dialog.py',
     'help_overlay.py',
     'loading_screen.py',
+    'variant_selection_dialog.py',
 ]
 
 install_data(services_sources, install_dir: modulesubdir)

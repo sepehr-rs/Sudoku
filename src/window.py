@@ -1,13 +1,14 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 
-from .variants.classic_sudoku.manager import ClassicSudokuManager
 from .base.ui_helpers import UIHelpers
 from .screens.difficulty_selection_dialog import DifficultySelectionDialog
 from .screens.help_overlay import HelpOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
-
+from .screens.variant_selection_dialog import VariantSelectionDialog
+from .variants.classic_sudoku.manager import ClassicSudokuManager
+from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
@@ -31,7 +32,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
 
         # Initialize the manager (replaces GameManager/GameBoard)
-        self.manager = ClassicSudokuManager(self)
+        self.manager = None
+        self.selected_variant = None
 
         # Primary menu and help actions
         for name, callback in [
@@ -45,9 +47,14 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.add_action(action)
 
         # Setup UI
-        self._setup_ui()
         self._setup_stack_observer()
         self._setup_breakpoints()
+
+        self.continue_button.connect("clicked", self.on_continue_clicked)
+        self.continue_button.set_tooltip_text(_("Continue Game"))
+        self.new_game_button.connect("clicked", self.on_new_game_clicked)
+        self.new_game_button.set_tooltip_text(_("New Game"))
+        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_action)
 
         # Add click gesture for unfocus
         gesture = Gtk.GestureClick.new()
@@ -56,14 +63,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _setup_ui(self):
         self.continue_button.set_sensitive(self.manager.board_cls.has_saved_game())
-        self.continue_button.connect("clicked", self.on_continue_clicked)
-        self.continue_button.set_tooltip_text(_("Continue Game"))
-
-        self.new_game_button.connect("clicked", self.on_new_game_clicked)
-        self.new_game_button.set_tooltip_text(_("New Game"))
-
         self.pencil_toggle_button.set_active(False)
-        self.pencil_toggle_button.connect("toggled", self.manager.on_pencil_toggled)
 
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
@@ -76,8 +76,17 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_continue_clicked(self, button):
         self.manager.load_saved_game()
+        self._setup_ui()
 
     def on_new_game_clicked(self, button):
+        self._show_variant_dialog()
+
+    def _show_variant_dialog(self):
+        dialog = VariantSelectionDialog(on_select=self.on_variant_selected)
+        dialog.present(self)
+
+    def on_variant_selected(self, variant_name: str):
+        self.selected_variant = variant_name
         self._show_difficulty_dialog()
 
     def _show_difficulty_dialog(self):
@@ -85,7 +94,17 @@ class SudokuWindow(Adw.ApplicationWindow):
         dialog.present(self)
 
     def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
+        """Initialize the manager based on variant and start game."""
         self.sudoku_window_title.set_subtitle(f"{difficulty_label}")
+
+        if self.selected_variant == "classic":
+            self.manager = ClassicSudokuManager(self)
+        elif self.selected_variant == "diagonal":
+            self.manager = DiagonalSudokuManager(self)
+        else:
+            raise ValueError(f"Unknown Sudoku variant: {self.selected_variant}")
+
+        self._setup_ui()
         self.manager.start_game(difficulty, difficulty_label)
 
     def on_show_primary_menu(self, action, param):

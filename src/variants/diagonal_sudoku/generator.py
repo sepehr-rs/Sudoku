@@ -1,16 +1,15 @@
 import random
+from sudoku import DiagonalSudoku
 from sudoku.base_sudoku import PuzzleGenerator
-from sudoku import ClassicSudoku
-from ...base.generator_base import GeneratorBase
+from ..classic_sudoku.generator import ClassicSudokuGenerator
 
-
-class ClassicSudokuGenerator(GeneratorBase):
-    """Puzzle generator for classic Sudoku."""
+class DiagonalSudokuGenerator(ClassicSudokuGenerator):
+    """Puzzle generator for diagonal Sudoku, reusing Classic logic."""
 
     def _generate_impl(self, difficulty: float):
         random_seed = random.randint(1, 1_000_000)
         sudoku = PuzzleGenerator.make_puzzle(
-            sudoku_cls=ClassicSudoku,
+            sudoku_cls=DiagonalSudoku,
             size=9,
             difficulty=difficulty,
             ensure_unique=True,
