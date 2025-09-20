@@ -55,7 +55,7 @@ class ClassicSudokuManager(ManagerBase):
                 if value:
                     cell.set_value(str(value))
                     correct_value = self.board.get_correct_value(r, c)
-                    if str(value) != correct_value:
+                    if str(value) != str(correct_value):
                         cell.highlight("wrong")
                 if notes:
                     cell.update_notes(notes)
@@ -215,6 +215,7 @@ class ClassicSudokuManager(ManagerBase):
             self._show_popover(cell, gesture.get_current_button())
         else:
             cell.grab_focus()
+        gesture.reset()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row, col):
         ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
@@ -251,10 +252,7 @@ class ClassicSudokuManager(ManagerBase):
             dr *= 3
             dc *= 3
         new_r, new_c = row + dr, col + dc
-        if (
-            0 <= new_r < self.board.rules.size
-            and 0 <= new_c < self.board.rules.size
-        ):
+        if 0 <= new_r < self.board.rules.size and 0 <= new_c < self.board.rules.size:
             self._focus_cell(new_r, new_c)
         return True
 
@@ -301,7 +299,8 @@ class ClassicSudokuManager(ManagerBase):
     ):
         number = num_button.get_label()
         self._fill_cell(cell, number, ctrl_is_pressed=(mouse_button == 3))
-        popover.popdown()
+        if not self.pencil_mode and mouse_button != 3:
+            popover.popdown()
 
     def on_clear_selected(self, clear_button, cell: SudokuCell, popover):
         self._clear_cell(cell)

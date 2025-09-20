@@ -16,6 +16,7 @@ class BoardBase(ABC):
         self.variant = variant
 
         self.puzzle, self.solution = self.generator.generate(difficulty)
+        print(self.solution)
         self.user_inputs = [
             [None for _ in range(self.rules.size)] for _ in range(self.rules.size)
         ]

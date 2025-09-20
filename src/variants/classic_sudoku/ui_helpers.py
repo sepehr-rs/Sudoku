@@ -7,7 +7,6 @@ from ...base.ui_helpers import UIHelpers
 class ClassicUIHelpers(UIHelpers):
     """UI helpers specifically for Classic Sudoku."""
 
-    # ---- Buttons ----
     @staticmethod
     def create_number_button(label: str, callback, *args):
         """Create a Sudoku number button with consistent styling."""
@@ -24,7 +23,6 @@ class ClassicUIHelpers(UIHelpers):
         remove_keys = (Gdk.KEY_BackSpace, Gdk.KEY_Delete, Gdk.KEY_KP_Delete)
         return key_map, remove_keys
 
-    # ---- Highlighting ----
     @staticmethod
     def highlight_related_cells(cells, row: int, col: int, block_size: int):
         """Highlight row, column, block, or same-value cells."""
@@ -49,16 +47,22 @@ class ClassicUIHelpers(UIHelpers):
                     if cells[r][c].get_value() == selected_value:
                         ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
 
-    # ---- Feedback ----
     @staticmethod
     def clear_feedback_classes(context: Gtk.StyleContext):
         """Remove correctness classes from a style context."""
         context.remove_class("correct")
         context.remove_class("wrong")
 
-    # ---- Popover ----
     @staticmethod
-    def show_number_popover(cell, mouse_button, on_number_selected, on_clear_selected):
+    def show_number_popover(
+        cell,
+        mouse_button,
+        on_number_selected,
+        on_clear_selected,
+        pencil_mode=False,
+        key_map=None,
+        remove_keys=None,
+    ):
         """Show the number selection popover for a Sudoku cell."""
         popover = Gtk.Popover()
         popover.set_has_arrow(False)
@@ -76,13 +80,28 @@ class ClassicUIHelpers(UIHelpers):
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
 
-        clear_button = Gtk.Button(label=_("Clear Cell"))
-        clear_button.set_size_request(40 * 3 + 10, 40)
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        grid.attach(button_box, 0, 3, 3, 1)
+
+        clear_button = Gtk.Button(label=_("Clear"))
+        clear_button.set_size_request(-1, 40)
+        clear_button.set_hexpand(True)
+        clear_button.set_tooltip_text(_("Clear cell (Del/Backspace)"))
         clear_button.connect("clicked", on_clear_selected, cell, popover)
-        grid.attach(clear_button, 0, 3, 3, 1)
+        button_box.append(clear_button)
+
+        if pencil_mode or mouse_button == 3:
+            done_button = Gtk.Button(label=_("Done"))
+            done_button.set_size_request(-1, 40)
+            done_button.set_hexpand(True)
+            done_button.set_tooltip_text(_("Finish editing cell"))
+            done_button.connect("clicked", lambda _: popover.popdown())
+            button_box.append(done_button)
+
+        if key_map is None or remove_keys is None:
+            key_map, remove_keys = ClassicUIHelpers.setup_key_mappings()
 
         def on_key_pressed(controller, keyval, keycode, state):
-            key_map, remove_keys = ClassicUIHelpers.setup_key_mappings()
             if keyval in key_map and (num := key_map[keyval]) in num_buttons:
                 num_buttons[num].emit("clicked")
                 return True
@@ -94,6 +113,7 @@ class ClassicUIHelpers(UIHelpers):
         key_controller = Gtk.EventControllerKey()
         key_controller.connect("key-pressed", on_key_pressed)
         grid.add_controller(key_controller)
+
         grid.set_focus_on_click(True)
         grid.grab_focus()
         popover.show()

@@ -55,7 +55,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
         self.new_game_button.set_tooltip_text(_("New Game"))
-        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_action)
+        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
 
         # Add click gesture for unfocus
         gesture = Gtk.GestureClick.new()
@@ -86,9 +86,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         return state.get("variant", "Unknown")
 
     def on_continue_clicked(self, button):
-        if self.selected_variant in ("classic", "Unknown"):
+        variant = self.get_manager_type()
+        if variant in ("classic", "Unknown"):
             self.manager = ClassicSudokuManager(self)
-        elif self.selected_variant == "diagonal":
+        elif variant == "diagonal":
             self.manager = DiagonalSudokuManager(self)
         self.manager.load_saved_game()
         self._setup_ui()
@@ -197,5 +198,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
 
+    def _on_pencil_toggled_button(self, button):
+        if self.manager:
+            self.manager.on_pencil_toggled(button)
+
     def _on_pencil_toggled_action(self, action, param):
-        self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
+        current = self.pencil_toggle_button.get_active()
+        self.pencil_toggle_button.set_active(not current)
