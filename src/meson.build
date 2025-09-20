@@ -21,6 +21,7 @@ sudoku_sources = [
   'main.py',
   'application.py',
   'window.py',
+  'log_utils.py'
 ]
 
 subdir('base')
