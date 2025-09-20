@@ -148,7 +148,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _setup_breakpoints(self):
         compact_condition = Adw.BreakpointCondition.parse(
-            "max-width: 550px or max-height:600px"
+            "max-width: 650px or max-height:700px"
         )
         compact_bp = Adw.Breakpoint.new(compact_condition)
         compact_bp.name = "compact-width"
