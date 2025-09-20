@@ -25,7 +25,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gio, Adw, Gtk, GLib
 from .window import SudokuWindow
-from .help_dialog import HowToPlayDialog
+from .screens.help_dialog import HowToPlayDialog
 from .log_utils import setup_logging
 from pathlib import Path
 import xml.etree.ElementTree as ET

@@ -28,14 +28,25 @@ class SudokuCell(Gtk.Button):
 
         self.row = row
         self.col = col
-        self.editable = editable
-        self.set_margin_start(0)
-        self.set_margin_end(0)
-        self.set_margin_top(0)
-        self.set_margin_bottom(0)
+        self._editable = editable
         self.compact_mode = False
         self._setup_ui()
         self._setup_initial_state(value)
+
+    def set_editable(self, editable: bool):
+        """Enable or disable user editing of this cell."""
+        self._editable = editable
+
+    def is_editable(self) -> bool:
+        return self._editable
+
+    def do_clicked(self, *args):
+        """Only trigger clicked if editable."""
+        if self._editable:
+            super().do_clicked(*args)
+        else:
+            # swallow the click (make it a no-op)
+            return
 
     def _setup_ui(self):
         self.main_label = Gtk.Label(xalign=0.5, yalign=0.5)
@@ -78,9 +89,11 @@ class SudokuCell(Gtk.Button):
         if value is not None:
             self.set_value(str(value))
             self.get_style_context().add_class("clue-cell")
+            self.set_editable(False)
         else:
             self.set_value("")
             self.get_style_context().add_class("entry-cell")
+            self.set_editable(True)
 
         self.update_display()
 
@@ -145,6 +158,12 @@ class SudokuCell(Gtk.Button):
         """Add a highlight class to the cell."""
         self.get_style_context().add_class(class_name)
 
-    def unhighlight(self, class_name: str):
+    def remove_highlight(self, class_name: str):
         """Remove a highlight class from the cell."""
         self.get_style_context().remove_class(class_name)
+
+    def clear(self):
+        """Clear the main value and all notes."""
+        self.set_value("")
+        self.update_notes(set())
+        self.remove_highlight("wrong")

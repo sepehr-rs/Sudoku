@@ -19,20 +19,19 @@
 
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
-
-from .game_board import GameBoard
-from .game_manager import GameManager
-from .ui_helpers import UIHelpers
-from .difficulty_selection_dialog import DifficultySelectionDialog
-from .help_overlay import HelpOverlay
-from .finished_page import FinishedPage  # noqa: F401 Used in Blueprint
-from .loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
+from .screens.difficulty_selection_dialog import DifficultySelectionDialog
+from .screens.help_overlay import HelpOverlay
+from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
+from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
+from .screens.variant_selection_dialog import VariantSelectionDialog
+from .variants.classic_sudoku.manager import ClassicSudokuManager
+from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
+import os
+import json
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
-    """Main application window."""
-
     __gtype_name__ = "SudokuWindow"
 
     # Template children
@@ -52,30 +51,123 @@ class SudokuWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Initialize game manager
-        self.game_manager = GameManager(self)
-        # Setup UI
-        self._setup_ui()
-        self._setup_stack_observer()
+        # Initialize the manager (replaces GameManager/GameBoard)
+        self.manager = None
+        self.selected_variant = None
 
-        # Add a click gesture to detect clicks anywhere in the window
+        # Primary menu and help actions
+        for name, callback in [
+            ("show-primary-menu", self.on_show_primary_menu),
+            ("show-help-overlay", self.on_show_help_overlay),
+            ("back-to-menu", self.on_back_to_menu),
+            ("pencil-toggled", self._on_pencil_toggled_action),
+        ]:
+            action = Gio.SimpleAction.new(name, None)
+            action.connect("activate", callback)
+            self.add_action(action)
+
+        # Setup UI
+        self._setup_stack_observer()
+        self._setup_breakpoints()
+
+        self.continue_button.connect("clicked", self.on_continue_clicked)
+        self.continue_button.set_tooltip_text(_("Continue Game"))
+        self.new_game_button.connect("clicked", self.on_new_game_clicked)
+        self.new_game_button.set_tooltip_text(_("New Game"))
+        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
+
+        # Add click gesture for unfocus
         gesture = Gtk.GestureClick.new()
         gesture.connect("pressed", self.on_window_clicked)
         self.add_controller(gesture)
-        action = Gio.SimpleAction.new("show-primary-menu", None)
-        action.connect("activate", self.on_show_primary_menu)
-        self.add_action(action)
-        action = Gio.SimpleAction.new("show-help-overlay", None)
-        action.connect("activate", self.on_show_help_overlay)
-        self.add_action(action)
-        self._setup_breakpoints()
+
+    def _setup_ui(self):
+        self.continue_button.set_sensitive(self.manager.board_cls.has_saved_game())
+        self.pencil_toggle_button.set_active(False)
+
+    def _setup_stack_observer(self):
+        self.stack.connect("notify::visible-child", self.on_stack_page_changed)
+        self.on_stack_page_changed(self.stack, None)
+
+    def on_stack_page_changed(self, stack, param):
+        is_game_page = stack.get_visible_child() != self.main_menu_box
+        self.lookup_action("back-to-menu").set_enabled(is_game_page)
+        self.pencil_toggle_button.set_visible(is_game_page)
+
+    def get_manager_type(self, filename: str = None):
+        filename = filename or "saves/board.json"
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r", encoding="utf-8") as f:
+            state = json.load(f)
+
+        return state.get("variant", "Unknown")
+
+    def on_continue_clicked(self, button):
+        variant = self.get_manager_type()
+        if variant in ("classic", "Unknown"):
+            self.manager = ClassicSudokuManager(self)
+        elif variant == "diagonal":
+            self.manager = DiagonalSudokuManager(self)
+        self.manager.load_saved_game()
+        self._setup_ui()
+
+    def on_new_game_clicked(self, button):
+        self._show_variant_dialog()
+
+    def _show_variant_dialog(self):
+        dialog = VariantSelectionDialog(on_select=self.on_variant_selected)
+        dialog.present(self)
+
+    def on_variant_selected(self, variant_name: str):
+        self.selected_variant = variant_name
+        self._show_difficulty_dialog()
+
+    def _show_difficulty_dialog(self):
+        dialog = DifficultySelectionDialog(on_select=self.on_difficulty_selected)
+        dialog.present(self)
+
+    def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
+        """Initialize the manager based on variant and start game."""
+
+        if self.selected_variant == "classic":
+            self.manager = ClassicSudokuManager(self)
+        elif self.selected_variant == "diagonal":
+            self.manager = DiagonalSudokuManager(self)
+        else:
+            raise ValueError(f"Unknown Sudoku variant: {self.selected_variant}")
+
+        self.sudoku_window_title.set_subtitle(
+            f"{self.selected_variant.capitalize()} - {difficulty_label}"
+        )
+
+        self._setup_ui()
+        self.manager.start_game(difficulty, difficulty_label, self.selected_variant)
+
+    def on_show_primary_menu(self, action, param):
+        self.primary_menu_button.popup()
+
+    def on_show_help_overlay(self, action, param):
+        help_overlay = HelpOverlay()
+        help_overlay.set_transient_for(self)
+        help_overlay.present()
+
+    def on_window_clicked(self, gesture, n_press, x, y):
+        frame = self.grid_container.get_first_child()
+        if frame is None:
+            return
+        grid = frame.get_child()
+        alloc = grid.get_allocation()
+        if not (
+            alloc.x <= x < alloc.x + alloc.width
+            and alloc.y <= y < alloc.y + alloc.height
+        ):
+            self.manager.on_grid_unfocus()
 
     def _setup_breakpoints(self):
-        """Setup separate breakpoints for width and height."""
-        # No need for bp_bin or size_request now
-
         compact_condition = Adw.BreakpointCondition.parse(
-            "max-width: 550px or max-height:600px"
+            "max-width: 650px or max-height:700px"
         )
         compact_bp = Adw.Breakpoint.new(compact_condition)
         compact_bp.name = "compact-width"
@@ -102,97 +194,33 @@ class SudokuWindow(Adw.ApplicationWindow):
         else:
             target.remove_css_class(css_class)
 
-        # Grid spacing (same for both width/height)
         parent_spacing = 8 if compact else 10
         block_spacing = 2 if compact else 4
 
-        if self.game_manager.parent_grid:
-            self.game_manager.parent_grid.set_row_spacing(parent_spacing)
-            self.game_manager.parent_grid.set_column_spacing(parent_spacing)
+        if self.manager.parent_grid:
+            self.manager.parent_grid.set_row_spacing(parent_spacing)
+            self.manager.parent_grid.set_column_spacing(parent_spacing)
 
-            for row in self.game_manager.blocks:
+            for row in self.manager.blocks:
                 for block in row:
                     block.set_row_spacing(block_spacing)
                     block.set_column_spacing(block_spacing)
 
-            # Update each cell
             for r in range(9):
                 for c in range(9):
-                    cell = self.game_manager.cell_inputs[r][c]
+                    cell = self.manager.cell_inputs[r][c]
                     if cell:
                         cell.set_compact(compact)
 
-    def on_show_primary_menu(self, action, param):
-        """Open the hamburger menu popover."""
-        self.primary_menu_button.popup()
+    def on_back_to_menu(self, action, param):
+        self.sudoku_window_title.set_subtitle("")
+        self.stack.set_visible_child(self.main_menu_box)
+        self.pencil_toggle_button.set_visible(False)
 
-    def on_show_help_overlay(self, action, param):
-        help_overlay = HelpOverlay()
-        help_overlay.set_transient_for(self)
-        help_overlay.present()
+    def _on_pencil_toggled_button(self, button):
+        if self.manager:
+            self.manager.on_pencil_toggled(button)
 
-    def _get_grid_widget(self):
-        frame = self.grid_container.get_first_child()
-        if frame is None:
-            return None
-        return frame.get_child()
-
-    def on_window_clicked(self, gesture, n_press, x, y):
-        grid = self._get_grid_widget()
-        if grid is None:
-            return
-
-        alloc = grid.get_allocation()
-
-        if not (
-            alloc.x <= x < alloc.x + alloc.width
-            and alloc.y <= y < alloc.y + alloc.height
-        ):
-            self.on_grid_unfocus()
-
-    def on_grid_unfocus(self):
-        if self.game_manager and self.game_manager.cell_inputs:
-            UIHelpers.clear_highlights(self.game_manager.cell_inputs, "highlight")
-        # self.set_focus(None)
-
-    def _setup_ui(self):
-        """Setup the user interface."""
-        # Setup buttons
-        self.continue_button.set_sensitive(GameBoard.has_saved_game())
-        self.continue_button.connect("clicked", self.on_continue_clicked)
-        self.continue_button.set_tooltip_text(_("Continue Game"))
-        self.new_game_button.connect("clicked", self.on_new_game_clicked)
-        self.new_game_button.set_tooltip_text(_("New Game"))
-        # Setup pencil button
-        self.pencil_toggle_button.set_active(False)
-        self.pencil_toggle_button.connect(
-            "toggled", self.game_manager.on_pencil_toggled
-        )
-
-    def _setup_stack_observer(self):
-        """Setup stack page change observer."""
-        self.stack.connect("notify::visible-child", self.on_stack_page_changed)
-        self.on_stack_page_changed(self.stack, None)
-
-    def on_stack_page_changed(self, stack, param):
-        """Handle stack page changes."""
-        is_game_page = stack.get_visible_child() != self.main_menu_box
-        self.lookup_action("back-to-menu").set_enabled(is_game_page)
-        self.pencil_toggle_button.set_visible(is_game_page)
-
-    def on_continue_clicked(self, button):
-        """Handle continue button click."""
-        self.game_manager.load_saved_game()
-
-    def on_new_game_clicked(self, button):
-        """Handle new game button click."""
-        self._show_difficulty_dialog()
-
-    def _show_difficulty_dialog(self):
-        dialog = DifficultySelectionDialog(on_select=self.on_difficulty_selected)
-        dialog.present(self)
-
-    def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
-        """Handle difficulty selection."""
-        self.sudoku_window_title.set_subtitle(f"{difficulty_label}")
-        self.game_manager.start_game(difficulty, difficulty_label)
+    def _on_pencil_toggled_action(self, action, param):
+        current = self.pencil_toggle_button.get_active()
+        self.pencil_toggle_button.set_active(not current)
