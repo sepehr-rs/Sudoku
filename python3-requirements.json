@@ -2,14 +2,13 @@
     "name": "python3-sudoku-engine",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --force-reinstall --no-deps --verbose --exists-action=i --prefix=${FLATPAK_DEST} ./sudoku-engine --no-build-isolation"
+        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"sudoku-engine\" --no-build-isolation"
     ],
     "sources": [
         {
-            "type": "git",
-            "url": "https://github.com/sepehr-rs/sudoku-engine.git",
-            "commit": "9e1cd674d2768d473b28b6f54cd1d28c602b97be",
-            "dest": "sudoku-engine"
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/0c/4f/e5de816646174cdd8c5db5e2422d4b3eb7cd38bcc398aa0e57047ece6db8/sudoku_engine-2.0.0-py3-none-any.whl",
+            "sha256": "a722ccf676c71df2dba5e69f65d725c63b38d0b54d7ed915a7325ea0066656bc"
         }
     ]
 }
