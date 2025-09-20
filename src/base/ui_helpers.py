@@ -1,3 +1,22 @@
+# ui_helpers.py
+#
+# Copyright 2025 sepehr-rs
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from gi.repository import Gtk, Gdk
 from abc import ABC
 
@@ -5,7 +24,6 @@ from abc import ABC
 class UIHelpers(ABC):
     """Abstract base class for Sudoku UI helpers."""
 
-    # ---- Button helpers ----
     @staticmethod
     def create_button(label: str, callback, *args):
         button = Gtk.Button(label=label)
@@ -20,7 +38,6 @@ class UIHelpers(ABC):
         """
         return {}, (Gdk.KEY_BackSpace, Gdk.KEY_Delete, Gdk.KEY_KP_Delete)
 
-    # ---- Highlight helpers ----
     @staticmethod
     def clear_highlights(cells, css_class: str):
         """Remove a CSS class from all cells in the grid."""
