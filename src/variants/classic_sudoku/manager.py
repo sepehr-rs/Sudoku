@@ -1,4 +1,4 @@
-# finished_page.py
+# manager.py
 #
 # Copyright 2025 sepehr-rs
 #

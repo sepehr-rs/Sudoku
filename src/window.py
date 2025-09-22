@@ -25,7 +25,10 @@ from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
 from .screens.variant_selection_dialog import VariantSelectionDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
+from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
+from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
+from .base.preferences_manager import PreferencesManager
 import os
 import json
 
@@ -108,8 +111,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         variant = self.get_manager_type()
         if variant in ("classic", "Unknown"):
             self.manager = ClassicSudokuManager(self)
+            PreferencesManager.set_preferences(ClassicSudokuPreferences())
         elif variant == "diagonal":
             self.manager = DiagonalSudokuManager(self)
+            PreferencesManager.set_preferences(DiagonalSudokuPreferences())
         self.manager.load_saved_game()
         self._setup_ui()
 
@@ -133,8 +138,10 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         if self.selected_variant == "classic":
             self.manager = ClassicSudokuManager(self)
+            PreferencesManager.set_preferences(ClassicSudokuPreferences())
         elif self.selected_variant == "diagonal":
             self.manager = DiagonalSudokuManager(self)
+            PreferencesManager.set_preferences(DiagonalSudokuPreferences())
         else:
             raise ValueError(f"Unknown Sudoku variant: {self.selected_variant}")
 

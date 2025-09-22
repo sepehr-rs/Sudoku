@@ -18,15 +18,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from ..classic_sudoku.ui_helpers import ClassicUIHelpers
-
+from ...base.preferences_manager import PreferencesManager
 
 class DiagonalUIHelpers(ClassicUIHelpers):
     @staticmethod
     def highlight_related_cells(
         cells, row, col, block_size: int, highlight_diagonal: bool = True
     ):
+        prefs = PreferencesManager.get_preferences()
         ClassicUIHelpers.highlight_related_cells(cells, row, col, block_size)
-        if highlight_diagonal:
+        if highlight_diagonal and prefs.highlight_diagonal:
             size = len(cells)
             if row == col:
                 for i in range(size):

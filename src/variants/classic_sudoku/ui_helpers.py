@@ -21,7 +21,7 @@ from gi.repository import Gtk, Gdk
 from gettext import gettext as _
 
 from ...base.ui_helpers import UIHelpers
-
+from ...base.preferences_manager import PreferencesManager
 
 class ClassicUIHelpers(UIHelpers):
     """UI helpers specifically for Classic Sudoku."""
@@ -46,25 +46,31 @@ class ClassicUIHelpers(UIHelpers):
     def highlight_related_cells(cells, row: int, col: int, block_size: int):
         """Highlight row, column, block, or same-value cells."""
         ClassicUIHelpers.clear_highlights(cells, "highlight")
+        prefs = PreferencesManager.get_preferences()
 
         selected_value = cells[row][col].get_value()
         size = len(cells)
 
         if not selected_value:  # empty cell
             for i in range(size):
-                ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
-                ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
-            block_row_start = (row // block_size) * block_size
-            block_col_start = (col // block_size) * block_size
-            for r in range(block_row_start, block_row_start + block_size):
-                for c in range(block_col_start, block_col_start + block_size):
-                    ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
+                if prefs.highlight_row:
+                    ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
+                if prefs.highlight_column:
+                    ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
+
+            if prefs.highlight_block:
+                block_row_start = (row // block_size) * block_size
+                block_col_start = (col // block_size) * block_size
+                for r in range(block_row_start, block_row_start + block_size):
+                    for c in range(block_col_start, block_col_start + block_size):
+                        ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
         else:
             # highlight same value
-            for r in range(size):
-                for c in range(size):
-                    if cells[r][c].get_value() == selected_value:
-                        ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
+            if prefs.highlight_related_cells:
+                for r in range(size):
+                    for c in range(size):
+                        if cells[r][c].get_value() == selected_value:
+                            ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
 
     @staticmethod
     def clear_feedback_classes(context: Gtk.StyleContext):

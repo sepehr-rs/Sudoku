@@ -6,7 +6,8 @@ services_sources = [
     'manager.py',
     'rules.py',
     'sudoku_cell.py',
-    'ui_helpers.py'
+    'ui_helpers.py',
+    'preferences.py'
 ]
 
 install_data(services_sources, install_dir: modulesubdir)
