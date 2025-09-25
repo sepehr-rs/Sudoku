@@ -31,3 +31,4 @@ class ClassicSudokuPreferences(Preferences):
     def __init__(self):
         super().__init__()
         self.variant_defaults = self.variant_defaults.copy()
+        self.name = "Classic Sudoku Preferences"

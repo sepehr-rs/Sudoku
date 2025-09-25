@@ -49,40 +49,48 @@ class SudokuCell(Gtk.Button):
             return
 
     def _setup_ui(self):
-        self.main_label = Gtk.Label(xalign=0.5, yalign=0.5)
-        self.main_label.set_halign(Gtk.Align.CENTER)
-        self.main_label.set_valign(Gtk.Align.CENTER)
-
-        self.main_label.set_hexpand(False)
-        self.main_label.set_vexpand(False)
-
-        self.notes_grid = Gtk.Grid(
-            row_spacing=0,
-            column_spacing=0,
-            column_homogeneous=True,
-            row_homogeneous=True,
-        )
-        self.notes_grid.set_hexpand(False)
-        self.notes_grid.set_vexpand(False)
-        self.notes_grid.set_halign(Gtk.Align.FILL)
-        self.notes_grid.set_valign(Gtk.Align.FILL)
-
+        """Set up the Sudoku cell UI."""
+        self.main_label = self._create_main_label()
+        self.notes_grid = self._create_notes_grid()
         self.note_labels = {}
 
-        overlay = Gtk.Overlay()
-        overlay.set_child(self.main_label)
-        overlay.add_overlay(self.notes_grid)
+        overlay = self._create_overlay(self.main_label, self.notes_grid)
         self.set_child(overlay)
-
         self.set_hexpand(True)
         self.set_vexpand(True)
         self.set_halign(Gtk.Align.FILL)
         self.set_valign(Gtk.Align.FILL)
-
-        # Disable focus on click and relief to avoid padding difference
         self.set_focus_on_click(False)
         self.set_can_focus(True)
         self.get_style_context().add_class("sudoku-cell-button")
+
+    def _create_main_label(self):
+        return Gtk.Label(
+            xalign=0.5,
+            yalign=0.5,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
+            hexpand=False,
+            vexpand=False,
+        )
+
+    def _create_notes_grid(self):
+        return Gtk.Grid(
+            row_spacing=0,
+            column_spacing=0,
+            column_homogeneous=True,
+            row_homogeneous=True,
+            hexpand=False,
+            vexpand=False,
+            halign=Gtk.Align.FILL,
+            valign=Gtk.Align.FILL,
+        )
+
+    def _create_overlay(self, main_label, notes_grid):
+        overlay = Gtk.Overlay()
+        overlay.set_child(main_label)
+        overlay.add_overlay(notes_grid)
+        return overlay
 
     def _setup_initial_state(self, value: str):
         """Setup initial cell state based on value."""

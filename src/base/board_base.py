@@ -51,11 +51,12 @@ class BoardBase(ABC):
     def save_to_file(self, filename: str = None):
         filename = filename or self.DEFAULT_SAVE_PATH
         os.makedirs(os.path.dirname(filename), exist_ok=True)
+        prefs = PreferencesManager.get_preferences()
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
-            "variant_preferences": PreferencesManager.get_preferences().variant_defaults,
-            "general_preferences": PreferencesManager.get_preferences().general_defaults,
+            "variant_preferences": prefs.variant_defaults,
+            "general_preferences": prefs.general_defaults,
             "variant": self.variant,
             "puzzle": self.puzzle,
             "solution": self.solution,

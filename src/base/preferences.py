@@ -21,7 +21,10 @@ from abc import ABC
 
 
 class Preferences(ABC):
+    general_defaults = {
+        "casual_mode": True,
+    }
+
     def __init__(self):
-        general_defaults = {
-            "casual_mode": True,
-        }
+        self.general_defaults = self.general_defaults.copy()
+        self.name = "General Preferences"
