@@ -54,7 +54,8 @@ class BoardBase(ABC):
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
-            "preferences": PreferencesManager.get_preferences().defaults,
+            "variant_preferences": PreferencesManager.get_preferences().variant_defaults,
+            "general_preferences": PreferencesManager.get_preferences().general_defaults,
             "variant": self.variant,
             "puzzle": self.puzzle,
             "solution": self.solution,

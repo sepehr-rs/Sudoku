@@ -339,42 +339,57 @@ class ClassicSudokuManager(ManagerBase):
 
     def on_cell_filled(self, cell, number: str):
         correct_value = self.board.get_correct_value(cell.row, cell.col)
+        self._clear_feedback(cell)
 
-        # Cancel any pending feedback timers
-        tids = getattr(cell, "feedback_timeout_ids", [])
-        for tid in tids:
+        if str(number) == str(correct_value):
+            self._handle_correct_input(cell)
+        else:
+            self._handle_wrong_input(cell, number)
+
+
+    def _clear_feedback(self, cell):
+        """Remove existing highlights, tooltips, and timeouts for a cell."""
+        for tid in getattr(cell, "feedback_timeout_ids", []):
             GLib.source_remove(tid)
         cell.feedback_timeout_ids = []
 
-        # Clear previous highlights
         cell.remove_highlight("correct")
         cell.remove_highlight("wrong")
         cell.set_tooltip_text("")
-        # Correct entry
-        if str(number) == str(correct_value):
-            cell.set_editable(False)
-            cell.highlight("correct")
-            cell.set_tooltip_text("Correct")
 
-            # Remove highlight after delay
-            tid1 = GLib.timeout_add(
-                3000,
-                lambda: (cell.remove_highlight("correct"), cell.set_tooltip_text("")),
-            )
-            cell.feedback_timeout_ids.append(tid1)
 
-        else:
-            cell.highlight("wrong")
-            cell.set_tooltip_text("Wrong")
+    def _handle_correct_input(self, cell):
+        """Handle behavior when the user enters the correct number."""
+        cell.set_editable(False)
+        cell.highlight("correct")
+        cell.set_tooltip_text("Correct")
 
-            # Highlight conflicts in related cells
-            new_conflicts = ClassicUIHelpers.highlight_conflicts(
-                self.cell_inputs, cell.row, cell.col, number, 3
-            )
-            self.conflict_cells.extend(new_conflicts)
+        tid = GLib.timeout_add(3000, lambda: self._clear_correct_feedback(cell))
+        cell.feedback_timeout_ids.append(tid)
 
-            # Clear conflicts after delay
-            tid2 = GLib.timeout_add(
-                3000, lambda: ClassicUIHelpers.clear_conflicts(self.conflict_cells)
-            )
-            cell.feedback_timeout_ids.append(tid2)
+
+    def _clear_correct_feedback(self, cell):
+        """Remove correct highlight and tooltip."""
+        cell.remove_highlight("correct")
+        cell.set_tooltip_text("")
+        return False
+
+
+    def _handle_wrong_input(self, cell, number: str):
+        """Handle behavior when the user enters a wrong number."""
+        cell.highlight("wrong")
+        cell.set_tooltip_text("Wrong")
+
+        new_conflicts = ClassicUIHelpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, 3
+        )
+        self.conflict_cells.extend(new_conflicts)
+
+        tid = GLib.timeout_add(3000, self._clear_conflicts)
+        cell.feedback_timeout_ids.append(tid)
+
+
+    def _clear_conflicts(self):
+        """Clear conflicts highlight after timeout."""
+        ClassicUIHelpers.clear_conflicts(self.conflict_cells)
+        return False

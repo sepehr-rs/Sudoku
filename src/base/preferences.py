@@ -22,4 +22,6 @@ from abc import ABC
 
 class Preferences(ABC):
     def __init__(self):
-        pass
+        general_defaults = {
+            "casual_mode": True,
+        }

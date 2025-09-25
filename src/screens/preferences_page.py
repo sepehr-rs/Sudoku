@@ -13,11 +13,11 @@ class GeneralPreferencesPage(Adw.PreferencesGroup):
         self.controls = {}
 
         # Build toggles dynamically
-        for key, default in self.variant_preferences.defaults.items():
+        for key, default in self.variant_preferences.variant_defaults.items():
             row = Adw.ActionRow(title=key.replace("_", " ").capitalize())
 
             switch = Gtk.Switch(valign=Gtk.Align.CENTER)
-            switch.set_active(self.variant_preferences.defaults.get(key, default))
+            switch.set_active(self.variant_preferences.variant_defaults.get(key, default))
             switch.connect("notify::active", self.on_toggle_changed, key)
 
             row.add_suffix(switch)
@@ -27,5 +27,5 @@ class GeneralPreferencesPage(Adw.PreferencesGroup):
             self.controls[key] = switch
 
     def on_toggle_changed(self, switch, gparam, key):
-        self.variant_preferences.defaults[key] = switch.get_active()
+        self.variant_preferences.variant_defaults[key] = switch.get_active()
         # self.get_toplevel().variant_preferences[key] = switch.get_active()
