@@ -50,28 +50,43 @@ class ClassicUIHelpers(UIHelpers):
         prefs = PreferencesManager.get_preferences()
 
         selected_value = cells[row][col].get_value()
+
+        if not selected_value:
+            ClassicUIHelpers._highlight_empty_cell_related(cells, row, col, block_size, prefs)
+        else:
+            ClassicUIHelpers._highlight_same_value(cells, selected_value, prefs)
+
+    @staticmethod
+    def _highlight_empty_cell_related(cells, row: int, col: int, block_size: int, prefs):
+        """Highlight row, column, and block when the cell is empty."""
         size = len(cells)
 
-        if not selected_value:  # empty cell
+        if prefs.defaults.get("highlight_row"):
             for i in range(size):
-                if prefs.defaults["highlight_row"]:
-                    ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
-                if prefs.defaults["highlight_column"]:
-                    ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
+                ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
 
-            if prefs.defaults["highlight_block"]:
-                block_row_start = (row // block_size) * block_size
-                block_col_start = (col // block_size) * block_size
-                for r in range(block_row_start, block_row_start + block_size):
-                    for c in range(block_col_start, block_col_start + block_size):
-                        ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
-        else:
-            # highlight same value
-            if prefs.defaults["highlight_related_cells"]:
-                for r in range(size):
-                    for c in range(size):
-                        if cells[r][c].get_value() == selected_value:
-                            ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
+        if prefs.defaults.get("highlight_column"):
+            for i in range(size):
+                ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
+
+        if prefs.defaults.get("highlight_block"):
+            block_row_start = (row // block_size) * block_size
+            block_col_start = (col // block_size) * block_size
+            for r in range(block_row_start, block_row_start + block_size):
+                for c in range(block_col_start, block_col_start + block_size):
+                    ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
+
+    @staticmethod
+    def _highlight_same_value(cells, selected_value: int, prefs):
+        """Highlight all cells containing the same value."""
+        if not prefs.defaults.get("highlight_related_cells"):
+            return
+
+        size = len(cells)
+        for r in range(size):
+            for c in range(size):
+                if cells[r][c].get_value() == selected_value:
+                    ClassicUIHelpers.highlight_cell(cells, r, c, "highlight")
 
     @staticmethod
     def clear_feedback_classes(context: Gtk.StyleContext):
