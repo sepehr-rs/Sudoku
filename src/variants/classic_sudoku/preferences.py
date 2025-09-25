@@ -19,10 +19,15 @@
 
 from ...base.preferences import Preferences
 
-class ClassicSudokuPreferences(Preferences):
-    def __init__(self):
-        self.highlight_row = True
-        self.highlight_column = True
-        self.highlight_block = True
-        self.highlight_related_cells = True
 
+class ClassicSudokuPreferences(Preferences):
+    defaults = {
+        "highlight_row": True,
+        "highlight_column": True,
+        "highlight_block": True,
+        "highlight_related_cells": True,
+    }
+
+    def __init__(self):
+        super().__init__()
+        self.defaults = self.defaults.copy()

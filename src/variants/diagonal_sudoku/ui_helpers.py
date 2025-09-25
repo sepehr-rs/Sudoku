@@ -20,6 +20,7 @@
 from ..classic_sudoku.ui_helpers import ClassicUIHelpers
 from ...base.preferences_manager import PreferencesManager
 
+
 class DiagonalUIHelpers(ClassicUIHelpers):
     @staticmethod
     def highlight_related_cells(
@@ -27,7 +28,7 @@ class DiagonalUIHelpers(ClassicUIHelpers):
     ):
         prefs = PreferencesManager.get_preferences()
         ClassicUIHelpers.highlight_related_cells(cells, row, col, block_size)
-        if highlight_diagonal and prefs.highlight_diagonal:
+        if highlight_diagonal and prefs.defaults["highlight_diagonals"]:
             size = len(cells)
             if row == col:
                 for i in range(size):

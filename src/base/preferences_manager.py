@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+
 class PreferencesManager:
     _current_preferences = None
 
