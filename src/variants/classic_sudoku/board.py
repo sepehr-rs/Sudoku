@@ -20,6 +20,7 @@
 import json
 import os
 from ...base.board_base import BoardBase
+from ...base.preferences_manager import PreferencesManager
 from .rules import ClassicSudokuRules
 from .generator import ClassicSudokuGenerator
 
@@ -48,11 +49,13 @@ class ClassicSudokuBoard(BoardBase):
         self.generator = ClassicSudokuGenerator()
         self.difficulty = state["difficulty"]
         self.difficulty_label = state.get("difficulty_label", "Unknown")
+        self.preferences = state.get("preferences", {})
         self.variant = state.get("variant", "Unknown")
         self.puzzle = state["puzzle"]
         self.solution = state["solution"]
         self.user_inputs = state["user_inputs"]
         self.notes = [[set(n) for n in row] for row in state["notes"]]
+        PreferencesManager.get_preferences().defaults.update(self.preferences)
         return self
 
     def is_solved(self):

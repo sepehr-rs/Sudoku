@@ -20,6 +20,7 @@
 import json
 import os
 from abc import ABC, abstractclassmethod
+from .preferences_manager import PreferencesManager
 
 
 class BoardBase(ABC):
@@ -53,6 +54,7 @@ class BoardBase(ABC):
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
+            "preferences": PreferencesManager.get_preferences().defaults,
             "variant": self.variant,
             "puzzle": self.puzzle,
             "solution": self.solution,

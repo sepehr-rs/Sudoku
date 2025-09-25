@@ -24,8 +24,12 @@ from .screens.help_overlay import HelpOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
 from .screens.variant_selection_dialog import VariantSelectionDialog
+from .screens.preferences_dialog import PreferencesDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
+from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
+from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
+from .base.preferences_manager import PreferencesManager
 import os
 import json
 
@@ -61,6 +65,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             ("show-help-overlay", self.on_show_help_overlay),
             ("back-to-menu", self.on_back_to_menu),
             ("pencil-toggled", self._on_pencil_toggled_action),
+            ("show-preferences", self.on_show_preferences),
         ]:
             action = Gio.SimpleAction.new(name, None)
             action.connect("activate", callback)
@@ -108,8 +113,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         variant = self.get_manager_type()
         if variant in ("classic", "Unknown"):
             self.manager = ClassicSudokuManager(self)
+            PreferencesManager.set_preferences(ClassicSudokuPreferences())
         elif variant == "diagonal":
             self.manager = DiagonalSudokuManager(self)
+            PreferencesManager.set_preferences(DiagonalSudokuPreferences())
         self.manager.load_saved_game()
         self._setup_ui()
 
@@ -133,8 +140,10 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         if self.selected_variant == "classic":
             self.manager = ClassicSudokuManager(self)
+            PreferencesManager.set_preferences(ClassicSudokuPreferences())
         elif self.selected_variant == "diagonal":
             self.manager = DiagonalSudokuManager(self)
+            PreferencesManager.set_preferences(DiagonalSudokuPreferences())
         else:
             raise ValueError(f"Unknown Sudoku variant: {self.selected_variant}")
 
@@ -152,6 +161,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         help_overlay = HelpOverlay()
         help_overlay.set_transient_for(self)
         help_overlay.present()
+
+    def on_show_preferences(self, action, param):
+        dialog = PreferencesDialog()
+        dialog.set_transient_for(self)
+        dialog.present()
 
     def on_window_clicked(self, gesture, n_press, x, y):
         frame = self.grid_container.get_first_child()
@@ -196,26 +210,28 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         parent_spacing = 8 if compact else 10
         block_spacing = 2 if compact else 4
+        if not self.manager or not self.manager.parent_grid:
+            return
 
-        if self.manager.parent_grid:
-            self.manager.parent_grid.set_row_spacing(parent_spacing)
-            self.manager.parent_grid.set_column_spacing(parent_spacing)
+        self.manager.parent_grid.set_row_spacing(parent_spacing)
+        self.manager.parent_grid.set_column_spacing(parent_spacing)
 
-            for row in self.manager.blocks:
-                for block in row:
-                    block.set_row_spacing(block_spacing)
-                    block.set_column_spacing(block_spacing)
+        for row in self.manager.blocks:
+            for block in row:
+                block.set_row_spacing(block_spacing)
+                block.set_column_spacing(block_spacing)
 
-            for r in range(9):
-                for c in range(9):
-                    cell = self.manager.cell_inputs[r][c]
-                    if cell:
-                        cell.set_compact(compact)
+        for r in range(9):
+            for c in range(9):
+                cell = self.manager.cell_inputs[r][c]
+                if cell:
+                    cell.set_compact(compact)
 
     def on_back_to_menu(self, action, param):
         self.sudoku_window_title.set_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
+        PreferencesManager.set_preferences(None)
 
     def _on_pencil_toggled_button(self, button):
         if self.manager:

@@ -33,11 +33,9 @@ class ManagerBase:
 
     def load_saved_game(self):
         self.board = self.board_cls.load_from_file()
-        self.build_grid()
 
     def new_game(self, difficulty, difficulty_label):
         self.board = self.board_cls(difficulty, difficulty_label)
-        self.build_grid()
 
     def build_grid(self):
         """Variant managers override this to build the grid UI."""
