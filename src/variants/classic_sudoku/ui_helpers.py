@@ -52,12 +52,16 @@ class ClassicUIHelpers(UIHelpers):
         selected_value = cells[row][col].get_value()
 
         if not selected_value:
-            ClassicUIHelpers._highlight_empty_cell_related(cells, row, col, block_size, prefs)
+            ClassicUIHelpers._highlight_empty_cell_related(
+                cells, row, col, block_size, prefs
+            )
         else:
             ClassicUIHelpers._highlight_same_value(cells, selected_value, prefs)
 
     @staticmethod
-    def _highlight_empty_cell_related(cells, row: int, col: int, block_size: int, prefs):
+    def _highlight_empty_cell_related(
+        cells, row: int, col: int, block_size: int, prefs
+    ):
         """Highlight row, column, and block when the cell is empty."""
         size = len(cells)
 
