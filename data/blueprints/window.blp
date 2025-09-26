@@ -7,8 +7,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
   ]
 
   title: _("Sudoku");
-  default-width: 750;
-  default-height: 750;
+  default-width: 730;
+  default-height: 790;
   width-request: 360;
   height-request: 420;
 
@@ -103,6 +103,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
         }
 
         Adw.Clamp game_view_box {
+          maximum-size: 950;
+          tightening-threshold: 300;
           child: Box {
             orientation: vertical;
             halign: fill;
@@ -110,10 +112,6 @@ template $SudokuWindow: Adw.ApplicationWindow {
             hexpand: true;
             vexpand: true;
             spacing: 12;
-            margin-top: 24;
-            margin-bottom: 24;
-            margin-start: 24;
-            margin-end: 24;
 
             Box grid_container {
               orientation: vertical;

@@ -50,12 +50,10 @@ class ClassicSudokuBoard(BoardBase):
         self.difficulty = state["difficulty"]
         self.difficulty_label = state.get("difficulty_label", "Unknown")
         self.variant_preferences = state.get(
-            "variant_preferences",
-            PreferencesManager.get_preferences().variant_defaults
+            "variant_preferences", PreferencesManager.get_preferences().variant_defaults
         )
         self.general_preferences = state.get(
-            "general_preferences",
-            PreferencesManager.get_preferences().general_defaults
+            "general_preferences", PreferencesManager.get_preferences().general_defaults
         )
         self.variant = state.get("variant", "Unknown")
         self.puzzle = state["puzzle"]
