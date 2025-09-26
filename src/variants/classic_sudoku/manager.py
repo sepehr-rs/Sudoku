@@ -22,6 +22,7 @@ import threading
 import unicodedata
 from gi.repository import Gtk, Gdk, GLib
 from ...base.manager_base import ManagerBase
+from ...base.preferences_manager import PreferencesManager
 from .board import ClassicSudokuBoard
 from .ui_helpers import ClassicUIHelpers
 from .sudoku_cell import SudokuCell
@@ -80,24 +81,43 @@ class ClassicSudokuManager(ManagerBase):
                     cell.update_notes(notes)
 
     def build_grid(self):
-        # Clear previous children
-        while child := self.window.grid_container.get_first_child():
-            self.window.grid_container.remove(child)
+        """Build or rebuild the Sudoku grid in the UI."""
+        self._clear_previous_grid()
 
         size = self.board.rules.size
         block_size = self.board.rules.block_size
 
-        # Parent grid (NxN blocks)
-        self.parent_grid = Gtk.Grid(
+        self.parent_grid = self._create_parent_grid()
+        self.blocks = self._create_blocks(block_size)
+
+        self.cell_inputs = self._create_cells(size, block_size)
+
+        self.board_frame = self._wrap_in_aspect_frame(self.parent_grid)
+        self.window.grid_container.append(self.board_frame)
+        self.board_frame.show()
+
+        self._reapply_compact_mode()
+        self.window.grid_container.queue_allocate()
+
+    def _clear_previous_grid(self):
+        """Remove all children from the grid container."""
+        while child := self.window.grid_container.get_first_child():
+            self.window.grid_container.remove(child)
+
+    def _create_parent_grid(self):
+        """Create the top-level grid containing Sudoku blocks."""
+        grid = Gtk.Grid(
             row_spacing=10,
             column_spacing=10,
             column_homogeneous=True,
             row_homogeneous=True,
         )
-        self.parent_grid.set_name("sudoku-parent-grid")
+        grid.set_name("sudoku-parent-grid")
+        return grid
 
-        # Prepare block grids
-        self.blocks = []
+    def _create_blocks(self, block_size):
+        """Create and attach the NxN block grids to the parent grid."""
+        blocks = []
         for br in range(block_size):
             row_blocks = []
             for bc in range(block_size):
@@ -110,51 +130,54 @@ class ClassicSudokuManager(ManagerBase):
                 block.get_style_context().add_class("sudoku-block")
                 row_blocks.append(block)
                 self.parent_grid.attach(block, bc, br, 1, 1)
-            self.blocks.append(row_blocks)
+            blocks.append(row_blocks)
+        return blocks
 
-        # Initialize cell grid
-        self.cell_inputs = [[None for _ in range(size)] for _ in range(size)]
+    def _create_cells(self, size, block_size):
+        """Create SudokuCell widgets, add controllers, and place into blocks."""
+        cells = [[None for _ in range(size)] for _ in range(size)]
 
-        # Fill blocks with SudokuCell widgets
         for r in range(size):
             for c in range(size):
                 value = self.board.puzzle[r][c]
                 editable = not self.board.is_clue(r, c)
                 cell = SudokuCell(r, c, value, editable)
 
-                # Gesture click
-                gesture = Gtk.GestureClick.new()
-                gesture.set_button(0)
-                gesture.connect("pressed", self.on_cell_clicked, cell)
-                cell.add_controller(gesture)
+                self._attach_controllers(cell, r, c)
+                cells[r][c] = cell
 
-                # Keyboard input
-                key_controller = Gtk.EventControllerKey()
-                key_controller.connect("key-pressed", self.on_key_pressed, r, c)
-                cell.add_controller(key_controller)
-
-                self.cell_inputs[r][c] = cell
-
-                # Position inside its block
                 br, bc = r // block_size, c // block_size
                 inner_r, inner_c = r % block_size, c % block_size
                 self.blocks[br][bc].attach(cell, inner_c, inner_r, 1, 1)
 
-        # Wrap grid in AspectFrame to maintain square shape
+        return cells
+
+    def _attach_controllers(self, cell, r, c):
+        """Attach click and keyboard controllers to a cell."""
+        gesture = Gtk.GestureClick.new()
+        gesture.set_button(0)
+        gesture.connect("pressed", self.on_cell_clicked, cell)
+        cell.add_controller(gesture)
+
+        key_controller = Gtk.EventControllerKey()
+        key_controller.connect("key-pressed", self.on_key_pressed, r, c)
+        cell.add_controller(key_controller)
+
+    def _wrap_in_aspect_frame(self, child):
+        """Wrap grid in an AspectFrame to maintain square shape."""
         frame = Gtk.AspectFrame(ratio=1.0, obey_child=False)
         frame.set_hexpand(True)
         frame.set_vexpand(True)
         frame.set_halign(Gtk.Align.FILL)
         frame.set_valign(Gtk.Align.FILL)
-        frame.set_child(self.parent_grid)
+        frame.set_child(child)
+        return frame
 
-        self.board_frame = frame
-        self.window.grid_container.append(frame)
-        frame.show()
-
-        # Reapply compact mode if needed
+    def _reapply_compact_mode(self):
+        """Reapply compact layout mode if needed."""
         width_mode_active, height_mode_active = False, False
         bp = getattr(self.window, "bp_bin", None)
+
         if bp and bp.get_style_context().has_class("width-compact"):
             width_mode_active = True
         if bp and bp.get_style_context().has_class("height-compact"):
@@ -164,8 +187,6 @@ class ClassicSudokuManager(ManagerBase):
             any([width_mode_active, height_mode_active]),
             "width" if width_mode_active else "height",
         )
-
-        self.window.grid_container.queue_allocate()
 
     def _focus_cell(self, row: int, col: int):
         self.cell_inputs[row][col].grab_focus()
@@ -338,43 +359,68 @@ class ClassicSudokuManager(ManagerBase):
         self.window.stack.set_visible_child(self.window.finished_page)
 
     def on_cell_filled(self, cell, number: str):
+        """Called when a cell is filled with a number."""
+        casual_mode = PreferencesManager.get_preferences().general_defaults[
+            "casual_mode"
+        ]
         correct_value = self.board.get_correct_value(cell.row, cell.col)
 
-        # Cancel any pending feedback timers
-        tids = getattr(cell, "feedback_timeout_ids", [])
-        for tid in tids:
+        self._clear_feedback(cell)
+
+        if casual_mode:
+            if str(number) == str(correct_value):
+                self._handle_correct_input(cell)
+            else:
+                self._handle_wrong_input(cell, number)
+            return
+
+        # non-casual mode: always check conflicts
+        new_conflicts = ClassicUIHelpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, 3
+        )
+        if new_conflicts:
+            self._handle_wrong_input(cell, number, new_conflicts)
+
+    def _clear_feedback(self, cell):
+        """Remove existing highlights, tooltips, and timeouts for a cell."""
+        for tid in getattr(cell, "feedback_timeout_ids", []):
             GLib.source_remove(tid)
         cell.feedback_timeout_ids = []
-
-        # Clear previous highlights
         cell.remove_highlight("correct")
         cell.remove_highlight("wrong")
         cell.set_tooltip_text("")
-        # Correct entry
-        if str(number) == str(correct_value):
-            cell.set_editable(False)
-            cell.highlight("correct")
-            cell.set_tooltip_text("Correct")
 
-            # Remove highlight after delay
-            tid1 = GLib.timeout_add(
-                3000,
-                lambda: (cell.remove_highlight("correct"), cell.set_tooltip_text("")),
-            )
-            cell.feedback_timeout_ids.append(tid1)
+    def _register_timeout(self, cell, callback, delay=3000):
+        """Register a GLib timeout and track it on the cell."""
+        tid = GLib.timeout_add(delay, callback)
+        cell.feedback_timeout_ids.append(tid)
 
-        else:
-            cell.highlight("wrong")
-            cell.set_tooltip_text("Wrong")
+    def _handle_correct_input(self, cell):
+        """Handle behavior when the user enters the correct number."""
+        cell.set_editable(False)
+        cell.highlight("correct")
+        cell.set_tooltip_text("Correct")
+        self._register_timeout(cell, lambda: self._clear_correct_feedback(cell))
 
-            # Highlight conflicts in related cells
-            new_conflicts = ClassicUIHelpers.highlight_conflicts(
-                self.cell_inputs, cell.row, cell.col, number, 3
-            )
-            self.conflict_cells.extend(new_conflicts)
+    def _clear_correct_feedback(self, cell):
+        """Remove correct highlight and tooltip."""
+        cell.remove_highlight("correct")
+        cell.set_tooltip_text("")
+        return False
 
-            # Clear conflicts after delay
-            tid2 = GLib.timeout_add(
-                3000, lambda: ClassicUIHelpers.clear_conflicts(self.conflict_cells)
-            )
-            cell.feedback_timeout_ids.append(tid2)
+    def _handle_wrong_input(self, cell, number: str, conflicts=None):
+        """Handle behavior when the user enters a wrong number."""
+        cell.highlight("wrong")
+        cell.set_tooltip_text("Wrong")
+
+        conflicts = conflicts or ClassicUIHelpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, 3
+        )
+        self.conflict_cells.extend(conflicts)
+
+        self._register_timeout(cell, self._clear_conflicts)
+
+    def _clear_conflicts(self):
+        """Clear conflicts highlight after timeout."""
+        ClassicUIHelpers.clear_conflicts(self.conflict_cells)
+        return False

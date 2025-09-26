@@ -21,7 +21,7 @@ from ...base.preferences import Preferences
 
 
 class ClassicSudokuPreferences(Preferences):
-    defaults = {
+    variant_defaults = {
         "highlight_row": True,
         "highlight_column": True,
         "highlight_block": True,
@@ -30,4 +30,5 @@ class ClassicSudokuPreferences(Preferences):
 
     def __init__(self):
         super().__init__()
-        self.defaults = self.defaults.copy()
+        self.variant_defaults = self.variant_defaults.copy()
+        self.name = "Classic Sudoku Preferences"

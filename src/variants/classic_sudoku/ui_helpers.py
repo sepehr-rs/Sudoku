@@ -65,15 +65,15 @@ class ClassicUIHelpers(UIHelpers):
         """Highlight row, column, and block when the cell is empty."""
         size = len(cells)
 
-        if prefs.defaults.get("highlight_row"):
+        if prefs.variant_defaults.get("highlight_row"):
             for i in range(size):
                 ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
 
-        if prefs.defaults.get("highlight_column"):
+        if prefs.variant_defaults.get("highlight_column"):
             for i in range(size):
                 ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        if prefs.defaults.get("highlight_block"):
+        if prefs.variant_defaults.get("highlight_block"):
             block_row_start = (row // block_size) * block_size
             block_col_start = (col // block_size) * block_size
             for r in range(block_row_start, block_row_start + block_size):
@@ -83,7 +83,7 @@ class ClassicUIHelpers(UIHelpers):
     @staticmethod
     def _highlight_same_value(cells, selected_value: int, prefs):
         """Highlight all cells containing the same value."""
-        if not prefs.defaults.get("highlight_related_cells"):
+        if not prefs.variant_defaults.get("highlight_related_cells"):
             return
 
         size = len(cells)
@@ -109,14 +109,33 @@ class ClassicUIHelpers(UIHelpers):
         remove_keys=None,
     ):
         """Show the number selection popover for a Sudoku cell."""
-        popover = Gtk.Popover()
-        popover.set_has_arrow(False)
-        popover.set_position(Gtk.PositionType.BOTTOM)
+        popover = Gtk.Popover(has_arrow=False, position=Gtk.PositionType.BOTTOM)
         popover.set_parent(cell)
 
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
         popover.set_child(grid)
+        num_buttons = ClassicUIHelpers._add_number_buttons(
+            grid, on_number_selected, cell, popover, mouse_button
+        )
+        clear_button = ClassicUIHelpers._add_action_buttons(
+            grid, cell, popover, on_clear_selected, pencil_mode, mouse_button
+        )
+        key_map, remove_keys = (
+            ClassicUIHelpers.setup_key_mappings()
+            if key_map is None or remove_keys is None
+            else (key_map, remove_keys)
+        )
+        ClassicUIHelpers._attach_key_controller(
+            grid, num_buttons, clear_button, key_map, remove_keys
+        )
+        grid.set_focus_on_click(True)
+        grid.grab_focus()
+        popover.show()
+        return popover
 
+    @staticmethod
+    def _add_number_buttons(grid, on_number_selected, cell, popover, mouse_button):
+        """Create 1–9 number buttons inside the popover grid."""
         num_buttons = {}
         for i in range(1, 10):
             b = ClassicUIHelpers.create_number_button(
@@ -124,7 +143,13 @@ class ClassicUIHelpers(UIHelpers):
             )
             grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = b
+        return num_buttons
 
+    @staticmethod
+    def _add_action_buttons(
+        grid, cell, popover, on_clear_selected, pencil_mode, mouse_button
+    ):
+        """Create Clear (and optionally Done) buttons."""
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         grid.attach(button_box, 0, 3, 3, 1)
 
@@ -143,8 +168,11 @@ class ClassicUIHelpers(UIHelpers):
             done_button.connect("clicked", lambda _: popover.popdown())
             button_box.append(done_button)
 
-        if key_map is None or remove_keys is None:
-            key_map, remove_keys = ClassicUIHelpers.setup_key_mappings()
+        return clear_button
+
+    @staticmethod
+    def _attach_key_controller(grid, num_buttons, clear_button, key_map, remove_keys):
+        """Wire up keyboard input for numbers and clearing."""
 
         def on_key_pressed(controller, keyval, keycode, state):
             if keyval in key_map and (num := key_map[keyval]) in num_buttons:
@@ -158,7 +186,3 @@ class ClassicUIHelpers(UIHelpers):
         key_controller = Gtk.EventControllerKey()
         key_controller.connect("key-pressed", on_key_pressed)
         grid.add_controller(key_controller)
-
-        grid.set_focus_on_click(True)
-        grid.grab_focus()
-        popover.show()
