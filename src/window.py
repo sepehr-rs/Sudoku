@@ -77,6 +77,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.continue_button.set_tooltip_text(_("Continue Game"))
+        self.continue_button.set_sensitive(os.path.exists("saves/board.json"))
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
         self.new_game_button.set_tooltip_text(_("New Game"))
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
@@ -87,7 +88,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_controller(gesture)
 
     def _setup_ui(self):
-        self.continue_button.set_sensitive(self.manager.board_cls.has_saved_game())
         self.pencil_toggle_button.set_active(False)
 
     def _setup_stack_observer(self):
