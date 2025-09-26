@@ -38,6 +38,7 @@ Sudoku is a puzzle app that lets you solve classic number-placement challenges. 
 - Highlight active row and cell to improve focus and ease of play
 - Conflict highlighting to help identify mistakes, ideal for beginners
 - Suitable for all skill levels, from beginners to experts
+- Supports Diagonal Sudoku
 
 ## Install
 
