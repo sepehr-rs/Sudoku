@@ -184,12 +184,8 @@ class SudokuWindow(Adw.ApplicationWindow):
             "min-width: 750px and min-height: 750px"
         )
         large_condition = Adw.Breakpoint.new(large_condition)
-        large_condition.connect(
-            "apply", lambda bp, *_: self._apply_large(True)
-        )
-        large_condition.connect(
-            "unapply", lambda bp, *_: self._apply_large(False)
-        )
+        large_condition.connect("apply", lambda bp, *_: self._apply_large(True))
+        large_condition.connect("unapply", lambda bp, *_: self._apply_large(False))
         self.add_breakpoint(large_condition)
 
         compact_condition = Adw.BreakpointCondition.parse(
@@ -212,7 +208,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "height"))
         self.add_breakpoint(small_bp)
 
-    def _apply_large(self, large:bool): 
+    def _apply_large(self, large: bool):
         css_class = "large"
         target = self.bp_bin or self
         if large:
