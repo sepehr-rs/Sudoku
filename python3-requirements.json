@@ -7,8 +7,8 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/0c/4f/e5de816646174cdd8c5db5e2422d4b3eb7cd38bcc398aa0e57047ece6db8/sudoku_engine-2.0.0-py3-none-any.whl",
-            "sha256": "a722ccf676c71df2dba5e69f65d725c63b38d0b54d7ed915a7325ea0066656bc"
+            "url": "https://files.pythonhosted.org/packages/71/1f/f0d5ede170d0770788f72a5a654de743c54f3fd2899e693fcf38dd881261/sudoku_engine-1.0.0-py3-none-any.whl",
+            "sha256": "a5484eda5f2e86c00486d0d0ca08ba8d68447dc124089c2ad7048c5167287a79"
         }
     ]
 }

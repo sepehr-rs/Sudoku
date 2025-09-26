@@ -102,27 +102,6 @@ template $HowToPlayDialog: Adw.Dialog {
                 vexpand: true;
                 ratio: 1.0;
 
-                Picture { file: "resource://io/github/sepehr_rs/Sudoku/illustrations/casual.svg"; }
-              }
-
-              Adw.StatusPage {
-                title: _("Casual Mode");
-                description: _("Turn on Casual Mode in Preferences to check your entries against the solution. When off, only rule violations are flagged, not incorrect numbers.");
-              }
-            }
-
-            Box {
-              orientation: vertical;
-              hexpand: true;
-              vexpand: true;
-
-              AspectFrame {
-                halign: center;
-                valign: center;
-                hexpand: true;
-                vexpand: true;
-                ratio: 1.0;
-
                 Picture { file: "resource://io/github/sepehr_rs/Sudoku/illustrations/mistake.svg"; }
               }
 
