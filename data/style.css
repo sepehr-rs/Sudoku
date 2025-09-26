@@ -84,6 +84,17 @@ statuspage image {
     padding: 0.8px;
 }
 
+.large  .entry-cell,
+.large  .clue-cell {
+    font-size: 20px;
+}
+
+.large .note-cell-label {
+    font-size: 15px;
+    padding: 0.1px;
+}
+
+
 .width-compact #sudoku-parent-grid {
     padding: 10px; /* shrink board padding */
     border-radius: 6px;
@@ -118,3 +129,4 @@ statuspage image {
     font-size: 2px;
     padding: 0.1px;
 }
+
