@@ -66,11 +66,6 @@ class BoardBase(ABC):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(state, f)
 
-    @classmethod
-    def has_saved_game(cls, filename: str = None):
-        filename = filename or cls.DEFAULT_SAVE_PATH
-        return os.path.exists(filename)
-
     def set_input(self, row, col, value):
         self.user_inputs[row][col] = value
 
