@@ -220,13 +220,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         else:
             target.remove_css_class(css_class)
 
-        parent_spacing = 20 if large else 10
-        if not self.manager or not self.manager.parent_grid:
-            return
-
-        self.manager.parent_grid.set_row_spacing(parent_spacing)
-        self.manager.parent_grid.set_column_spacing(parent_spacing)
-
     def _apply_compact(self, compact: bool, mode):
         css_class = f"{mode}-compact"
         target = self.bp_bin or self
