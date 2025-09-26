@@ -21,6 +21,7 @@
     <file preprocess="xml-stripblanks" alias="blocks.svg">illustrations/blocks.svg</file>
     <file preprocess="xml-stripblanks" alias="mistake.svg">illustrations/mistake.svg</file>
     <file preprocess="xml-stripblanks" alias="pencil-mode.svg">illustrations/pencil-mode.svg</file>
+    <file preprocess="xml-stripblanks" alias="casual.svg">illustrations/casual.svg</file>
   </gresource>
 
 </gresources>
