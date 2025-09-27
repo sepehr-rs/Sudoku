@@ -163,7 +163,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         help_overlay.present()
 
     def on_show_preferences(self, action, param):
-        dialog = PreferencesDialog()
+        dialog = PreferencesDialog(
+            self.manager.board.save_to_file
+        )
         dialog.set_transient_for(self)
         dialog.present()
 

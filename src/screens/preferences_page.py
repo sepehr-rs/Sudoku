@@ -3,11 +3,12 @@ from gi.repository import Gtk, Adw
 
 
 class VariantPreferencesPage(Adw.PreferencesGroup):
-    def __init__(self, variant_preferences, name):
+    def __init__(self, variant_preferences, name, auto_save_function):
         super().__init__(title=name)
         # TODO: Fix variant preferences being none on startup
         self.variant_preferences = variant_preferences
         self.controls = {}
+        self.auto_save_function = auto_save_function
 
         # Build toggles dynamically
         for key, default in self.variant_preferences.items():
@@ -25,7 +26,7 @@ class VariantPreferencesPage(Adw.PreferencesGroup):
 
     def on_toggle_changed(self, switch, gparam, key):
         self.variant_preferences[key] = switch.get_active()
-        # self.get_toplevel().variant_preferences[key] = switch.get_active()
+        self.auto_save_function()
 
 
 class GeneralPreferencesPage(Adw.PreferencesGroup):
