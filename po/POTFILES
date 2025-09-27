@@ -4,9 +4,8 @@ data/io.github.sepehr_rs.Sudoku.metainfo.xml.in
 src/main.py
 src/window.py
 src/window.blp
-src/gtk/finished-overlay.blp
+src/gtk/shortcuts-dialog.blp
 src/gtk/help-overlay.blp
 src/finished_overlay.py
 src/game_manager.py
-src/help_dialog.py
 src/difficulty_selection_dialog.py
