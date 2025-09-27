@@ -154,12 +154,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_primary_menu(self):
         self.primary_menu_button.popup()
 
-    def on_show_help_overlay(self, action, param):
-        help_overlay = HelpOverlay()
-        help_overlay.set_transient_for(self)
-        help_overlay.present()
-
-    def on_show_preferences(self, action, param):
+    def on_show_preferences(self):
         dialog = PreferencesDialog(
             self.manager.board.save_to_file
         )
