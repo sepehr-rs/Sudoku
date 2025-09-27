@@ -321,7 +321,10 @@ class ClassicSudokuManager(ManagerBase):
         return False
 
     def _handle_enter_key(self, keyval, row, col):
-        if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
+        if (
+            keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter)
+            and self.cell_inputs[row][col].is_editable()
+        ):
             self._show_popover(self.cell_inputs[row][col])
             return True
         return False
