@@ -20,7 +20,6 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.difficulty_selection_dialog import DifficultySelectionDialog
-from .screens.help_overlay import HelpOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
 from .screens.variant_selection_dialog import VariantSelectionDialog
@@ -59,11 +58,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.manager = None
         self.selected_variant = None
 
-        # Primary menu and help actions
+        # Primary menu actions
         self.add_action_entries(
             (
                 ("show-primary-menu", lambda *_: self.on_show_primary_menu()),
-                ("show-help-overlay", lambda *_: self.on_show_help_overlay()),
                 ("back-to-menu", lambda *_: self.on_back_to_menu()),
                 ("pencil-toggled", lambda *_: self._on_pencil_toggled_action()),
                 ("show-preferences", lambda *_: self.on_show_preferences()),
@@ -155,11 +153,6 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_show_primary_menu(self):
         self.primary_menu_button.popup()
-
-    def on_show_help_overlay(self):
-        help_overlay = HelpOverlay()
-        help_overlay.set_transient_for(self)
-        help_overlay.present()
 
     def on_show_preferences(self):
         dialog = PreferencesDialog()
