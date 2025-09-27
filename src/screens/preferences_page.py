@@ -30,10 +30,12 @@ class VariantPreferencesPage(Adw.PreferencesGroup):
 
 
 class GeneralPreferencesPage(Adw.PreferencesGroup):
-    def __init__(self, general_preferences, name):
+    def __init__(self, general_preferences, name, auto_save_function):
         super().__init__(title=name)
         self.general_preferences = general_preferences
         self.controls = {}
+        self.auto_save_function = auto_save_function
+
         for key, default in self.general_preferences.items():
             row = Adw.ActionRow(title=key.replace("_", " ").capitalize())
             switch = Gtk.Switch(valign=Gtk.Align.CENTER)
@@ -46,3 +48,4 @@ class GeneralPreferencesPage(Adw.PreferencesGroup):
 
     def on_toggle_changed(self, switch, gparam, key):
         self.general_preferences[key] = switch.get_active()
+        self.auto_save_function()

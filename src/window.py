@@ -68,6 +68,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             )
         )
 
+        self.lookup_action("show-preferences").set_enabled(False)
         # Setup UI
         self._setup_stack_observer()
         self._setup_breakpoints()
@@ -85,6 +86,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_controller(gesture)
 
     def _setup_ui(self):
+        self.lookup_action("show-preferences").set_enabled(True)
         self.pencil_toggle_button.set_active(False)
 
     def _setup_stack_observer(self):
@@ -155,9 +157,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.primary_menu_button.popup()
 
     def on_show_preferences(self):
-        dialog = PreferencesDialog(
-            self.manager.board.save_to_file
-        )
+        dialog = PreferencesDialog(self.manager.board.save_to_file)
         dialog.set_transient_for(self)
         dialog.present()
 

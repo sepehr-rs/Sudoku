@@ -10,21 +10,22 @@ class PreferencesDialog(Adw.PreferencesWindow):
         self.set_default_size(600, 550)
         self.set_search_enabled(False)
         self.preferences = PreferencesManager.get_preferences()
-        if not self.preferences:
-            return
         page = Adw.PreferencesPage()
         group = Adw.PreferencesGroup()
         group.set_margin_bottom(24)
         page.add(group)
         group.add(
             GeneralPreferencesPage(
-                self.preferences.general_defaults, "General Preferences"
+                self.preferences.general_defaults,
+                "General Preferences",
+                auto_save_function,
             )
         )
         group.add(
             VariantPreferencesPage(
-                self.preferences.variant_defaults, self.preferences.name,
-                auto_save_function
+                self.preferences.variant_defaults,
+                self.preferences.name,
+                auto_save_function,
             )
         )
         self.add(page)
