@@ -40,19 +40,4 @@ class DiagonalSudokuManager(ClassicSudokuManager):
             self._show_popover(cell, gesture.get_current_button())
         else:
             cell.grab_focus()
-
-    def _focus_cell(self, row: int, col: int):
-        """Handle keyboard navigation focus (diagonal-aware)."""
-        size = self.board.rules.size
-        if 0 <= row < size and 0 <= col < size:
-            cell = self.cell_inputs[row][col]
-            if cell:
-                cell.grab_focus()
-                # Use diagonal-aware highlighting
-                self.ui_helpers.highlight_related_cells(
-                    self.cell_inputs,
-                    row,
-                    col,
-                    self.board.rules.block_size,
-                    cell.is_editable(),
-                )
+        gesture.reset()
