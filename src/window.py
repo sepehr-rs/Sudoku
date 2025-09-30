@@ -17,10 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk
 from gettext import gettext as _
 from .screens.difficulty_selection_dialog import DifficultySelectionDialog
-from .screens.help_overlay import HelpOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
 from .screens.variant_selection_dialog import VariantSelectionDialog
@@ -59,18 +58,17 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.manager = None
         self.selected_variant = None
 
-        # Primary menu and help actions
-        for name, callback in [
-            ("show-primary-menu", self.on_show_primary_menu),
-            ("show-help-overlay", self.on_show_help_overlay),
-            ("back-to-menu", self.on_back_to_menu),
-            ("pencil-toggled", self._on_pencil_toggled_action),
-            ("show-preferences", self.on_show_preferences),
-        ]:
-            action = Gio.SimpleAction.new(name, None)
-            action.connect("activate", callback)
-            self.add_action(action)
+        # Primary menu actions
+        self.add_action_entries(
+            (
+                ("show-primary-menu", lambda *_: self.on_show_primary_menu()),
+                ("back-to-menu", lambda *_: self.on_back_to_menu()),
+                ("pencil-toggled", lambda *_: self._on_pencil_toggled_action()),
+                ("show-preferences", lambda *_: self.on_show_preferences()),
+            )
+        )
 
+        self.lookup_action("show-preferences").set_enabled(False)
         # Setup UI
         self._setup_stack_observer()
         self._setup_breakpoints()
@@ -88,6 +86,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.add_controller(gesture)
 
     def _setup_ui(self):
+        self.lookup_action("show-preferences").set_enabled(True)
         self.pencil_toggle_button.set_active(False)
 
     def _setup_stack_observer(self):
@@ -154,16 +153,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._setup_ui()
         self.manager.start_game(difficulty, difficulty_label, self.selected_variant)
 
-    def on_show_primary_menu(self, action, param):
+    def on_show_primary_menu(self):
         self.primary_menu_button.popup()
 
-    def on_show_help_overlay(self, action, param):
-        help_overlay = HelpOverlay()
-        help_overlay.set_transient_for(self)
-        help_overlay.present()
-
-    def on_show_preferences(self, action, param):
-        dialog = PreferencesDialog()
+    def on_show_preferences(self):
+        dialog = PreferencesDialog(self.manager.board.save_to_file)
         dialog.set_transient_for(self)
         dialog.present()
 
@@ -243,7 +237,7 @@ class SudokuWindow(Adw.ApplicationWindow):
                 if cell:
                     cell.set_compact(compact)
 
-    def on_back_to_menu(self, action, param):
+    def on_back_to_menu(self):
         self.sudoku_window_title.set_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
@@ -253,6 +247,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         if self.manager:
             self.manager.on_pencil_toggled(button)
 
-    def _on_pencil_toggled_action(self, action, param):
+    def _on_pencil_toggled_action(self):
         current = self.pencil_toggle_button.get_active()
         self.pencil_toggle_button.set_active(not current)
