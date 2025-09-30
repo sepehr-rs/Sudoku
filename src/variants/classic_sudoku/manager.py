@@ -415,10 +415,8 @@ class ClassicSudokuManager(ManagerBase):
         ]:
             cell.highlight("wrong")
             cell.set_tooltip_text("Wrong")
-        
-        if PreferencesManager.get_preferences().variant_defaults[
-            "highlight_conflicts"
-        ]:
+
+        if PreferencesManager.get_preferences().variant_defaults["highlight_conflicts"]:
 
             conflicts = conflicts or ClassicUIHelpers.highlight_conflicts(
                 self.cell_inputs, cell.row, cell.col, number, 3
