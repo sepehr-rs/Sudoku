@@ -1,0 +1,428 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the sudokugame package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sudokugame\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-18 18:25+0200\n"
+"PO-Revision-Date: 2025-09-27 22:01+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.7\n"
+
+#: data/io.github.sepehr_rs.Sudoku.desktop.in:2
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:7 src/window.blp:9
+#: src/window.blp:20
+msgid "Sudoku"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.desktop.in:3
+msgid "Solve Sudoku puzzles"
+msgstr "Löse Sudoku Rätsel"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:8
+msgid "Solve puzzles in style"
+msgstr "Löse Rätsel mit Stil"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:10
+msgid ""
+"Sudoku is a puzzle app that lets you solve classic number-placement "
+"challenges. It features a clean, distraction-free design with a simple "
+"interface to keep you focused and engaged."
+msgstr ""
+"Sudoku ist eine Rätsel-App, mit der Sie klassische Zahlenrätsel lösen "
+"können. Sie zeichnet sich durch ein klares, ablenkungsfreies Design mit "
+"einer einfachen Benutzeroberfläche aus, damit Sie konzentriert und motiviert "
+"bleiben."
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:13
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:114
+msgid "Features:"
+msgstr "Merkmale:"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:15
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:116
+msgid "Modern GTK4 and libadwaita interface"
+msgstr "Moderne GTK4- und libadwaita- Oberfläche"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:16
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:117
+msgid "Keyboard shortcuts for quick access to all functions"
+msgstr "Tastaturkürzel für den schnellen Zugriff auf alle Funktionen"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:17
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:118
+msgid "Save and load games seamlessly to continue your progress anytime"
+msgstr ""
+"Speichern und laden Sie Spiele nahtlos, um jederzeit Ihren Fortschritt "
+"fortzusetzen"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:18
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:119
+msgid "Highlight active row and cell to improve focus and ease of play"
+msgstr ""
+"Aktive Zeile und Zelle hervorheben, um die Konzentration zu verbessern und "
+"das Spielen zu erleichtern"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:19
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:120
+msgid "Conflict highlighting to help identify mistakes, ideal for beginners"
+msgstr "Konflikthervorhebung zur Fehlererkennung, ideal für Anfänger"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:20
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:121
+msgid "Suitable for all skill levels, from beginners to experts"
+msgstr "Geeignet für alle Leistungsstufen, vom Anfänger bis zum Experten"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:27
+msgid "Sudoku in light mode"
+msgstr "Sudoku im Hellmodus"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:31
+msgid "Sudoku in dark mode"
+msgstr "Sudoku im Dunkelmodus"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:35
+msgid "Sudoku landing page in dark mode"
+msgstr "Sudoku-Startseite im Dunkelmodus"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:39
+msgid "Sudoku landing page in light mode"
+msgstr "Sudoku-Startseite im Hellmodus"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:56
+msgid "sudoku"
+msgstr "Sudoku"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:57
+msgid "puzzle"
+msgstr "Rätsel"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:58
+msgid "game"
+msgstr "Spiel"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:59
+msgid "logic"
+msgstr "Logik"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:60
+msgid "numbers"
+msgstr "Zahlen"
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:71
+msgid "SepehrRS"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:78
+msgid "Fixed game not being remembered after re-opening Sudoku"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:79
+msgid ""
+"Also moved the Back to main menu button from the primary menu to the "
+"headerbar"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:84
+msgid "Updated completion screen and added a difficulty subtitle:"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:86
+msgid "Completion screen now shows randomized messages with improved imagery"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:87
+msgid "Added difficulty level as a subtitle in the header bar"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:93
+msgid "Updated shortcuts:"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:95
+msgid "Added F10 as primary menu's shortcut"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:96
+msgid "Added Ctrl + w to close Sudoku"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:98
+msgid ""
+"Additionally, a logging issue when pencil mode was turned on/off is now "
+"fixed."
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:103
+msgid ""
+"Enhanced screen reader support for Sudoku, making the game more accessible "
+"and intuitive for players who rely on assistive technologies. With these "
+"improvements, users can now:"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:105
+msgid ""
+"Receive clear feedback on whether the number they entered is correct or "
+"incorrect"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:106
+msgid "Navigate the Sudoku interface more easily and efficiently"
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:108
+msgid "Additionally, a visual bug affecting the pencil icon has been fixed."
+msgstr ""
+
+#: data/io.github.sepehr_rs.Sudoku.metainfo.xml.in:113
+msgid ""
+"First stable release of Sudoku! A modern GTK4/libadwaita application for "
+"playing Sudoku puzzles."
+msgstr ""
+
+#: src/window.py:95
+msgid "Continue Game"
+msgstr "Spiel Fortsetzen"
+
+#: src/window.py:97
+msgid "New Game"
+msgstr "Neues Spiel"
+
+#: src/window.blp:26
+msgid "Back to main menu"
+msgstr "Zurück zum Hauptmenü"
+
+#: src/window.blp:34
+msgid "Menu"
+msgstr "Manü"
+
+#: src/window.blp:43
+msgid "Toggle Pencil Mode"
+msgstr "Bleistiftmodus umschalten"
+
+#: src/window.blp:60
+msgid "Sudoku Game Icon"
+msgstr "Sudoku Spiel Icon"
+
+#: src/window.blp:64 src/window.blp:65
+msgid "Sudoku Game"
+msgstr "Sudoku Spiel"
+
+#: src/window.blp:82
+msgid "_Continue Game"
+msgstr "_Spiel fortsetzen"
+
+#: src/window.blp:91
+msgid "_New Game"
+msgstr "_Neues Spiel"
+
+#: src/window.blp:128
+msgid "_Keyboard Shortcuts"
+msgstr "_Tastaturkürzel"
+
+#: src/window.blp:130
+msgid "Keyboard shortcuts"
+msgstr "Tastaturkürzel"
+
+#: src/window.blp:134 src/window.blp:136
+msgid "How to play"
+msgstr "Anleitung"
+
+#: src/window.blp:140
+msgid "_About"
+msgstr "Ü_ber"
+
+#: src/window.blp:142
+msgid "About"
+msgstr "Über"
+
+#: src/window.blp:146
+msgid "_Quit"
+msgstr "_Beenden"
+
+#: src/window.blp:148
+msgid "Quit"
+msgstr "Beenden"
+
+#: src/gtk/finished-overlay.blp:51
+msgid "Back to Main Menu"
+msgstr "Zurück zum Hauptmenü"
+
+#: src/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "Game"
+msgstr "Spiel"
+
+#: src/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Pencil Mode"
+msgstr "Bleistift Modus"
+
+#: src/gtk/help-overlay.blp:20
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Allgemein"
+
+#: src/gtk/help-overlay.blp:23
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Tastaturkürzel anzeigen"
+
+#: src/gtk/help-overlay.blp:28
+msgctxt "shortcut window"
+msgid "Back to Main Menu"
+msgstr "Zurück zum Hauptmenü"
+
+#: src/gtk/help-overlay.blp:33
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Beenden"
+
+#: src/finished_overlay.py:34
+msgid "Sudoku Master! You've solved the puzzle with perfect logic!"
+msgstr "Sudoku-Meister! Du hast das Rätsel mit perfekter Logik gelöst!"
+
+#: src/finished_overlay.py:35
+msgid "Incredible! Every number found its perfect place!"
+msgstr "Unglaublich! Jede Zahl hat ihren perfekten Platz gefunden!"
+
+#: src/finished_overlay.py:36
+msgid "Brilliant deduction! You've conquered this Sudoku challenge!"
+msgstr ""
+"Brillante Schlussfolgerung! Du hast diese Sudoku-Herausforderung gemeistert!"
+
+#: src/finished_overlay.py:37
+msgid "Perfect solution! Your logical thinking is outstanding!"
+msgstr "Perfekte Lösung! Ihr logisches Denken ist hervorragend!"
+
+#: src/finished_overlay.py:38
+msgid "Amazing work! You've mastered the art of Sudoku!"
+msgstr "Großartige Arbeit! Du hast die Kunst des Sudoku gemeistert!"
+
+#: src/finished_overlay.py:39
+msgid "Fantastic! Every row, column, and box is perfectly filled!"
+msgstr "Fantastisch! Jede Zeile, Spalte und jedes Feld ist perfekt ausgefüllt!"
+
+#: src/finished_overlay.py:40
+msgid "Outstanding! Your puzzle-solving skills are remarkable!"
+msgstr ""
+"Hervorragend! Ihre Fähigkeiten beim Lösen von Rätseln sind bemerkenswert!"
+
+#: src/finished_overlay.py:41
+msgid "Excellent! You've completed the Sudoku with flying colors!"
+msgstr "Ausgezeichnet! Sie haben das Sudoku mit Bravour gelöst!"
+
+#: src/finished_overlay.py:42
+msgid "Spectacular! Your mathematical reasoning is top-notch!"
+msgstr "Spektakulär! Deine mathematischen Fähigkeiten sind erstklassig!"
+
+#: src/finished_overlay.py:43
+msgid "Well done! You've proven yourself a Sudoku champion!"
+msgstr "Gut gemacht! Sie haben sich als Sudoku-Champion erwiesen!"
+
+#: src/finished_overlay.py:44
+msgid "Congratulations! You've solved the puzzle flawlessly!"
+msgstr "Herzlichen Glückwunsch! Sie haben das Rätsel fehlerfrei gelöst!"
+
+#: src/finished_overlay.py:45
+msgid "Victory! Your strategic thinking led to perfect completion!"
+msgstr ""
+"Sieg! Ihr strategisches Denken hat zu einem perfekten Ergebnis geführt!"
+
+#: src/finished_overlay.py:46
+msgid "Genius! You've mastered the Sudoku grid with precision!"
+msgstr "Genial! Sie haben das Sudoku-Raster mit Präzision gemeistert!"
+
+#: src/finished_overlay.py:47
+msgid "Masterpiece! Every number placement was calculated perfectly!"
+msgstr "Meisterwerk! Jede Zahl wurde perfekt platziert!"
+
+#: src/finished_overlay.py:48
+msgid "Phenomenal! You've conquered this Sudoku with style!"
+msgstr "Phänomenal! Sie haben dieses Sudoku mit Bravour gemeistert!"
+
+#: src/game_manager.py:80
+msgid "Wrong"
+msgstr "Falsch"
+
+#: src/game_manager.py:225
+msgid "Clear Cell"
+msgstr "Leere Zelle"
+
+#: src/help_dialog.py:26
+msgid "How to Play Sudoku"
+msgstr "Wie man Sudoku spielt"
+
+#: src/help_dialog.py:43
+msgid "Welcome to Sudoku!"
+msgstr "Willkommen zu Sudoku!"
+
+#: src/help_dialog.py:45
+msgid ""
+"The goal is to fill the grid so that every row, column, and 3x3 box contains "
+"the numbers 1 through 9 without repeats."
+msgstr ""
+"Das Ziel ist es, das Raster so auszufüllen, dass jede Zeile, Spalte und "
+"jedes 3x3-Feld die Zahlen 1 bis 9 ohne Wiederholungen enthält."
+
+#: src/help_dialog.py:48
+msgid "How to play:"
+msgstr "Spielanleitung:"
+
+#: src/help_dialog.py:49
+msgid "– Click on an empty cell to select it."
+msgstr "– Klicken Sie auf eine leere Zelle, um sie auszuwählen."
+
+#: src/help_dialog.py:50
+msgid "– Use your keyboard or pencil tool to input a number."
+msgstr ""
+"– Geben Sie eine Zahl mit Ihrer Tastatur oder dem Bleistift-Werkzeug ein."
+
+#: src/help_dialog.py:51
+msgid "– Use the pencil tool to make notes."
+msgstr "– Verwenden Sie das Bleistift-Werkzeug, um Notizen zu machen."
+
+#: src/help_dialog.py:52
+msgid "– Use the backspace key to clear a cell."
+msgstr "– Verwenden Sie die Löschtaste, um eine Zelle zu leeren."
+
+#: src/help_dialog.py:53
+msgid "– Try to solve the puzzle logically."
+msgstr "– Versuchen Sie, das Rätsel logisch zu lösen."
+
+#: src/help_dialog.py:55
+msgid "Good luck and have fun!"
+msgstr "Viel Glück und viel Spaß!"
+
+#: src/difficulty_selection_dialog.py:35
+msgid "Select Difficulty"
+msgstr "Schwierigkeitsgrad auswählen"
+
+#: src/difficulty_selection_dialog.py:49
+msgid "Easy"
+msgstr "Leicht"
+
+#: src/difficulty_selection_dialog.py:50
+msgid "Medium"
+msgstr "Mittel"
+
+#: src/difficulty_selection_dialog.py:51
+msgid "Hard"
+msgstr "Schwer"
+
+#: src/difficulty_selection_dialog.py:52
+msgid "Extreme"
+msgstr "Extrem"
+
+#: src/difficulty_selection_dialog.py:60
+msgid "Start new game with {} difficulty"
+msgstr "Starte Sie ein neues Spiel mit dem Schwierigkeitsgrad {}"
