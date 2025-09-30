@@ -26,6 +26,8 @@ class ClassicSudokuPreferences(Preferences):
         "highlight_column": True,
         "highlight_block": True,
         "highlight_related_cells": True,
+        "highlight_conflicts": True,
+        "highlight_wrong_input": True,
     }
 
     def __init__(self):
