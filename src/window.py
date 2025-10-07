@@ -81,7 +81,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
         self.new_game_button.set_tooltip_text(_("New Game"))
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
-
+        self.lookup_action("show-preferences").set_enabled(False)
         # Add click gesture for unfocus
         gesture = Gtk.GestureClick.new()
         gesture.connect("pressed", self.on_window_clicked)
@@ -89,6 +89,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _setup_ui(self):
         self.pencil_toggle_button.set_active(False)
+        self.lookup_action("show-preferences").set_enabled(True)
 
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
