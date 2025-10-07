@@ -194,9 +194,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         compact_bp = Adw.Breakpoint.new(compact_condition)
         compact_bp.name = "compact-width"
-        compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "width"))
+        compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "compact"))
         compact_bp.connect(
-            "unapply", lambda bp, *_: self._apply_compact(False, "width")
+            "unapply", lambda bp, *_: self._apply_compact(False, "compact")
         )
         self.add_breakpoint(compact_bp)
 
@@ -205,8 +205,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         small_bp = Adw.Breakpoint.new(small_condition)
         small_bp.name = "compact-height"
-        small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "height"))
-        small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "height"))
+        small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "small"))
+        small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "small"))
         self.add_breakpoint(small_bp)
 
     def _apply_large(self, large: bool):
@@ -218,7 +218,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             target.remove_css_class(css_class)
 
     def _apply_compact(self, compact: bool, mode):
-        css_class = f"{mode}-compact"
+        css_class = f"{mode}-mode"
         target = self.bp_bin or self
         if compact:
             target.add_css_class(css_class)
