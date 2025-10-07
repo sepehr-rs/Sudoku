@@ -249,6 +249,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
         PreferencesManager.set_preferences(None)
+        self.lookup_action("show-preferences").set_enabled(False)
 
     def _on_pencil_toggled_button(self, button):
         if self.manager:
