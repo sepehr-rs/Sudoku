@@ -220,8 +220,8 @@ msgid "Sudoku Game Icon"
 msgstr "نقشک بازی سودوکو"
 
 #: src/window.blp:64 src/window.blp:65
-msgid "Sudoku Game"
-msgstr "بازی سودوکو"
+msgid "Play Sudoku"
+msgstr "سودوکو بازی کنید"
 
 #: src/window.blp:82
 msgid "_Continue Game"

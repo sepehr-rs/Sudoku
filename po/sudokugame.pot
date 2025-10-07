@@ -205,7 +205,7 @@ msgid "Sudoku Game Icon"
 msgstr ""
 
 #: src/window.blp:64 src/window.blp:65
-msgid "Sudoku Game"
+msgid "Play Sudoku"
 msgstr ""
 
 #: src/window.blp:82
