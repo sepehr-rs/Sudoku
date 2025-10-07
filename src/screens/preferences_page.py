@@ -11,7 +11,7 @@ class VariantPreferencesPage(Adw.PreferencesGroup):
 
         # Build toggles dynamically
         for key, default in self.variant_preferences.items():
-            row = Adw.ActionRow(title=key.replace("_", " ").capitalize())
+            row = Adw.ActionRow(title=key.replace("_", " ").title())
 
             switch = Gtk.Switch(valign=Gtk.Align.CENTER)
             switch.set_active(self.variant_preferences.get(key, default))
@@ -34,7 +34,7 @@ class GeneralPreferencesPage(Adw.PreferencesGroup):
         self.general_preferences = general_preferences
         self.controls = {}
         for key, default in self.general_preferences.items():
-            row = Adw.ActionRow(title=key.replace("_", " ").capitalize())
+            row = Adw.ActionRow(title=key.replace("_", " ").title())
             switch = Gtk.Switch(valign=Gtk.Align.CENTER)
             switch.set_active(self.general_preferences.get(key, default))
             switch.connect("notify::active", self.on_toggle_changed, key)

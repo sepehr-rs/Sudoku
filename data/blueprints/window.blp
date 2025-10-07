@@ -47,64 +47,42 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
         ScrolledWindow main_menu_box {
           hscrollbar-policy: never;
+          vscrollbar-policy: never;
 
-          child: Adw.Clamp {
-            child: Box main_menu_page_box {
+          child: Adw.StatusPage main_menu_status_page {
+            icon-name: "io.github.sepehr_rs.Sudoku";
+            title: _("Play Sudoku");
+            Box menu_box {
               orientation: vertical;
+              spacing: 12;
               halign: center;
               valign: center;
-              spacing: 24;
 
-              Adw.StatusPage overlay_placeholder {
-                icon-name: "io.github.sepehr_rs.Sudoku";
-                tooltip-text: _("Sudoku Game Icon");
-                halign: center;
-                valign: center;
-              }
+              Button continue_button {
+                label: _("_Continue Game");
+                use-underline: true;
 
-              Label {
-                label: _("Sudoku Game");
-                tooltip-text: _("Sudoku Game");
                 styles [
-                  "title-1",
+                  "pill",
                 ]
-
-                halign: center;
-                valign: center;
               }
 
-              Box menu_box {
-                orientation: vertical;
-                spacing: 12;
-                halign: center;
-                hexpand: false;
-                vexpand: false;
+              Button new_game_button {
+                label: _("_New Game");
+                use-underline: true;
 
-                Button continue_button {
-                  label: _("_Continue Game");
-                  use-underline: true;
-
-                  styles [
-                    "pill",
-                  ]
-                }
-
-                Button new_game_button {
-                  label: _("_New Game");
-                  use-underline: true;
-
-                  styles [
-                    "pill",
-                  ]
-                }
+                styles [
+                  "pill",
+                ]
               }
-            };
+            }
           };
         }
 
         Adw.Clamp game_view_box {
           maximum-size: 950;
           tightening-threshold: 300;
+
           child: Box {
             orientation: vertical;
             halign: fill;
@@ -122,6 +100,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
         }
 
         $FinishedPage finished_page {}
+
         $LoadingScreen loading_screen {}
       };
     };

@@ -77,11 +77,11 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.continue_button.set_tooltip_text(_("Continue Game"))
-        self.continue_button.set_sensitive(os.path.exists("saves/board.json"))
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
         self.new_game_button.set_tooltip_text(_("New Game"))
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
-
+        self.lookup_action("show-preferences").set_enabled(False)
         # Add click gesture for unfocus
         gesture = Gtk.GestureClick.new()
         gesture.connect("pressed", self.on_window_clicked)
@@ -89,6 +89,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _setup_ui(self):
         self.pencil_toggle_button.set_active(False)
+        self.lookup_action("show-preferences").set_enabled(True)
 
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
@@ -193,9 +194,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         compact_bp = Adw.Breakpoint.new(compact_condition)
         compact_bp.name = "compact-width"
-        compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "width"))
+        compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "compact"))
         compact_bp.connect(
-            "unapply", lambda bp, *_: self._apply_compact(False, "width")
+            "unapply", lambda bp, *_: self._apply_compact(False, "compact")
         )
         self.add_breakpoint(compact_bp)
 
@@ -204,8 +205,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
         small_bp = Adw.Breakpoint.new(small_condition)
         small_bp.name = "compact-height"
-        small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "height"))
-        small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "height"))
+        small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "small"))
+        small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "small"))
         self.add_breakpoint(small_bp)
 
     def _apply_large(self, large: bool):
@@ -217,7 +218,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             target.remove_css_class(css_class)
 
     def _apply_compact(self, compact: bool, mode):
-        css_class = f"{mode}-compact"
+        css_class = f"{mode}-mode"
         target = self.bp_bin or self
         if compact:
             target.add_css_class(css_class)
