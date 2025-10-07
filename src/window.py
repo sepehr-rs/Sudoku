@@ -77,7 +77,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.continue_button.set_tooltip_text(_("Continue Game"))
-        self.continue_button.set_sensitive(os.path.exists("saves/board.json"))
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
         self.new_game_button.set_tooltip_text(_("New Game"))
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
