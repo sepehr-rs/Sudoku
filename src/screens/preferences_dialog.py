@@ -15,12 +15,10 @@ class PreferencesDialog(Adw.PreferencesWindow):
 
         page = Adw.PreferencesPage()
         general_group = GeneralPreferencesPage(
-            self.preferences.general_defaults,
-            "General Preferences"
+            self.preferences.general_defaults, "General Preferences"
         )
         variant_group = VariantPreferencesPage(
-            self.preferences.variant_defaults,
-            self.preferences.name
+            self.preferences.variant_defaults, self.preferences.name
         )
 
         page.add(general_group)
