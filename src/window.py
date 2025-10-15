@@ -245,6 +245,7 @@ class SudokuWindow(Adw.ApplicationWindow):
                     cell.set_compact(compact)
 
     def on_back_to_menu(self, action, param):
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.sudoku_window_title.set_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
