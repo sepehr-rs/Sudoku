@@ -48,7 +48,7 @@ class GameSetupDialog(Adw.Dialog):
             margin_top=12,
             margin_start=12,
             margin_end=12,
-            margin_bottom=12
+            margin_bottom=12,
         )
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -65,9 +65,12 @@ class GameSetupDialog(Adw.Dialog):
 
         self._create_radio_group(
             variant_group_box,
-            items=[(_("Classic Sudoku"), "classic"), (_("Diagonal Sudoku"), "diagonal")],
+            items=[
+                (_("Classic Sudoku"), "classic"),
+                (_("Diagonal Sudoku"), "diagonal"),
+            ],
             group_name="variant",
-            default="classic"
+            default="classic",
         )
 
         difficulty_label = Gtk.Label(label=_("Select Difficulty"), xalign=0)
@@ -84,10 +87,10 @@ class GameSetupDialog(Adw.Dialog):
                 (_("Easy"), EASY_DIFFICULTY),
                 (_("Medium"), MEDIUM_DIFFICULTY),
                 (_("Hard"), HARD_DIFFICULTY),
-                (_("Extreme"), EXTREME_DIFFICULTY)
+                (_("Extreme"), EXTREME_DIFFICULTY),
             ],
             group_name="difficulty",
-            default=MEDIUM_DIFFICULTY
+            default=MEDIUM_DIFFICULTY,
         )
 
         confirm_button = Gtk.Button(label=_("Start Game"))

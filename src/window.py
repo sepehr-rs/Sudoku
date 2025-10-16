@@ -81,7 +81,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
         self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.set_tooltip_text(_("New Game"))
-        self.continue_button.set_visible(os.path.exists("saves/board.json"))
+        self.continue_button.set_visible(os.path.exists("savess/board.json"))
         self.home_button.set_visible(False)
 
     def _update_preferences_visibility(self, visible: bool):
@@ -130,7 +130,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.manager, prefs = self._get_variant_and_prefs(variant_name)
         PreferencesManager.set_preferences(prefs)
 
-        label_map = {0.2: _("Easy"), 0.5: _("Medium"), 0.7: _("Hard"), 0.9: _("Extreme")}
+        label_map = {
+            0.2: _("Easy"),
+            0.5: _("Medium"),
+            0.7: _("Hard"),
+            0.9: _("Extreme"),
+        }
         label = label_map.get(difficulty, str(difficulty))
 
         self.sudoku_window_title.set_subtitle(f"{variant_name.capitalize()} - {label}")
@@ -154,7 +159,10 @@ class SudokuWindow(Adw.ApplicationWindow):
             return
         grid = frame.get_child()
         alloc = grid.get_allocation()
-        if not (alloc.x <= x < alloc.x + alloc.width and alloc.y <= y < alloc.y + alloc.height):
+        if not (
+            alloc.x <= x < alloc.x + alloc.width
+            and alloc.y <= y < alloc.y + alloc.height
+        ):
             self.manager.on_grid_unfocus()
 
     def _setup_breakpoints(self):
@@ -164,13 +172,21 @@ class SudokuWindow(Adw.ApplicationWindow):
             bp.connect("unapply", lambda *_: unapply_cb(False))
             self.add_breakpoint(bp)
 
-        bp("min-width: 750px and min-height: 750px", self._apply_large, self._apply_large)
-        bp("max-width: 650px or max-height:700px", 
-           lambda c: self._apply_compact(c, "compact"), 
-           lambda c: self._apply_compact(c, "compact"))
-        bp("max-width: 400px or max-height:400px", 
-           lambda c: self._apply_compact(c, "small"), 
-           lambda c: self._apply_compact(c, "small"))
+        bp(
+            "min-width: 750px and min-height: 750px",
+            self._apply_large,
+            self._apply_large,
+        )
+        bp(
+            "max-width: 650px or max-height:700px",
+            lambda c: self._apply_compact(c, "compact"),
+            lambda c: self._apply_compact(c, "compact"),
+        )
+        bp(
+            "max-width: 400px or max-height:400px",
+            lambda c: self._apply_compact(c, "small"),
+            lambda c: self._apply_compact(c, "small"),
+        )
 
     def _apply_large(self, large):
         (self.bp_bin or self).set_css_class("large", large)
