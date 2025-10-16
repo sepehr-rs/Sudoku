@@ -21,23 +21,21 @@ from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
 from .screens.help_overlay import HelpOverlay
-from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
-from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
+from .screens.finished_page import FinishedPage  # noqa: F401
+from .screens.loading_screen import LoadingScreen  # noqa: F401
 from .screens.preferences_dialog import PreferencesDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
 from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
 from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
 from .base.preferences_manager import PreferencesManager
-import os
-import json
+import os, json
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
     __gtype_name__ = "SudokuWindow"
 
-    # Template children
     stack = Gtk.Template.Child()
     continue_button = Gtk.Template.Child()
     new_game_button = Gtk.Template.Child()
@@ -49,185 +47,146 @@ class SudokuWindow(Adw.ApplicationWindow):
     pencil_toggle_button = Gtk.Template.Child()
     primary_menu_button = Gtk.Template.Child()
     sudoku_window_title = Gtk.Template.Child()
+    home_button = Gtk.Template.Child()
     bp_bin = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        # Initialize the manager (replaces GameManager/GameBoard)
         self.manager = None
 
-        # Primary menu and help actions
-        for name, callback in [
-            ("show-primary-menu", self.on_show_primary_menu),
-            ("show-help-overlay", self.on_show_help_overlay),
-            ("back-to-menu", self.on_back_to_menu),
-            ("pencil-toggled", self._on_pencil_toggled_action),
-            ("show-preferences", self.on_show_preferences),
-        ]:
-            action = Gio.SimpleAction.new(name, None)
-            action.connect("activate", callback)
-            self.add_action(action)
+        actions = {
+            "show-primary-menu": self.on_show_primary_menu,
+            "show-help-overlay": self.on_show_help_overlay,
+            "back-to-menu": self.on_back_to_menu,
+            "pencil-toggled": self._on_pencil_toggled_action,
+            "show-preferences": self.on_show_preferences,
+        }
+        for name, callback in actions.items():
+            act = Gio.SimpleAction.new(name, None)
+            act.connect("activate", callback)
+            self.add_action(act)
 
-        # Setup UI
         self._setup_stack_observer()
         self._setup_breakpoints()
+        self._connect_buttons()
+        self._build_primary_menu(show_preferences=False)
 
-        self.continue_button.connect("clicked", self.on_continue_clicked)
-        self.continue_button.set_tooltip_text(_("Continue Game"))
-        self.continue_button.set_visible(os.path.exists("saves/board.json"))
-        self.new_game_button.connect("clicked", self.on_new_game_clicked)
-        self.new_game_button.set_tooltip_text(_("New Game"))
-        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
-        self.lookup_action("show-preferences").set_enabled(False)
-        # Add click gesture for unfocus
         gesture = Gtk.GestureClick.new()
         gesture.connect("pressed", self.on_window_clicked)
         self.add_controller(gesture)
 
+    def _connect_buttons(self):
+        self.continue_button.connect("clicked", self.on_continue_clicked)
+        self.new_game_button.connect("clicked", self.on_new_game_clicked)
+        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
+        self.continue_button.set_tooltip_text(_("Continue Game"))
+        self.new_game_button.set_tooltip_text(_("New Game"))
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
+        self.home_button.set_visible(False)
+
+    def _update_preferences_visibility(self, visible: bool):
+        self._build_primary_menu(show_preferences=visible)
+
     def _setup_ui(self):
         self.pencil_toggle_button.set_active(False)
         self.lookup_action("show-preferences").set_enabled(True)
+        self._update_preferences_visibility(True)
 
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
 
-    def on_stack_page_changed(self, stack, param):
+    def on_stack_page_changed(self, stack, _):
         is_game_page = stack.get_visible_child() != self.main_menu_box
         self.lookup_action("back-to-menu").set_enabled(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
+        self.home_button.set_visible(is_game_page)
 
-    def get_manager_type(self, filename: str = None):
-        filename = filename or "saves/board.json"
-        if not os.path.exists(filename):
-            return None
-
-        with open(filename, "r", encoding="utf-8") as f:
-            state = json.load(f)
-
-        return state.get("variant", "Unknown")
-
-    def on_continue_clicked(self, button):
-        variant = self.get_manager_type()
+    def _get_variant_and_prefs(self, variant):
         if variant in ("classic", "Unknown"):
-            self.manager = ClassicSudokuManager(self)
-            PreferencesManager.set_preferences(ClassicSudokuPreferences())
-        elif variant == "diagonal":
-            self.manager = DiagonalSudokuManager(self)
-            PreferencesManager.set_preferences(DiagonalSudokuPreferences())
+            return ClassicSudokuManager(self), ClassicSudokuPreferences()
+        if variant == "diagonal":
+            return DiagonalSudokuManager(self), DiagonalSudokuPreferences()
+        raise ValueError(f"Unknown Sudoku variant: {variant}")
+
+    def get_manager_type(self, filename=None):
+        path = filename or "saves/board.json"
+        if not os.path.exists(path):
+            return None
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f).get("variant", "Unknown")
+
+    def on_continue_clicked(self, _):
+        variant = self.get_manager_type()
+        self.manager, prefs = self._get_variant_and_prefs(variant)
+        PreferencesManager.set_preferences(prefs)
         self.manager.load_saved_game()
         self._setup_ui()
 
-    def on_new_game_clicked(self, button):
-        self._show_game_setup_dialog()
+    def on_new_game_clicked(self, _):
+        GameSetupDialog(on_select=self.on_game_setup_selected).present(self)
 
-    def _show_game_setup_dialog(self):
-        dialog = GameSetupDialog(on_select=self.on_game_setup_selected)
-        dialog.present(self)
+    def on_game_setup_selected(self, variant_name, difficulty):
+        self.manager, prefs = self._get_variant_and_prefs(variant_name)
+        PreferencesManager.set_preferences(prefs)
 
-    def on_game_setup_selected(self, variant_name: str, difficulty: float):
-        """Initialize the manager based on the selected variant and difficulty."""
-        self.selected_variant = variant_name
-        if variant_name == "classic":
-            self.manager = ClassicSudokuManager(self)
-            PreferencesManager.set_preferences(ClassicSudokuPreferences())
-        elif variant_name == "diagonal":
-            self.manager = DiagonalSudokuManager(self)
-            PreferencesManager.set_preferences(DiagonalSudokuPreferences())
-        else:
-            raise ValueError(f"Unknown Sudoku variant: {variant_name}")
+        label_map = {0.2: _("Easy"), 0.5: _("Medium"), 0.7: _("Hard"), 0.9: _("Extreme")}
+        label = label_map.get(difficulty, str(difficulty))
 
-        label_map = {
-            0.2: _("Easy"),
-            0.5: _("Medium"),
-            0.7: _("Hard"),
-            0.9: _("Extreme"),
-        }
-        difficulty_label = label_map.get(difficulty, str(difficulty))
-
-        self.sudoku_window_title.set_subtitle(
-            f"{variant_name.capitalize()} - {difficulty_label}"
-        )
-
+        self.sudoku_window_title.set_subtitle(f"{variant_name.capitalize()} - {label}")
         self._setup_ui()
-        self.manager.start_game(difficulty, difficulty_label, variant_name)
+        self.manager.start_game(difficulty, label, variant_name)
 
-    def on_show_primary_menu(self, action, param):
+    def on_show_primary_menu(self, *_):
         self.primary_menu_button.popup()
 
-    def on_show_help_overlay(self, action, param):
+    def on_show_help_overlay(self, *_):
         help_overlay = HelpOverlay()
         help_overlay.set_transient_for(self)
         help_overlay.present()
 
-    def on_show_preferences(self, action, param):
-        dialog = PreferencesDialog()
-        dialog.set_transient_for(self)
-        dialog.present()
+    def on_show_preferences(self, *_):
+        PreferencesDialog().present()
 
-    def on_window_clicked(self, gesture, n_press, x, y):
+    def on_window_clicked(self, _, __, x, y):
         frame = self.grid_container.get_first_child()
-        if frame is None:
+        if not frame:
             return
         grid = frame.get_child()
         alloc = grid.get_allocation()
-        if not (
-            alloc.x <= x < alloc.x + alloc.width
-            and alloc.y <= y < alloc.y + alloc.height
-        ):
+        if not (alloc.x <= x < alloc.x + alloc.width and alloc.y <= y < alloc.y + alloc.height):
             self.manager.on_grid_unfocus()
 
     def _setup_breakpoints(self):
-        large_condition = Adw.BreakpointCondition.parse(
-            "min-width: 750px and min-height: 750px"
-        )
-        large_condition = Adw.Breakpoint.new(large_condition)
-        large_condition.connect("apply", lambda bp, *_: self._apply_large(True))
-        large_condition.connect("unapply", lambda bp, *_: self._apply_large(False))
-        self.add_breakpoint(large_condition)
+        def bp(cond, apply_cb, unapply_cb):
+            bp = Adw.Breakpoint.new(Adw.BreakpointCondition.parse(cond))
+            bp.connect("apply", lambda *_: apply_cb(True))
+            bp.connect("unapply", lambda *_: unapply_cb(False))
+            self.add_breakpoint(bp)
 
-        compact_condition = Adw.BreakpointCondition.parse(
-            "max-width: 650px or max-height:700px"
-        )
-        compact_bp = Adw.Breakpoint.new(compact_condition)
-        compact_bp.name = "compact-width"
-        compact_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "compact"))
-        compact_bp.connect(
-            "unapply", lambda bp, *_: self._apply_compact(False, "compact")
-        )
-        self.add_breakpoint(compact_bp)
+        bp("min-width: 750px and min-height: 750px", self._apply_large, self._apply_large)
+        bp("max-width: 650px or max-height:700px", 
+           lambda c: self._apply_compact(c, "compact"), 
+           lambda c: self._apply_compact(c, "compact"))
+        bp("max-width: 400px or max-height:400px", 
+           lambda c: self._apply_compact(c, "small"), 
+           lambda c: self._apply_compact(c, "small"))
 
-        small_condition = Adw.BreakpointCondition.parse(
-            "max-width: 400px or max-height:400px"
-        )
-        small_bp = Adw.Breakpoint.new(small_condition)
-        small_bp.name = "compact-height"
-        small_bp.connect("apply", lambda bp, *_: self._apply_compact(True, "small"))
-        small_bp.connect("unapply", lambda bp, *_: self._apply_compact(False, "small"))
-        self.add_breakpoint(small_bp)
+    def _apply_large(self, large):
+        (self.bp_bin or self).set_css_class("large", large)
 
-    def _apply_large(self, large: bool):
-        css_class = "large"
+    def _apply_compact(self, compact, mode):
         target = self.bp_bin or self
-        if large:
-            target.add_css_class(css_class)
-        else:
-            target.remove_css_class(css_class)
-
-    def _apply_compact(self, compact: bool, mode):
         css_class = f"{mode}-mode"
-        target = self.bp_bin or self
         if compact:
             target.add_css_class(css_class)
         else:
             target.remove_css_class(css_class)
 
-        parent_spacing = 8 if compact else 10
-        block_spacing = 2 if compact else 4
         if not self.manager or not self.manager.parent_grid:
             return
 
+        parent_spacing, block_spacing = (8, 2) if compact else (10, 4)
         self.manager.parent_grid.set_row_spacing(parent_spacing)
         self.manager.parent_grid.set_column_spacing(parent_spacing)
 
@@ -236,24 +195,36 @@ class SudokuWindow(Adw.ApplicationWindow):
                 block.set_row_spacing(block_spacing)
                 block.set_column_spacing(block_spacing)
 
-        for r in range(9):
-            for c in range(9):
-                cell = self.manager.cell_inputs[r][c]
+        for row in self.manager.cell_inputs:
+            for cell in row:
                 if cell:
                     cell.set_compact(compact)
 
-    def on_back_to_menu(self, action, param):
+    def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.sudoku_window_title.set_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
         PreferencesManager.set_preferences(None)
-        self.lookup_action("show-preferences").set_enabled(False)
+        self._update_preferences_visibility(False)
 
     def _on_pencil_toggled_button(self, button):
         if self.manager:
             self.manager.on_pencil_toggled(button)
 
-    def _on_pencil_toggled_action(self, action, param):
-        current = self.pencil_toggle_button.get_active()
-        self.pencil_toggle_button.set_active(not current)
+    def _on_pencil_toggled_action(self, *_):
+        self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
+
+    def _build_primary_menu(self, show_preferences=True):
+        menu, section = Gio.Menu(), Gio.Menu()
+        section.append(_("Keyboard Shortcuts"), "win.show-help-overlay")
+        if show_preferences:
+            section.append(_("Preferences"), "win.show-preferences")
+        for label, action in [
+            (_("How To Play"), "app.how_to_play"),
+            (_("About"), "app.about"),
+            (_("Quit"), "app.quit"),
+        ]:
+            section.append(label, action)
+        menu.append_section(None, section)
+        self.primary_menu_button.set_menu_model(menu)
