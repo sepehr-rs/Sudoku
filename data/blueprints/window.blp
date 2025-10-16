@@ -21,7 +21,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
       [start]
       Button home_button {
-        icon-name: "user-home-symbolic";
+        icon-name: "back-symbolic";
         tooltip-text: _("Back to main menu");
         action-name: "win.back-to-menu";
       }
@@ -29,13 +29,12 @@ template $SudokuWindow: Adw.ApplicationWindow {
       [end]
       MenuButton primary_menu_button {
         icon-name: "open-menu-symbolic";
-        menu-model: main_menu;
         tooltip-text: _("Menu");
       }
 
       [end]
       ToggleButton pencil_toggle_button {
-        icon-name: "pencil-symbolic";
+        icon-name: "document-edit-symbolic";
         tooltip-text: _("Toggle Pencil Mode");
       }
     }
@@ -52,6 +51,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
           child: Adw.StatusPage main_menu_status_page {
             icon-name: "io.github.sepehr_rs.Sudoku";
             title: _("Play Sudoku");
+
             Box menu_box {
               orientation: vertical;
               spacing: 12;
@@ -105,38 +105,4 @@ template $SudokuWindow: Adw.ApplicationWindow {
       };
     };
   };
-}
-
-menu main_menu {
-  section {
-    item {
-      label: _("_Keyboard Shortcuts");
-      action: "win.show-help-overlay";
-      tooltip-text: _("Keyboard shortcuts");
-    }
-
-    item {
-      label: _("_Preferences");
-      action: "win.show-preferences";
-      tooltip-text: _("Preferences");
-    }
-
-    item {
-      label: _("How to play");
-      action: "app.how_to_play";
-      tooltip-text: _("How to play");
-    }
-
-    item {
-      label: _("_About");
-      action: "app.about";
-      tooltip-text: _("About");
-    }
-
-    item {
-      label: _("_Quit");
-      action: "app.quit";
-      tooltip-text: _("Quit");
-    }
-  }
 }
