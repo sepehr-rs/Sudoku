@@ -29,7 +29,8 @@ from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
 from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
 from .base.preferences_manager import PreferencesManager
-import os, json
+import os
+import json
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
