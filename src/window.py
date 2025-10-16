@@ -19,11 +19,10 @@
 
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
-from .screens.difficulty_selection_dialog import DifficultySelectionDialog
+from .screens.game_setup_dialog import GameSetupDialog
 from .screens.help_overlay import HelpOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401 Used in Blueprint
 from .screens.loading_screen import LoadingScreen  # noqa: F401 Used in Blueprint
-from .screens.variant_selection_dialog import VariantSelectionDialog
 from .screens.preferences_dialog import PreferencesDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
 from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
@@ -57,7 +56,6 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         # Initialize the manager (replaces GameManager/GameBoard)
         self.manager = None
-        self.selected_variant = None
 
         # Primary menu and help actions
         for name, callback in [
@@ -122,38 +120,38 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._setup_ui()
 
     def on_new_game_clicked(self, button):
-        self._show_variant_dialog()
+        self._show_game_setup_dialog()
 
-    def _show_variant_dialog(self):
-        dialog = VariantSelectionDialog(on_select=self.on_variant_selected)
+    def _show_game_setup_dialog(self):
+        dialog = GameSetupDialog(on_select=self.on_game_setup_selected)
         dialog.present(self)
 
-    def on_variant_selected(self, variant_name: str):
+    def on_game_setup_selected(self, variant_name: str, difficulty: float):
+        """Initialize the manager based on the selected variant and difficulty."""
         self.selected_variant = variant_name
-        self._show_difficulty_dialog()
-
-    def _show_difficulty_dialog(self):
-        dialog = DifficultySelectionDialog(on_select=self.on_difficulty_selected)
-        dialog.present(self)
-
-    def on_difficulty_selected(self, difficulty: float, difficulty_label: str):
-        """Initialize the manager based on variant and start game."""
-
-        if self.selected_variant == "classic":
+        if variant_name == "classic":
             self.manager = ClassicSudokuManager(self)
             PreferencesManager.set_preferences(ClassicSudokuPreferences())
-        elif self.selected_variant == "diagonal":
+        elif variant_name == "diagonal":
             self.manager = DiagonalSudokuManager(self)
             PreferencesManager.set_preferences(DiagonalSudokuPreferences())
         else:
-            raise ValueError(f"Unknown Sudoku variant: {self.selected_variant}")
+            raise ValueError(f"Unknown Sudoku variant: {variant_name}")
+
+        label_map = {
+            0.2: _("Easy"),
+            0.5: _("Medium"),
+            0.7: _("Hard"),
+            0.9: _("Extreme"),
+        }
+        difficulty_label = label_map.get(difficulty, str(difficulty))
 
         self.sudoku_window_title.set_subtitle(
-            f"{self.selected_variant.capitalize()} - {difficulty_label}"
+            f"{variant_name.capitalize()} - {difficulty_label}"
         )
 
         self._setup_ui()
-        self.manager.start_game(difficulty, difficulty_label, self.selected_variant)
+        self.manager.start_game(difficulty, difficulty_label, variant_name)
 
     def on_show_primary_menu(self, action, param):
         self.primary_menu_button.popup()
