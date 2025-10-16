@@ -82,7 +82,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
         self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.set_tooltip_text(_("New Game"))
-        self.continue_button.set_visible(os.path.exists("savess/board.json"))
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.home_button.set_visible(False)
 
     def _update_preferences_visibility(self, visible: bool):
