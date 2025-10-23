@@ -54,7 +54,7 @@ class DifficultySelectionDialog(Adw.Dialog):
             button = Adw.ButtonRow(title=label_text)
             button.add_css_class("text-button")
             button.set_tooltip_text(
-                _("Start new game with {} difficulty").format(label_text.lower())
+                _("Start New Game With {} Difficulty").format(label_text.lower())
             )
             button.connect(
                 "activated",

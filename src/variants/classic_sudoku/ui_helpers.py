@@ -156,7 +156,7 @@ class ClassicUIHelpers(UIHelpers):
         clear_button = Gtk.Button(label=_("Clear"))
         clear_button.set_size_request(-1, 40)
         clear_button.set_hexpand(True)
-        clear_button.set_tooltip_text(_("Clear cell (Del/Backspace)"))
+        clear_button.set_tooltip_text(_("Clear Cell (Del/Backspace)"))
         clear_button.connect("clicked", on_clear_selected, cell, popover)
         button_box.append(clear_button)
 
@@ -164,7 +164,7 @@ class ClassicUIHelpers(UIHelpers):
             done_button = Gtk.Button(label=_("Done"))
             done_button.set_size_request(-1, 40)
             done_button.set_hexpand(True)
-            done_button.set_tooltip_text(_("Finish editing cell"))
+            done_button.set_tooltip_text(_("Finish Editing Cell"))
             done_button.connect("clicked", lambda _: popover.popdown())
             button_box.append(done_button)
 

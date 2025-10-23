@@ -46,7 +46,7 @@ class VariantSelectionDialog(Adw.Dialog):
         for label_text, variant_value in variants:
             button = Adw.ButtonRow(title=label_text)
             button.add_css_class("text-button")
-            button.set_tooltip_text(_("Start new {} game").format(label_text.lower()))
+            button.set_tooltip_text(_("Start New {} Game").format(label_text.lower()))
             button.connect(
                 "activated",
                 partial(self._on_button_clicked, on_select, variant_value, label_text),
