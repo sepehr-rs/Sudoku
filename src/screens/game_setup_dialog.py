@@ -63,13 +63,13 @@ class GameSetupDialog(Adw.Dialog):
             self._create_radio_list(lst, items, group, default)
 
         add_section(
-            _("Select Variant"),
+            _("Variant"),
             [(_("Classic Sudoku"), "classic"), (_("Diagonal Sudoku"), "diagonal")],
             "variant",
             "classic",
         )
         add_section(
-            _("Select Difficulty"),
+            _("Difficulty"),
             [
                 (_("Easy"), EASY_DIFFICULTY),
                 (_("Medium"), MEDIUM_DIFFICULTY),
@@ -82,6 +82,9 @@ class GameSetupDialog(Adw.Dialog):
 
         btn = Gtk.Button(label=_("Start Game"))
         btn.add_css_class("pill")
+        btn.add_css_class("suggested-action")
+        btn.set_halign(Gtk.Align.CENTER)
+        btn.set_hexpand(False)
         btn.connect("clicked", self._on_confirm_clicked)
         main_box.append(btn)
         self.set_child(toolbar_view)
@@ -100,7 +103,7 @@ class GameSetupDialog(Adw.Dialog):
                 btn.set_active(True)
             btn.connect("toggled", self._on_radio_toggled, group_name, value)
             row = Adw.ActionRow(title=label)
-            row.add_suffix(btn)
+            row.add_prefix(btn)
             row.connect("activated", lambda _r, b=btn: b.set_active(True))
             row.set_activatable_widget(btn)
             listbox.append(row)

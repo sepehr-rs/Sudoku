@@ -47,7 +47,7 @@ class ClassicSudokuManager(ManagerBase):
 
     def _on_game_ready(self):
         self.build_grid()
-        self.window.stack.set_visible_child(self.window.game_view_box)
+        self.window.stack.set_visible_child(self.window.game_scrolled_window)
         return False
 
     def load_saved_game(self):
@@ -58,7 +58,7 @@ class ClassicSudokuManager(ManagerBase):
             )
             self.build_grid()
             self._restore_game_state()
-            self.window.stack.set_visible_child(self.window.game_view_box)
+            self.window.stack.set_visible_child(self.window.game_scrolled_window)
             logging.info("Loaded saved Classic Sudoku game")
             if self.board.is_solved():
                 self._show_puzzle_finished_dialog()

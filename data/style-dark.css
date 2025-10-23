@@ -1,64 +1,64 @@
 .sudoku-main-window {
-    background-color: #5a3a29;
+    background-color: #553525;
 }
 
 #sudoku-parent-grid button {
-    background-color: rgba(224, 198, 163, 0.18);
+    background-color: rgba(236, 210, 180, 0.25);
 }
 
 #sudoku-parent-grid button.toggle-active {
-    background-color: #e0c6a3;
-    box-shadow: 0 0 12px #e0c6a355;
+    background-color: #e8cfae;
+    box-shadow: 0 0 12px #e8cfae55;
 }
 
 #sudoku-parent-grid button:hover {
-    background-color: rgba(224, 198, 163, 0.28);
+    background-color: rgba(236, 210, 180, 0.35);
 }
 
 #sudoku-parent-grid button:checked {
-    background-color: #e0c6a3;
+    background-color: #e8cfae;
 }
 
 #sudoku-parent-grid button.entry-cell.highlight,
 #sudoku-parent-grid button.clue-cell.highlight {
-    background-color: #897266;
-    box-shadow: 0 0 12px #d2a56d28;
+    background-color: #9b7f72;
+    box-shadow: 0 0 12px #e0c6a333;
     transition: background-color 0.3s ease-in-out;
 }
 
 #sudoku-parent-grid button.entry-cell.correct {
-    background-color: rgba(136, 163, 108, 0.45);
+    background-color: rgba(150, 190, 110, 0.50);
 }
 
 #sudoku-parent-grid button.entry-cell.wrong {
-    background-color: rgba(210, 120, 95, 0.52);
+    background-color: rgba(220, 130, 100, 0.55);
 }
 
 #sudoku-parent-grid button.entry-cell.correct.highlight {
-    background-color: rgba(168, 192, 128, 0.42);
+    background-color: rgba(172, 206, 126, 0.55);
 }
 
 #sudoku-parent-grid button.entry-cell.wrong.highlight {
-    background-color: rgba(226, 140, 110, 0.66);
+    background-color: rgba(236, 146, 116, 0.68);
 }
 
 #sudoku-parent-grid button.conflict {
-    background-color: rgba(210, 120, 95, 0.42);
+    background-color: rgba(220, 130, 100, 0.48);
 }
 
 @keyframes pulse {
-    20% { background-color: rgba(226, 140, 110, 0.66); }
-    80% { background-color: rgba(226, 140, 110, 0.66); }
+    20% { background-color: rgba(236, 146, 116, 0.68); }
+    80% { background-color: rgba(236, 146, 116, 0.68); }
 }
 
 .entry-cell {
-    color: rgba(240, 230, 219, 1);
+    color: rgba(252, 244, 235, 1);
 }
 
 .clue-cell {
-    color: rgba(240, 230, 219, 0.65);
+    color: rgba(252, 244, 235, 0.72);
 }
 
 .note-cell-label {
-    color: #d9c3ae;
+    color: #ebd6c0;
 }
