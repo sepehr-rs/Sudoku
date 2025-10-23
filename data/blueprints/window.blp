@@ -27,15 +27,15 @@ template $SudokuWindow: Adw.ApplicationWindow {
       }
 
       [end]
-      MenuButton primary_menu_button {
-        icon-name: "open-menu-symbolic";
-        tooltip-text: _("Menu");
-      }
-
-      [end]
       ToggleButton pencil_toggle_button {
         icon-name: "document-edit-symbolic";
         tooltip-text: _("Toggle Pencil Mode");
+      }
+
+      [end]
+      MenuButton primary_menu_button {
+        icon-name: "open-menu-symbolic";
+        tooltip-text: _("Menu");
       }
     }
 
@@ -79,21 +79,16 @@ template $SudokuWindow: Adw.ApplicationWindow {
           };
         }
 
-        Adw.Clamp game_view_box {
-          maximum-size: 950;
-          tightening-threshold: 0;
+        ScrolledWindow game_scrolled_window {
+          hscrollbar-policy: never;
+          vscrollbar-policy: automatic;
+          hexpand: true;
+          vexpand: true;
 
-          child: ScrolledWindow game_scrolled_window {
-            hscrollbar-policy: never;
-            vscrollbar-policy: automatic;
+          child: Box grid_container {
+            orientation: vertical;
             hexpand: true;
             vexpand: true;
-
-            child: Box grid_container {
-              orientation: vertical;
-              hexpand: true;
-              vexpand: true;
-            };
           };
         }
 
