@@ -4,13 +4,11 @@
 
 statuspage image {
     -gtk-icon-size: 256px;
+    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.7));
 }
 
 #sudoku-parent-grid {
-    background-color: rgba(247, 233, 213, 0.22);
     padding: 50px;
-    border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #sudoku-parent-grid button {
@@ -91,23 +89,21 @@ statuspage image {
 
 .large .note-cell-label {
     font-size: 15px;
-    padding: 0.1px;
+    padding: 3px;
 }
 
 
 .compact-mode #sudoku-parent-grid {
-    padding: 10px; /* shrink board padding */
     border-radius: 6px;
 }
 
 .compact-mode  .entry-cell,
 .compact-mode  .clue-cell {
-    font-size: 16px;
+    font-size: 20px;
 }
 
 .compact-mode .note-cell-label {
-    font-size: 5px;
-    padding: 0.01px;
+    font-size: 12px;
 }
 
 .small-mode #sudoku-parent-grid {
@@ -115,18 +111,12 @@ statuspage image {
     border-radius: 6px;
 }
 
-.small-mode .sudoku-cell-button {
-    min-width: 5px;
-    min-height: 5px;
-}
-
 .small-mode  .entry-cell,
 .small-mode .clue-cell {
-    font-size: 12px;
+    font-size: 17px;
 }
 
 .small-mode .note-cell-label {
-    font-size: 3px;
-    padding: 0.1px;
+    font-size: 8px;
 }
 

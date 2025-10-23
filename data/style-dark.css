@@ -2,11 +2,6 @@
     background-color: #5a3a29;
 }
 
-#sudoku-parent-grid {
-    background-color: #00000040;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 #sudoku-parent-grid button {
     background-color: rgba(224, 198, 163, 0.18);
 }

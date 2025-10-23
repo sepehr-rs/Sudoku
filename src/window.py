@@ -50,6 +50,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     sudoku_window_title = Gtk.Template.Child()
     home_button = Gtk.Template.Child()
     bp_bin = Gtk.Template.Child()
+    game_scrolled_window = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -175,8 +176,8 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         bp(
             "min-width: 750px and min-height: 750px",
-            self._apply_large,
-            self._apply_large,
+            lambda large: self._apply_large(large),
+            lambda large: self._apply_large(large),
         )
         bp(
             "max-width: 650px or max-height:700px",
@@ -184,17 +185,21 @@ class SudokuWindow(Adw.ApplicationWindow):
             lambda c: self._apply_compact(c, "compact"),
         )
         bp(
-            "max-width: 400px or max-height:400px",
+            "max-width: 550px or max-height:550px",
             lambda c: self._apply_compact(c, "small"),
             lambda c: self._apply_compact(c, "small"),
         )
 
     def _apply_large(self, large):
-        (self.bp_bin or self).set_css_class("large", large)
+        if large:
+            self.bp_bin.add_css_class("large")
+        else:
+            self.bp_bin.remove_css_class("large")
 
     def _apply_compact(self, compact, mode):
         target = self.bp_bin or self
         css_class = f"{mode}-mode"
+        print(f"mode => {mode} comapct => {compact}")
         if compact:
             target.add_css_class(css_class)
         else:
@@ -216,6 +221,11 @@ class SudokuWindow(Adw.ApplicationWindow):
             for cell in row:
                 if cell:
                     cell.set_compact(compact)
+
+        scrolled = self.game_scrolled_window
+        if scrolled:
+            scrolled.set_vexpand(True)
+            scrolled.set_hexpand(True)
 
     def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists("saves/board.json"))

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, Adw
 from gettext import gettext as _
@@ -31,7 +30,7 @@ class GameSetupDialog(Adw.Dialog):
         super().__init__(**kwargs)
         self.set_title(_("New Game"))
         self.set_content_width(380)
-        self.set_content_height(600)
+        self.set_content_height(610)
 
         self.on_select = on_select
         self.selected_variant = "classic"
@@ -39,8 +38,7 @@ class GameSetupDialog(Adw.Dialog):
         self._radio_groups = {}
 
         toolbar_view = Adw.ToolbarView.new()
-        header = Adw.HeaderBar()
-        toolbar_view.add_top_bar(header)
+        toolbar_view.add_top_bar(Adw.HeaderBar())
 
         main_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
@@ -50,81 +48,68 @@ class GameSetupDialog(Adw.Dialog):
             margin_end=12,
             margin_bottom=12,
         )
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scrolled_window.set_child(main_box)
-        toolbar_view.set_content(scrolled_window)
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scroll.set_child(main_box)
+        toolbar_view.set_content(scroll)
 
-        variant_label = Gtk.Label(label=_("Select Variant"), xalign=0)
-        variant_label.add_css_class("title-4")
-        main_box.append(variant_label)
+        def add_section(label_text, items, group, default):
+            label = Gtk.Label(label=label_text, xalign=0)
+            label.add_css_class("title-3")
+            main_box.append(label)
+            lst = Gtk.ListBox()
+            lst.add_css_class("boxed-list-separate")
+            main_box.append(lst)
+            self._create_radio_list(lst, items, group, default)
 
-        variant_group_box = Gtk.ListBox()
-        variant_group_box.add_css_class("boxed-list-separate")
-        main_box.append(variant_group_box)
-
-        self._create_radio_group(
-            variant_group_box,
-            items=[
-                (_("Classic Sudoku"), "classic"),
-                (_("Diagonal Sudoku"), "diagonal"),
-            ],
-            group_name="variant",
-            default="classic",
+        add_section(
+            _("Select Variant"),
+            [(_("Classic Sudoku"), "classic"), (_("Diagonal Sudoku"), "diagonal")],
+            "variant",
+            "classic",
         )
-
-        difficulty_label = Gtk.Label(label=_("Select Difficulty"), xalign=0)
-        difficulty_label.add_css_class("title-4")
-        main_box.append(difficulty_label)
-
-        difficulty_group_box = Gtk.ListBox()
-        difficulty_group_box.add_css_class("boxed-list-separate")
-        main_box.append(difficulty_group_box)
-
-        self._create_radio_group(
-            difficulty_group_box,
-            items=[
+        add_section(
+            _("Select Difficulty"),
+            [
                 (_("Easy"), EASY_DIFFICULTY),
                 (_("Medium"), MEDIUM_DIFFICULTY),
                 (_("Hard"), HARD_DIFFICULTY),
                 (_("Extreme"), EXTREME_DIFFICULTY),
             ],
-            group_name="difficulty",
-            default=MEDIUM_DIFFICULTY,
+            "difficulty",
+            MEDIUM_DIFFICULTY,
         )
 
-        confirm_button = Gtk.Button(label=_("Start Game"))
-        confirm_button.add_css_class("suggested-action")
-        confirm_button.connect("clicked", self._on_confirm_clicked)
-        main_box.append(confirm_button)
-
+        btn = Gtk.Button(label=_("Start Game"))
+        btn.add_css_class("pill")
+        btn.connect("clicked", self._on_confirm_clicked)
+        main_box.append(btn)
         self.set_child(toolbar_view)
 
-    def _create_radio_group(self, listbox, items, group_name, default=None):
+    def _create_radio_list(self, listbox, items, group_name, default=None):
         self._radio_groups[group_name] = []
-
+        group = None
         for label, value in items:
             btn = Gtk.CheckButton()
+            btn.add_css_class("radio")
+            if group:
+                btn.set_group(group)
+            else:
+                group = btn
             if value == default:
                 btn.set_active(True)
             btn.connect("toggled", self._on_radio_toggled, group_name, value)
             row = Adw.ActionRow(title=label)
             row.add_suffix(btn)
+            row.connect("activated", lambda _r, b=btn: b.set_active(True))
             row.set_activatable_widget(btn)
             listbox.append(row)
             self._radio_groups[group_name].append(btn)
 
     def _on_radio_toggled(self, button, group_name, value):
         if button.get_active():
-            for b in self._radio_groups[group_name]:
-                if b != button:
-                    b.set_active(False)
+            setattr(self, f"selected_{group_name}", value)
 
-            if group_name == "variant":
-                self.selected_variant = value
-            else:
-                self.selected_difficulty = value
-
-    def _on_confirm_clicked(self, button):
+    def _on_confirm_clicked(self, _):
         self.on_select(self.selected_variant, self.selected_difficulty)
         self.close()
