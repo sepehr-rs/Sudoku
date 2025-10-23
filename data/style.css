@@ -1,5 +1,5 @@
 .sudoku-main-window {
-    background-color: #d2a56d;
+    background-color: #e2b97d;
 }
 
 statuspage image {
@@ -12,29 +12,29 @@ statuspage image {
 }
 
 #sudoku-parent-grid button {
-    background-color: rgba(247, 233, 213, 0.45);
+    background-color: rgba(255, 245, 230, 0.6);
 }
 
 #sudoku-parent-grid button.toggle-active {
-    background-color: #f1e2c8;
-    box-shadow: 0 0 10px #d2a56d88;
+    background-color: #f9eed7;
+    box-shadow: 0 0 10px #d2a56d66;
 }
 
 #sudoku-parent-grid button:hover {
-    background-color: rgba(247, 233, 213, 0.70);
+    background-color: rgba(255, 245, 230, 0.85);
 }
 
 #sudoku-parent-grid button:checked {
-    background-color: #f1e2c8;
+    background-color: #f9eed7;
 }
 
 .entry-cell {
-    color: rgba(34, 26, 21,1);
+    color: rgba(28, 20, 15, 0.95);
     font-size: 20px;
 }
 
 .clue-cell {
-    color: rgba(34, 26, 21, 0.60);
+    color: rgba(28, 20, 15, 0.65);
     font-size: 20px;
 }
 
@@ -44,42 +44,43 @@ statuspage image {
 }
 
 #sudoku-parent-grid button.entry-cell.correct {
-    background-color: rgba(158, 188, 62, 0.52);
+    background-color: rgba(168, 208, 78, 0.55);
     transition: background-color 0.3s ease-in-out;
 }
 
 #sudoku-parent-grid button.entry-cell.wrong {
-    background-color: rgba(206, 106, 64, 0.50);
+    background-color: rgba(226, 116, 74, 0.55);
 }
 
 #sudoku-parent-grid button.entry-cell.correct.highlight {
-    background-color: rgba(180, 206, 80, 0.64);
+    background-color: rgba(190, 220, 90, 0.68);
 }
 
 #sudoku-parent-grid button.entry-cell.wrong.highlight {
-    background-color: rgba(226, 126, 86, 0.64);
+    background-color: rgba(236, 136, 96, 0.68);
 }
 
 #sudoku-parent-grid button.conflict {
-    background-color: rgba(206, 106, 64, 0.40);
+    background-color: rgba(226, 116, 74, 0.45);
     animation: pulse 3s;
 }
 
 #sudoku-parent-grid button.entry-cell.highlight,
 #sudoku-parent-grid button.clue-cell.highlight {
-    background-color: #f7ecd8;
+    background-color: #fff5e3;
     box-shadow: 0 0 10px #d2a56d79;
     transition: background-color 0.3s ease-in-out;
 }
 
 @keyframes pulse {
-    20% { background-color: rgba(226, 126, 86, 0.64); }
-    80% { background-color: rgba(226, 126, 86, 0.64); }
+    20% { background-color: rgba(236, 136, 96, 0.68); }
+    80% { background-color: rgba(236, 136, 96, 0.68); }
 }
 
 .note-cell-label {
     font-size: 11px;
     padding: 0.8px;
+    color: rgba(28, 20, 15, 0.75);
 }
 
 .large  .entry-cell,
