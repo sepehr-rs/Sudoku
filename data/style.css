@@ -105,6 +105,7 @@ statuspage image {
 
 .compact-mode .note-cell-label {
     font-size: 12px;
+    padding: 0.4px;
 }
 
 .small-mode #sudoku-parent-grid {
@@ -118,6 +119,7 @@ statuspage image {
 }
 
 .small-mode .note-cell-label {
-    font-size: 8px;
+    font-size: 7px;
+    padding: 0.2px;
 }
 
