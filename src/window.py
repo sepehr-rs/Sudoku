@@ -175,8 +175,8 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         bp(
             "min-width: 750px and min-height: 750px",
-            self._apply_large,
-            self._apply_large,
+            lambda large: self._apply_large(large),
+            lambda large: self._apply_large(large),
         )
         bp(
             "max-width: 650px or max-height:700px",
@@ -190,7 +190,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         )
 
     def _apply_large(self, large):
-        (self.bp_bin or self).set_css_class("large", large)
+        if large:
+            self.bp_bin.add_css_class("large")
+        else:
+            self.bp_bin.remove_css_class("large")
 
     def _apply_compact(self, compact, mode):
         target = self.bp_bin or self

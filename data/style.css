@@ -8,10 +8,7 @@ statuspage image {
 }
 
 #sudoku-parent-grid {
-    background-color: rgba(247, 233, 213, 0.22);
     padding: 50px;
-    border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #sudoku-parent-grid button {
