@@ -225,6 +225,19 @@ class SudokuWindow(Adw.ApplicationWindow):
         if scrolled:
             scrolled.set_vexpand(True)
             scrolled.set_hexpand(True)
+        grid_container = self.grid_container
+        grid_container.set_hexpand(True)
+        grid_container.set_vexpand(True)
+        self.bp_bin.set_hexpand(True)
+        self.bp_bin.set_vexpand(True)
+        self.bp_bin.set_halign(Gtk.Align.FILL)
+        self.bp_bin.set_valign(Gtk.Align.FILL)
+
+        self.stack.set_hexpand(True)
+        self.stack.set_vexpand(True)
+        self.stack.set_halign(Gtk.Align.FILL)
+        self.stack.set_valign(Gtk.Align.FILL)
+
 
     def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists("saves/board.json"))
