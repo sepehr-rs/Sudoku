@@ -175,17 +175,17 @@ class ClassicSudokuManager(ManagerBase):
 
     def _reapply_compact_mode(self):
         """Reapply compact layout mode if needed."""
-        width_mode_active, height_mode_active = False, False
+        compact_mode_active, small_mode_active = False, False
         bp = getattr(self.window, "bp_bin", None)
 
-        if bp and bp.get_style_context().has_class("width-compact"):
-            width_mode_active = True
-        if bp and bp.get_style_context().has_class("height-compact"):
-            height_mode_active = True
+        if bp and bp.get_style_context().has_class("compact-mode"):
+            compact_mode_active = True
+        if bp and bp.get_style_context().has_class("small-mode"):
+            small_mode_active = True
 
         self.window._apply_compact(
-            any([width_mode_active, height_mode_active]),
-            "width" if width_mode_active else "height",
+            any([compact_mode_active, small_mode_active]),
+            "compact" if compact_mode_active else "small",
         )
 
     def _focus_cell(self, row: int, col: int):
