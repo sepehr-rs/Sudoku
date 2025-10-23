@@ -238,7 +238,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.set_halign(Gtk.Align.FILL)
         self.stack.set_valign(Gtk.Align.FILL)
 
-
     def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.sudoku_window_title.set_subtitle("")
