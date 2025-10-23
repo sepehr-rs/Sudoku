@@ -92,9 +92,12 @@ class GameSetupDialog(Adw.Dialog):
         for label, value in items:
             btn = Gtk.CheckButton()
             btn.add_css_class("radio")
-            if group: btn.set_group(group)
-            else: group = btn
-            if value == default: btn.set_active(True)
+            if group:
+                btn.set_group(group)
+            else:
+                group = btn
+            if value == default:
+                btn.set_active(True)
             btn.connect("toggled", self._on_radio_toggled, group_name, value)
             row = Adw.ActionRow(title=label)
             row.add_suffix(btn)
