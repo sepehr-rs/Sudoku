@@ -81,21 +81,19 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
         Adw.Clamp game_view_box {
           maximum-size: 950;
-          tightening-threshold: 300;
+          tightening-threshold: 0;
 
-          child: Box {
-            orientation: vertical;
-            halign: fill;
-            valign: fill;
+          child: ScrolledWindow game_scrolled_window {
+            hscrollbar-policy: never;
+            vscrollbar-policy: automatic;
             hexpand: true;
             vexpand: true;
-            spacing: 12;
 
-            Box grid_container {
+            child: Box grid_container {
               orientation: vertical;
               hexpand: true;
               vexpand: true;
-            }
+            };
           };
         }
 

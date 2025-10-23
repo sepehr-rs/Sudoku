@@ -56,10 +56,6 @@ class SudokuCell(Gtk.Button):
 
         overlay = self._create_overlay(self.main_label, self.notes_grid)
         self.set_child(overlay)
-        self.set_hexpand(True)
-        self.set_vexpand(True)
-        self.set_halign(Gtk.Align.FILL)
-        self.set_valign(Gtk.Align.FILL)
         self.set_focus_on_click(False)
         self.set_can_focus(True)
         self.get_style_context().add_class("sudoku-cell-button")
@@ -70,26 +66,27 @@ class SudokuCell(Gtk.Button):
             yalign=0.5,
             halign=Gtk.Align.CENTER,
             valign=Gtk.Align.CENTER,
-            hexpand=False,
-            vexpand=False,
+            hexpand=True,
+            vexpand=True,
         )
 
     def _create_notes_grid(self):
-        return Gtk.Grid(
+        grid = Gtk.Grid(
             row_spacing=0,
             column_spacing=0,
             column_homogeneous=True,
             row_homogeneous=True,
-            hexpand=False,
-            vexpand=False,
-            halign=Gtk.Align.FILL,
-            valign=Gtk.Align.FILL,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
         )
+        return grid
 
     def _create_overlay(self, main_label, notes_grid):
         overlay = Gtk.Overlay()
         overlay.set_child(main_label)
         overlay.add_overlay(notes_grid)
+        overlay.set_halign(Gtk.Align.FILL)
+        overlay.set_valign(Gtk.Align.FILL)
         return overlay
 
     def _setup_initial_state(self, value: str):
@@ -120,21 +117,16 @@ class SudokuCell(Gtk.Button):
         for child in list(self.notes_grid):
             self.notes_grid.remove(child)
         self.note_labels.clear()
-        # If cell has a main value, don't show notes
         if not notes or self.main_label.get_text():
             return
         sorted_notes = sorted(notes, key=int)
-        size = 4 if self.compact_mode else 12
         for n in sorted_notes:
             note_label = Gtk.Label(label=n)
             note_label.get_style_context().add_class("note-cell-label")
-
-            # Enforce fixed small size on each note label to avoid resizing cell
+            size = max(8, 12 if not self.compact_mode else 8)
             note_label.set_size_request(size, size)
-            note_label.set_hexpand(False)
-            note_label.set_vexpand(False)
-            note_label.set_halign(Gtk.Align.FILL)
-            note_label.set_valign(Gtk.Align.FILL)
+            note_label.set_halign(Gtk.Align.CENTER)
+            note_label.set_valign(Gtk.Align.CENTER)
 
             self.note_labels[n] = note_label
 
@@ -151,8 +143,6 @@ class SudokuCell(Gtk.Button):
         if self.main_label.get_text():
             for label in self.note_labels.values():
                 label.set_text("")
-        self.notes_grid.set_halign(Gtk.Align.FILL)
-        self.notes_grid.set_valign(Gtk.Align.FILL)
 
     def set_compact(self, compact: bool):
         if self.compact_mode != compact:
