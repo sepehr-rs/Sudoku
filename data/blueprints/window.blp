@@ -7,8 +7,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
   ]
 
   title: _("Sudoku");
-  default-width: 730;
-  default-height: 790;
+  default-width: 710;
+  default-height: 810;
   width-request: 360;
   height-request: 420;
 
@@ -47,6 +47,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
         ScrolledWindow main_menu_box {
           hscrollbar-policy: never;
           vscrollbar-policy: never;
+          hexpand: true;
+          vexpand: true;
 
           child: Adw.StatusPage main_menu_status_page {
             Box menu_box {
@@ -60,6 +62,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
                 pixel-size: 256;
                 halign: center;
                 valign: center;
+
                 styles [
                   "icon-dropshadow",
                 ]
@@ -87,7 +90,7 @@ template $SudokuWindow: Adw.ApplicationWindow {
         }
 
         ScrolledWindow game_scrolled_window {
-          hscrollbar-policy: never;
+          hscrollbar-policy: automatic;
           vscrollbar-policy: automatic;
           hexpand: true;
           vexpand: true;
