@@ -49,14 +49,21 @@ template $SudokuWindow: Adw.ApplicationWindow {
           vscrollbar-policy: never;
 
           child: Adw.StatusPage main_menu_status_page {
-            icon-name: "io.github.sepehr_rs.Sudoku";
-            title: _("Play Sudoku");
-
             Box menu_box {
               orientation: vertical;
               spacing: 12;
               halign: center;
               valign: center;
+
+              Image main_menu_icon {
+                icon-name: "io.github.sepehr_rs.Sudoku";
+                pixel-size: 256;
+                halign: center;
+                valign: center;
+                styles [
+                  "icon-dropshadow",
+                ]
+              }
 
               Button continue_button {
                 label: _("_Continue Game");

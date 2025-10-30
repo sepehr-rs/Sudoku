@@ -2,11 +2,6 @@
     background-color: #e2b97d;
 }
 
-statuspage image {
-    -gtk-icon-size: 256px;
-    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.7));
-}
-
 #sudoku-parent-grid {
     padding: 50px;
 }
