@@ -99,12 +99,12 @@
 }
 
 .compact-mode .note-cell-label {
-    font-size: 12px;
+    font-size: 10px;
     padding: 0.4px;
 }
 
 .small-mode #sudoku-parent-grid {
-    padding: 10px; /* shrink board padding */
+    padding: 10px;
     border-radius: 6px;
 }
 
