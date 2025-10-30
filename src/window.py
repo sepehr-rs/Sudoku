@@ -41,7 +41,6 @@ class SudokuWindow(Adw.ApplicationWindow):
     continue_button = Gtk.Template.Child()
     new_game_button = Gtk.Template.Child()
     main_menu_box = Gtk.Template.Child()
-    game_view_box = Gtk.Template.Child()
     finished_page = Gtk.Template.Child()
     loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
@@ -226,6 +225,18 @@ class SudokuWindow(Adw.ApplicationWindow):
         if scrolled:
             scrolled.set_vexpand(True)
             scrolled.set_hexpand(True)
+        grid_container = self.grid_container
+        grid_container.set_hexpand(True)
+        grid_container.set_vexpand(True)
+        self.bp_bin.set_hexpand(True)
+        self.bp_bin.set_vexpand(True)
+        self.bp_bin.set_halign(Gtk.Align.FILL)
+        self.bp_bin.set_valign(Gtk.Align.FILL)
+
+        self.stack.set_hexpand(True)
+        self.stack.set_vexpand(True)
+        self.stack.set_halign(Gtk.Align.FILL)
+        self.stack.set_valign(Gtk.Align.FILL)
 
     def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists("saves/board.json"))

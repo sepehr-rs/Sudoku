@@ -14,6 +14,7 @@
     <file preprocess="xml-stripblanks">icons/scalable/actions/back-symbolic.svg</file>
   </gresource>
 
+
   <gresource prefix="/io/github/sepehr_rs/Sudoku/illustrations">
     <file preprocess="xml-stripblanks" alias="puzzle-complete-celebration.svg">illustrations/puzzle-complete-celebration.svg</file>
     <file preprocess="xml-stripblanks" alias="basics.svg">illustrations/basics.svg</file>
