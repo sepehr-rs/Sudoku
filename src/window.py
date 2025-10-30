@@ -174,7 +174,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.add_breakpoint(bp)
 
         bp(
-            "min-width: 750px and min-height: 750px",
+            "min-width: 800px and min-height: 800px",
             lambda large: self._apply_large(large),
             lambda large: self._apply_large(large),
         )
