@@ -1,21 +1,3 @@
-# game_setup_dialog.py
-#
-# Copyright 2025 sepehr-rs
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-
 from gi.repository import Gtk, Adw
 from gettext import gettext as _
 
@@ -29,8 +11,8 @@ class GameSetupDialog(Adw.Dialog):
     def __init__(self, on_select, **kwargs):
         super().__init__(**kwargs)
         self.set_title(_("New Game"))
-        self.set_content_width(380)
-        self.set_content_height(610)
+        self.set_content_width(410)
+        self.set_content_height(490)
 
         self.on_select = on_select
         self.selected_variant = "classic"
@@ -48,28 +30,27 @@ class GameSetupDialog(Adw.Dialog):
             margin_end=12,
             margin_bottom=12,
         )
+
         scroll = Gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll.set_child(main_box)
         toolbar_view.set_content(scroll)
 
-        def add_section(label_text, items, group, default):
-            label = Gtk.Label(label=label_text, xalign=0)
-            label.add_css_class("title-3")
-            main_box.append(label)
-            lst = Gtk.ListBox()
-            lst.add_css_class("boxed-list-separate")
-            main_box.append(lst)
-            self._create_radio_list(lst, items, group, default)
-
-        add_section(
-            _("Variant"),
+        variant_list = Gtk.ListBox()
+        variant_list.add_css_class("boxed-list")
+        main_box.append(variant_list)
+        self._create_radio_list(
+            variant_list,
             [(_("Classic Sudoku"), "classic"), (_("Diagonal Sudoku"), "diagonal")],
             "variant",
             "classic",
         )
-        add_section(
-            _("Difficulty"),
+
+        difficulty_list = Gtk.ListBox()
+        difficulty_list.add_css_class("boxed-list")
+        main_box.append(difficulty_list)
+        self._create_radio_list(
+            difficulty_list,
             [
                 (_("Easy"), EASY_DIFFICULTY),
                 (_("Medium"), MEDIUM_DIFFICULTY),
@@ -87,6 +68,7 @@ class GameSetupDialog(Adw.Dialog):
         btn.set_hexpand(False)
         btn.connect("clicked", self._on_confirm_clicked)
         main_box.append(btn)
+
         self.set_child(toolbar_view)
 
     def _create_radio_list(self, listbox, items, group_name, default=None):
@@ -102,6 +84,7 @@ class GameSetupDialog(Adw.Dialog):
             if value == default:
                 btn.set_active(True)
             btn.connect("toggled", self._on_radio_toggled, group_name, value)
+
             row = Adw.ActionRow(title=label)
             row.add_prefix(btn)
             row.connect("activated", lambda _r, b=btn: b.set_active(True))
