@@ -70,7 +70,6 @@ class GameSetupDialog(Adw.Dialog):
         main_box.append(btn)
         self.connect("realize", lambda *_: self.set_focus(btn))
         self.set_child(toolbar_view)
-        
 
     def _create_radio_list(self, listbox, items, group_name, default=None):
         self._radio_groups[group_name] = []
