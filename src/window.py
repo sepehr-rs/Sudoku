@@ -260,7 +260,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             section.append(_("Preferences"), "win.show-preferences")
         for label, action in [
             (_("How To Play"), "app.how_to_play"),
-            (_("About"), "app.about"),
+            (_("About Sudoku"), "app.about"),
         ]:
             section.append(label, action)
         menu.append_section(None, section)
