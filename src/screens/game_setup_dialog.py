@@ -16,7 +16,7 @@ class GameSetupDialog(Adw.Dialog):
 
         self.on_select = on_select
         self.selected_variant = "classic"
-        self.selected_difficulty = MEDIUM_DIFFICULTY
+        self.selected_difficulty = EASY_DIFFICULTY
         self._radio_groups = {}
 
         toolbar_view = Adw.ToolbarView.new()
@@ -43,7 +43,7 @@ class GameSetupDialog(Adw.Dialog):
             variant_list,
             [(_("Classic Sudoku"), "classic"), (_("Diagonal Sudoku"), "diagonal")],
             "variant",
-            "classic",
+            self.selected_variant,
         )
 
         difficulty_list = Gtk.ListBox()
@@ -58,7 +58,7 @@ class GameSetupDialog(Adw.Dialog):
                 (_("Extreme"), EXTREME_DIFFICULTY),
             ],
             "difficulty",
-            MEDIUM_DIFFICULTY,
+            self.selected_difficulty,
         )
 
         btn = Gtk.Button(label=_("Start Game"))
@@ -68,7 +68,7 @@ class GameSetupDialog(Adw.Dialog):
         btn.set_hexpand(False)
         btn.connect("clicked", self._on_confirm_clicked)
         main_box.append(btn)
-
+        self.connect("realize", lambda *_: self.set_focus(btn))
         self.set_child(toolbar_view)
 
     def _create_radio_list(self, listbox, items, group_name, default=None):
