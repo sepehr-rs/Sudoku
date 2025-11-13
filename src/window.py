@@ -261,7 +261,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         for label, action in [
             (_("How To Play"), "app.how_to_play"),
             (_("About"), "app.about"),
-            (_("Quit"), "app.quit"),
         ]:
             section.append(label, action)
         menu.append_section(None, section)
