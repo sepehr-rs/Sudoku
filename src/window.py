@@ -251,6 +251,21 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.manager.on_pencil_toggled(button)
 
     def _on_pencil_toggled_action(self, *_):
+        is_game_page = self.stack.get_visible_child() != self.main_menu_box
+        if not self.sudoku_window_title or not is_game_page:
+            return
+        if (
+            not self.pencil_toggle_button.get_active()
+        ):  # TODO: consider moving the label part to a constant
+            self.sudoku_window_title.set_subtitle(
+                f"{self.manager.board.variant.capitalize()} - "
+                f"{self.manager.board.difficulty_label} - Pencil Mode"
+            )
+        else:
+            self.sudoku_window_title.set_subtitle(
+                f"{self.manager.board.variant.capitalize()} - "
+                f"{self.manager.board.difficulty_label}"
+            )
         self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
 
     def _build_primary_menu(self, show_preferences=True):
