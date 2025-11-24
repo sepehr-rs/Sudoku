@@ -139,7 +139,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         }
         label = label_map.get(difficulty, str(difficulty))
 
-        self.sudoku_window_title.set_subtitle(f"{variant_name.capitalize()} - {label}")
+        self.sudoku_window_title.set_subtitle(f"{variant_name.capitalize()} • {label}")
         self._setup_ui()
         self.manager.start_game(difficulty, label, variant_name)
 
@@ -258,12 +258,12 @@ class SudokuWindow(Adw.ApplicationWindow):
             not self.pencil_toggle_button.get_active()
         ):  # TODO: consider moving the label part to a constant
             self.sudoku_window_title.set_subtitle(
-                f"{self.manager.board.variant.capitalize()} - "
-                f"{self.manager.board.difficulty_label} - Pencil Mode"
+                f"{self.manager.board.variant.capitalize()} • "
+                f"{self.manager.board.difficulty_label} • Pencil Mode"
             )
         else:
             self.sudoku_window_title.set_subtitle(
-                f"{self.manager.board.variant.capitalize()} - "
+                f"{self.manager.board.variant.capitalize()} • "
                 f"{self.manager.board.difficulty_label}"
             )
         self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
