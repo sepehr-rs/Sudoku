@@ -54,7 +54,7 @@ class ClassicSudokuManager(ManagerBase):
         self.board = ClassicSudokuBoard.load_from_file()
         if self.board:
             self.window.sudoku_window_title.set_subtitle(
-                f"{self.board.variant.capitalize()} - {self.board.difficulty_label}"
+                f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
             )
             self.build_grid()
             self._restore_game_state()
