@@ -38,6 +38,7 @@ class GameSetupDialog(Adw.Dialog):
 
         variant_list = Gtk.ListBox()
         variant_list.add_css_class("boxed-list")
+        variant_list.set_selection_mode(Gtk.SelectionMode.NONE)
         main_box.append(variant_list)
         self._create_radio_list(
             variant_list,
@@ -48,6 +49,7 @@ class GameSetupDialog(Adw.Dialog):
 
         difficulty_list = Gtk.ListBox()
         difficulty_list.add_css_class("boxed-list")
+        difficulty_list.set_selection_mode(Gtk.SelectionMode.NONE)
         main_box.append(difficulty_list)
         self._create_radio_list(
             difficulty_list,
