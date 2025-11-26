@@ -15,8 +15,8 @@ class GameSetupDialog(Adw.Dialog):
         self.set_content_height(490)
 
         self.on_select = on_select
-        # self.selected_variant = "classic"
-        # self.selected_difficulty = EASY_DIFFICULTY
+        self.selected_variant = "classic"
+        self.selected_difficulty = EASY_DIFFICULTY
         self._radio_groups = {}
 
         toolbar_view = Adw.ToolbarView.new()
@@ -38,16 +38,18 @@ class GameSetupDialog(Adw.Dialog):
 
         variant_list = Gtk.ListBox()
         variant_list.add_css_class("boxed-list")
+        variant_list.set_selection_mode(Gtk.SelectionMode.NONE)
         main_box.append(variant_list)
         self._create_radio_list(
             variant_list,
             [(_("Classic Sudoku"), "classic"), (_("Diagonal Sudoku"), "diagonal")],
             "variant",
-            "",
+            self.selected_variant,
         )
 
         difficulty_list = Gtk.ListBox()
         difficulty_list.add_css_class("boxed-list")
+        difficulty_list.set_selection_mode(Gtk.SelectionMode.NONE)
         main_box.append(difficulty_list)
         self._create_radio_list(
             difficulty_list,
@@ -58,7 +60,7 @@ class GameSetupDialog(Adw.Dialog):
                 (_("Extreme"), EXTREME_DIFFICULTY),
             ],
             "difficulty",
-            "",
+            self.selected_difficulty,
         )
 
         btn = Gtk.Button(label=_("Start Game"))
