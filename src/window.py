@@ -258,8 +258,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             not self.pencil_toggle_button.get_active()
         ):  # TODO: consider moving the label part to a constant
             self.sudoku_window_title.set_subtitle(
-                f"{self.manager.board.variant.capitalize()} • "
-                f"{self.manager.board.difficulty_label} • Pencil Mode"
+                "Pencil Mode • You can note possible numbers in this mode."
             )
         else:
             self.sudoku_window_title.set_subtitle(
