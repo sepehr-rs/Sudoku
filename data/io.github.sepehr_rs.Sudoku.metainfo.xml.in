@@ -23,19 +23,19 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/sudoku.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/dd82b1819691e9994fcb689bf465b5976454ce55/data/screenshots/sudoku.png</image>
       <caption>Sudoku in light mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/sudoku-dark.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/dd82b1819691e9994fcb689bf465b5976454ce55/data/screenshots/sudoku-dark.png</image>
       <caption>Sudoku in dark mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/landing-page-dark.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/c15d66297f2c887dac8d41e588794c97b30d1f4e/data/screenshots/landing-page-dark.png</image>
       <caption>Sudoku landing page in dark mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/sepehr-rs/Sudoku/raw/master/data/screenshots/landing-page.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/c15d66297f2c887dac8d41e588794c97b30d1f4e/data/screenshots/landing-page.png</image>
       <caption>Sudoku landing page in light mode</caption>
     </screenshot>
   </screenshots>
