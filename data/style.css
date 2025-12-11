@@ -11,7 +11,11 @@
 }
 
 #sudoku-parent-grid button {
-    background-color: rgba(255, 232, 200, 0.6);
+    background-color: rgba(255, 245, 230, 0.6);
+}
+
+#sudoku-popover button {
+    background-color: rgba(255, 227, 185, 0.85);
 }
 
 #sudoku-parent-grid button.toggle-active {

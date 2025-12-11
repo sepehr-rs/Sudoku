@@ -263,7 +263,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.pencil_toggle_button.get_active()
         ):  # TODO: consider moving the label part to a constant
             self.sudoku_window_title.set_subtitle(
-                "Pencil Mode • Note possible numbers."
+                "Pencil Mode • Note possible numbers"
             )
         else:
             self.sudoku_window_title.set_subtitle(
