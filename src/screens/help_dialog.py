@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, Gdk
 
 
 @Gtk.Template(
@@ -33,6 +33,7 @@ class HowToPlayDialog(Adw.Dialog):
         self.prev.connect("clicked", self.on_prev_clicked)
         self.next.connect("clicked", self.on_next_clicked)
         self.carousel.connect("page-changed", self.on_page_changed)
+        self.add_controller(self._make_key_controller())
         self.update_button_sensitivity()
 
     def on_prev_clicked(self, button):
@@ -58,3 +59,14 @@ class HowToPlayDialog(Adw.Dialog):
         n_pages = self.carousel.get_n_pages()
         self.prev.set_sensitive(current_page > 0)
         self.next.set_sensitive(current_page < n_pages - 1)
+
+    def _make_key_controller(self):
+        key = Gtk.EventControllerKey()
+        key.connect("key-pressed", self.on_key_pressed)
+        return key
+
+    def on_key_pressed(self, controller, keyval, keycode, state):
+        if keyval == Gdk.KEY_Right:
+            self.on_next_clicked(self.next)
+        elif keyval == Gdk.KEY_Left:
+            self.on_prev_clicked(self.prev)
