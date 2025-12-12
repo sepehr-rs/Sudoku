@@ -22,9 +22,13 @@ from abc import ABC
 
 class Preferences(ABC):
     general_defaults = {
-        "casual_mode": True,
+        "casual_mode": [
+            "When on, Sudoku checks entries against the solution."
+            " When off, only rule violations are shown",
+            True,
+        ],
     }
 
     def __init__(self):
         self.general_defaults = self.general_defaults.copy()
-        self.name = "General Preferences"
+        self.name = ""
