@@ -45,6 +45,7 @@ template $HowToPlayDialog: Adw.Dialog {
               Adw.StatusPage {
                 title: _("The Basics");
                 description: _("The board is a 9×9 grid, divided into nine 3×3 blocks. Fill every cell with numbers from 1 to 9.");
+                can-focus: true;
               }
             }
 
@@ -66,6 +67,7 @@ template $HowToPlayDialog: Adw.Dialog {
               Adw.StatusPage {
                 title: _("Rows & Columns");
                 description: _("Each row and column must contain unique numbers without duplicates.");
+                can-focus: true;
               }
             }
 
@@ -87,6 +89,7 @@ template $HowToPlayDialog: Adw.Dialog {
               Adw.StatusPage {
                 title: _("Blocks Matter");
                 description: _("Each 3×3 block must also contain the numbers 1 through 9, without repeats.");
+                can-focus: true;
               }
             }
 
@@ -108,6 +111,7 @@ template $HowToPlayDialog: Adw.Dialog {
               Adw.StatusPage {
                 title: _("Casual Mode");
                 description: _("Turn on Casual Mode in Preferences to check your entries against the solution. When off, only rule violations are flagged, not incorrect numbers.");
+                can-focus: true;
               }
             }
 
@@ -129,6 +133,7 @@ template $HowToPlayDialog: Adw.Dialog {
               Adw.StatusPage {
                 title: _("Mistakes Happen");
                 description: _("Mistakes are highlighted in red so you can spot them easily.");
+                can-focus: true;
               }
             }
 
@@ -150,6 +155,7 @@ template $HowToPlayDialog: Adw.Dialog {
               Adw.StatusPage {
                 title: _("Make Notes");
                 description: _("Use pencil mode to note possible numbers for a cell.");
+                can-focus: true;
               }
             }
           }
@@ -161,7 +167,7 @@ template $HowToPlayDialog: Adw.Dialog {
         halign: start;
         valign: center;
         margin-start: 16;
-        can-focus: false;
+        can-focus: true;
         icon-name: "go-previous-symbolic";
         tooltip-text: _("Previous");
         sensitive: false;
@@ -173,7 +179,7 @@ template $HowToPlayDialog: Adw.Dialog {
         halign: end;
         valign: center;
         margin-end: 16;
-        can-focus: false;
+        can-focus: true;
         icon-name: "go-next-symbolic";
         tooltip-text: _("Next");
         styles ["circular"]

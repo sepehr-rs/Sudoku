@@ -79,9 +79,10 @@ class GameSetupDialog(Adw.Dialog):
         for label, value in items:
             btn = Gtk.CheckButton()
             btn.add_css_class("radio")
-            if group:
-                btn.set_group(group)
-            else:
+            btn.set_group(group)
+            btn.set_valign(Gtk.Align.CENTER)
+            btn.set_halign(Gtk.Align.CENTER)
+            if group is None:
                 group = btn
             if value == default:
                 btn.set_active(True)

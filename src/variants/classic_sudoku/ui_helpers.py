@@ -130,6 +130,7 @@ class ClassicUIHelpers(UIHelpers):
         )
         grid.set_focus_on_click(True)
         grid.grab_focus()
+        popover.set_name("sudoku-popover")
         popover.show()
         return popover
 

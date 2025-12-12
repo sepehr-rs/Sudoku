@@ -1,6 +1,7 @@
 from gi.repository import Adw
 from .preferences_page import VariantPreferencesPage, GeneralPreferencesPage
 from ..base.preferences_manager import PreferencesManager
+from ..base.preferences import Preferences
 
 
 class PreferencesDialog(Adw.PreferencesWindow):
@@ -11,12 +12,14 @@ class PreferencesDialog(Adw.PreferencesWindow):
 
         self.preferences = PreferencesManager.get_preferences()
         if not self.preferences:
+            page = Adw.PreferencesPage()
+            general_group = GeneralPreferencesPage(Preferences.general_defaults, "")
+            page.add(general_group)
+            self.add(page)
             return
 
         page = Adw.PreferencesPage()
-        general_group = GeneralPreferencesPage(
-            self.preferences.general_defaults, "General Preferences"
-        )
+        general_group = GeneralPreferencesPage(self.preferences.general_defaults, "")
         variant_group = VariantPreferencesPage(
             self.preferences.variant_defaults, self.preferences.name
         )
