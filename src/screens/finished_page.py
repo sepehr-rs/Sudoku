@@ -17,7 +17,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import random
 from gi.repository import Gtk
 from gettext import gettext as _
 
@@ -29,7 +28,7 @@ class FinishedPage(Gtk.Box):
     finished_label = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
 
-    VICTORY_MESSAGE = "Puzzle Complete!"
+    VICTORY_MESSAGE = _("Puzzle Complete!")
 
     def __init__(self):
         super().__init__()
