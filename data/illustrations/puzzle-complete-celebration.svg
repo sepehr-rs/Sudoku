@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    sodipodi:docname="puzzle-complete-celebration.svg"
-   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -25,14 +25,14 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="1"
-     inkscape:cx="320"
+     inkscape:cx="589.5"
      inkscape:cy="340.5"
-     inkscape:window-width="2474"
-     inkscape:window-height="1011"
+     inkscape:window-width="1920"
+     inkscape:window-height="1003"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="40"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g41" />
+     inkscape:current-layer="g2" />
   <defs
      id="defs1">
     <clipPath
@@ -541,7 +541,7 @@
        id="linearGradient171"
        inkscape:collect="always">
       <stop
-         style="stop-color:#a25d25;stop-opacity:1;"
+         style="stop-color:#774521;stop-opacity:1;"
          offset="0"
          id="stop171" />
       <stop
@@ -830,7 +830,7 @@
            id="rect2_1_-3"
            class="st1"
            d="m 149.79545,118.26873 h 78.44565 c 4.12871,0 7.44964,3.23118 7.44964,7.18038 v 71.80379 c 0,3.94922 -3.32093,7.18039 -7.44964,7.18039 h -78.44565 c -4.12873,0 -7.44963,-3.23117 -7.44963,-7.18039 v -71.80379 c 0,-3.9492 3.3209,-7.18038 7.44963,-7.18038 z"
-           style="display:inline;fill:#dab584;fill-opacity:1;stroke-width:0.897546;enable-background:new"
+           style="display:inline;fill:#d1a367;fill-opacity:1;stroke-width:0.897546;enable-background:new"
            sodipodi:nodetypes="sssssssss" />
         <g
            id="g41"
