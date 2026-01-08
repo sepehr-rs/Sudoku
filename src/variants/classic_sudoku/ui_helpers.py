@@ -65,15 +65,15 @@ class ClassicUIHelpers(UIHelpers):
         """Highlight row, column, and block when the cell is empty."""
         size = len(cells)
 
-        if prefs.variant_defaults.get("highlight_row"):
+        if prefs.general("highlight_row"):
             for i in range(size):
                 ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
 
-        if prefs.variant_defaults.get("highlight_column"):
+        if prefs.general("highlight_column"):
             for i in range(size):
                 ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        if prefs.variant_defaults.get("highlight_block"):
+        if prefs.variant("highlight_block"):
             block_row_start = (row // block_size) * block_size
             block_col_start = (col // block_size) * block_size
             for r in range(block_row_start, block_row_start + block_size):
@@ -83,7 +83,7 @@ class ClassicUIHelpers(UIHelpers):
     @staticmethod
     def _highlight_same_value(cells, selected_value: int, prefs):
         """Highlight all cells containing the same value."""
-        if not prefs.variant_defaults.get("highlight_related_cells"):
+        if not prefs.variant("highlight_related_cells"):
             return
 
         size = len(cells)

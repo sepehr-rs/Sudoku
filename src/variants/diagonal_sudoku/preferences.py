@@ -28,4 +28,4 @@ class DiagonalSudokuPreferences(ClassicSudokuPreferences):
                 "highlight_diagonals": True,
             }
         )
-        self.name = "Diagonal Sudoku Preferences"
+        self.name = "Diagonal Sudoku"

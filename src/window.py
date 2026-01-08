@@ -152,7 +152,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         help_overlay.present()
 
     def on_show_preferences(self, *_):
-        PreferencesDialog().present()
+        PreferencesDialog(self).present()
 
     def on_window_clicked(self, _, __, x, y):
         frame = self.grid_container.get_first_child()
@@ -198,7 +198,6 @@ class SudokuWindow(Adw.ApplicationWindow):
     def _apply_compact(self, compact, mode):
         target = self.bp_bin or self
         css_class = f"{mode}-mode"
-        print(f"mode => {mode} comapct => {compact}")
         if compact:
             target.add_css_class(css_class)
         else:

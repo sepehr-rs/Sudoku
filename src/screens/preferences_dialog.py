@@ -5,11 +5,12 @@ from ..base.preferences import Preferences
 
 
 class PreferencesDialog(Adw.PreferencesWindow):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__(title="Preferences")
         self.set_default_size(600, 550)
         self.set_search_enabled(False)
-
+        self.set_transient_for(parent)
+        self.set_modal(True)
         self.preferences = PreferencesManager.get_preferences()
         if not self.preferences:
             page = Adw.PreferencesPage()

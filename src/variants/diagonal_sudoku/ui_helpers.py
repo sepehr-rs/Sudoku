@@ -28,7 +28,7 @@ class DiagonalUIHelpers(ClassicUIHelpers):
     ):
         prefs = PreferencesManager.get_preferences()
         ClassicUIHelpers.highlight_related_cells(cells, row, col, block_size)
-        if highlight_diagonal and prefs.variant_defaults["highlight_diagonals"]:
+        if highlight_diagonal and prefs.variant("highlight_diagonals"):
             size = len(cells)
             if row == col:
                 for i in range(size):

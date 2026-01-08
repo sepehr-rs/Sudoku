@@ -29,23 +29,7 @@ class FinishedPage(Gtk.Box):
     finished_label = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
 
-    VICTORY_MESSAGES = [
-        _("Sudoku Master! You've solved the puzzle with perfect logic!"),
-        _("Incredible! Every number found its perfect place!"),
-        _("Brilliant deduction! You've conquered this Sudoku challenge!"),
-        _("Perfect solution! Your logical thinking is outstanding!"),
-        _("Amazing work! You've mastered the art of Sudoku!"),
-        _("Fantastic! Every row, column, and box is perfectly filled!"),
-        _("Outstanding! Your puzzle-solving skills are remarkable!"),
-        _("Excellent! You've completed the Sudoku with flying colors!"),
-        _("Spectacular! Your mathematical reasoning is top-notch!"),
-        _("Well done! You've proven yourself a Sudoku champion!"),
-        _("Congratulations! You've solved the puzzle flawlessly!"),
-        _("Victory! Your strategic thinking led to perfect completion!"),
-        _("Genius! You've mastered the Sudoku grid with precision!"),
-        _("Masterpiece! Every number placement was calculated perfectly!"),
-        _("Phenomenal! You've conquered this Sudoku with style!"),
-    ]
+    VICTORY_MESSAGE = "Puzzle Complete!"
 
     def __init__(self):
         super().__init__()
@@ -55,5 +39,5 @@ class FinishedPage(Gtk.Box):
         self._set_random_message()
 
     def _set_random_message(self):
-        message = random.choice(self.VICTORY_MESSAGES)
+        message = self.VICTORY_MESSAGE
         self.finished_label.set_label(message)
