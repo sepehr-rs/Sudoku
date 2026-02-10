@@ -54,6 +54,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.manager = None
+        self.is_game_page = False
 
         actions = {
             "show-primary-menu": self.on_show_primary_menu,
@@ -98,8 +99,31 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.on_stack_page_changed(self.stack, None)
 
     def on_stack_page_changed(self, stack, _):
-        is_game_page = stack.get_visible_child() != self.main_menu_box
-        self.lookup_action("back-to-menu").set_enabled(is_game_page)
+        visible = stack.get_visible_child()
+
+        non_game_pages = {
+            self.main_menu_box,
+            self.finished_page,
+            self.loading_screen,
+        }
+        no_back_button_pages = {
+            self.main_menu_box,
+            self.loading_screen,
+        }
+
+        is_game_page = visible not in non_game_pages
+        has_back_button = visible not in no_back_button_pages
+
+        if not is_game_page:
+            self._force_disable_pencil_mode()
+            self.sudoku_window_title.set_subtitle("")
+        else:
+            self._change_subtitle_for_pencil_mode()
+
+        self.is_game_page = is_game_page
+        self.lookup_action("show-preferences").set_enabled(is_game_page)
+        self.lookup_action("back-to-menu").set_enabled(has_back_button)
+        self._update_preferences_visibility(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
         self.home_button.set_visible(is_game_page)
 
@@ -251,22 +275,43 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.manager.on_pencil_toggled(button)
 
     def _on_pencil_toggled_action(self, *_):
-        self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
+        if not self.is_game_page:
+            return
+
+        self.pencil_toggle_button.set_active(
+            not self.pencil_toggle_button.get_active()
+        )
         self._change_subtitle_for_pencil_mode()
 
+
     def _change_subtitle_for_pencil_mode(self):
-        is_game_page = self.stack.get_visible_child() != self.main_menu_box
-        if not self.sudoku_window_title or not is_game_page:
+        non_game_pages = {
+            self.main_menu_box,
+            self.finished_page,
+            self.loading_screen,
+        }
+
+        visible = self.stack.get_visible_child()
+        if not self.sudoku_window_title or not self.manager or visible in non_game_pages:
             return
-        if (
-            self.pencil_toggle_button.get_active()
-        ):  # TODO: consider moving the label part to a constant
-            self.sudoku_window_title.set_subtitle("Pencil Mode • Note possible numbers")
+
+        if self.pencil_toggle_button.get_active():
+            self.sudoku_window_title.set_subtitle(
+                _("Pencil Mode • Note possible numbers")
+            )
         else:
             self.sudoku_window_title.set_subtitle(
                 f"{self.manager.board.variant.capitalize()} • "
                 f"{self.manager.board.difficulty_label}"
             )
+
+
+    def _force_disable_pencil_mode(self):
+        if self.pencil_toggle_button.get_active():
+            self.pencil_toggle_button.set_active(False)
+
+        if self.manager:
+            self.manager.pencil_mode = False
 
     def _build_primary_menu(self, show_preferences=True):
         menu, section = Gio.Menu(), Gio.Menu()

@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Adw
 from gettext import gettext as _
 
 
@@ -25,18 +25,36 @@ from gettext import gettext as _
 class FinishedPage(Gtk.Box):
     __gtype_name__ = "FinishedPage"
 
+    dark_picture = (
+        "/io/github/sepehr_rs/Sudoku/illustrations/"
+        "puzzle-complete-celebration-dark.svg"
+    )
+    light_picture = (
+        "/io/github/sepehr_rs/Sudoku/illustrations/"
+        "puzzle-complete-celebration-light.svg"
+    )
     finished_label = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
+    picture_contain = Gtk.Template.Child()
 
     VICTORY_MESSAGE = _("Puzzle Complete!")
 
     def __init__(self):
         super().__init__()
+        self._style_manager = Adw.StyleManager.get_default()
+        self._style_manager.connect("notify::dark", self._update_picture)
         self.connect("map", self._on_map)
 
     def _on_map(self, widget):
         self._set_random_message()
+        self._update_picture()
 
     def _set_random_message(self):
         message = self.VICTORY_MESSAGE
         self.finished_label.set_label(message)
+
+    def _update_picture(self, *args):
+        if self._style_manager.get_dark():
+            self.picture_contain.set_resource(self.dark_picture)
+        else:
+            self.picture_contain.set_resource(self.light_picture)
