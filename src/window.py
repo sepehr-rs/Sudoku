@@ -278,11 +278,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         if not self.is_game_page:
             return
 
-        self.pencil_toggle_button.set_active(
-            not self.pencil_toggle_button.get_active()
-        )
+        self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
         self._change_subtitle_for_pencil_mode()
-
 
     def _change_subtitle_for_pencil_mode(self):
         non_game_pages = {
@@ -292,7 +289,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         }
 
         visible = self.stack.get_visible_child()
-        if not self.sudoku_window_title or not self.manager or visible in non_game_pages:
+        if (
+            not self.sudoku_window_title
+            or not self.manager
+            or visible in non_game_pages
+        ):
             return
 
         if self.pencil_toggle_button.get_active():
@@ -304,7 +305,6 @@ class SudokuWindow(Adw.ApplicationWindow):
                 f"{self.manager.board.variant.capitalize()} • "
                 f"{self.manager.board.difficulty_label}"
             )
-
 
     def _force_disable_pencil_mode(self):
         if self.pencil_toggle_button.get_active():
