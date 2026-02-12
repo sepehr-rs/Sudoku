@@ -34,6 +34,7 @@ class ClassicSudokuManager(ManagerBase):
         self.key_map, self.remove_keys = ClassicUIHelpers.setup_key_mappings()
         self.parent_grid = None
         self.blocks = []
+        self._idle_source_id = None
 
     def start_game(self, difficulty: float, difficulty_label: str, variant: str):
         self.window.stack.set_visible_child(self.window.loading_screen)
@@ -41,11 +42,17 @@ class ClassicSudokuManager(ManagerBase):
 
         def worker():
             self.board = ClassicSudokuBoard(difficulty, difficulty_label, variant)
-            GLib.idle_add(self._on_game_ready)
+            if self._idle_source_id:
+                try:
+                    GLib.source_remove(self._idle_source_id)
+                except Exception:
+                    pass
+            self._idle_source_id = GLib.idle_add(self._on_game_ready)
 
         threading.Thread(target=worker, daemon=True).start()
 
     def _on_game_ready(self):
+        self._idle_source_id = None
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_scrolled_window)
         return False
@@ -101,6 +108,17 @@ class ClassicSudokuManager(ManagerBase):
 
     def _clear_previous_grid(self):
         """Remove all children from the grid container."""
+        if hasattr(self, "cell_inputs") and self.cell_inputs:
+            for row in self.cell_inputs:
+                for cell in row:
+                    if cell:
+                        for tid in getattr(cell, "feedback_timeout_ids", []):
+                            try:
+                                GLib.source_remove(tid)
+                            except Exception:
+                                pass
+                        cell.feedback_timeout_ids = []
+
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 
@@ -354,6 +372,17 @@ class ClassicSudokuManager(ManagerBase):
 
     def _show_puzzle_finished_dialog(self):
         self.window.pencil_toggle_button.set_visible(False)
+        if hasattr(self, "cell_inputs") and self.cell_inputs:
+            for row in self.cell_inputs:
+                for cell in row:
+                    if cell:
+                        for tid in getattr(cell, "feedback_timeout_ids", []):
+                            try:
+                                GLib.source_remove(tid)
+                            except Exception:
+                                pass
+                        cell.feedback_timeout_ids = []
+
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
         self.window.stack.set_visible_child(self.window.finished_page)
