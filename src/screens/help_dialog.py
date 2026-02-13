@@ -66,7 +66,14 @@ class HowToPlayDialog(Adw.Dialog):
         return key
 
     def on_key_pressed(self, controller, keyval, keycode, state):
+        is_rtl = self.get_direction() == Gtk.TextDirection.RTL
         if keyval == Gdk.KEY_Right:
-            self.on_next_clicked(self.next)
+            if is_rtl:
+                self.on_prev_clicked(self.prev)
+            else:
+                self.on_next_clicked(self.next)
         elif keyval == Gdk.KEY_Left:
-            self.on_prev_clicked(self.prev)
+            if is_rtl:
+                self.on_next_clicked(self.next)
+            else:
+                self.on_prev_clicked(self.prev)

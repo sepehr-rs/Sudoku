@@ -291,11 +291,14 @@ class ClassicSudokuManager(ManagerBase):
         return False
 
     def _handle_arrow_keys(self, keyval, ctrl, row, col):
+        direction = self.window.get_direction()
+        is_rtl = direction == Gtk.TextDirection.RTL
+
         directions = {
             Gdk.KEY_Up: (-1, 0),
             Gdk.KEY_Down: (1, 0),
-            Gdk.KEY_Left: (0, -1),
-            Gdk.KEY_Right: (0, 1),
+            Gdk.KEY_Left: (0, -1) if not is_rtl else (0, 1),
+            Gdk.KEY_Right: (0, 1) if not is_rtl else (0, -1),
         }
         if keyval not in directions:
             return False
