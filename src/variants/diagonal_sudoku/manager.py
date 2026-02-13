@@ -86,6 +86,12 @@ class DiagonalSudokuManager(ClassicSudokuManager):
 
         cell.set_value(number)
         self.board.set_input(r, c, number)
+
+        if not self.board.has_conflict(r, c, number):
+            affected = self.board.remove_note_from_peers(r, c, number)
+            for ar, ac in affected:
+                self.cell_inputs[ar][ac].update_notes(self.board.get_notes(ar, ac))
+
         self.board.save_to_file()
 
         self.on_cell_filled(cell, number)
