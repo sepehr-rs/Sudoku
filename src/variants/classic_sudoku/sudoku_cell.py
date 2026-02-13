@@ -43,8 +43,12 @@ class SudokuCell(Gtk.Button):
 
     def do_clicked(self, *args):
         """Only trigger clicked if editable."""
-        if self._editable and args:
-            super().do_clicked(*args)
+        if self._editable:
+            try:
+                super().do_clicked(*args)
+            except Exception:
+                # If there's an error in the parent's do_clicked, handle gracefully
+                pass
         else:
             # swallow the click (make it a no-op)
             return

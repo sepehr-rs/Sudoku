@@ -407,10 +407,8 @@ class ClassicSudokuManager(ManagerBase):
         """Handle behavior when the user enters the correct number."""
         cell.set_editable(False)
         cell.highlight("correct")
-        cell.set_tooltip_text("Correct")    
-        cell.start_feedback_timeout(
-            lambda: self._clear_correct_feedback(cell)
-        )
+        cell.set_tooltip_text("Correct")
+        cell.start_feedback_timeout(lambda: self._clear_correct_feedback(cell))
 
     def _clear_correct_feedback(self, cell):
         """Remove correct highlight and tooltip."""
@@ -429,7 +427,6 @@ class ClassicSudokuManager(ManagerBase):
         self.conflict_cells.extend(conflicts)
 
         cell.start_feedback_timeout(self._clear_conflicts)
-
 
     def _clear_conflicts(self):
         """Clear conflicts highlight after timeout."""
