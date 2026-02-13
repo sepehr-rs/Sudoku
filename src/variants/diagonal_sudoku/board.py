@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import List, Tuple
+from typing import List, Tuple, Iterable, Set
 from ..classic_sudoku.board import ClassicSudokuBoard
 from .rules import DiagonalSudokuRules
 from .generator import DiagonalSudokuGenerator
@@ -30,36 +30,34 @@ class DiagonalSudokuBoard(ClassicSudokuBoard):
         self.generator = DiagonalSudokuGenerator()
         self.puzzle, self.solution = self.generator.generate(difficulty)
 
-    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
-        conflicts = super().has_conflict(row, col, value)
+    def _iter_diagonal_cells(self, row: int, col: int) -> Iterable[Tuple[int, int]]:
         size = self.rules.size
-        diagonal_conflicts: List[Tuple[int, int]] = []
-
         if row == col:
             for i in range(size):
-                if i == row:
-                    continue
-
-                existing_value = self.puzzle[i][i]
-                if existing_value is None:
-                    existing_value = self.user_inputs[i][i]
-
-                if existing_value is not None and str(existing_value) == value:
-                    if (i, i) not in conflicts:
-                        diagonal_conflicts.append((i, i))
-
+                if i != row:
+                    yield (i, i)
         if row + col == size - 1:
             for i in range(size):
                 r, c = i, size - 1 - i
-                if r == row and c == col:
-                    continue
+                if r != row or c != col:
+                    yield (r, c)
 
-                existing_value = self.puzzle[r][c]
-                if existing_value is None:
-                    existing_value = self.user_inputs[r][c]
+    def _get_existing_value(self, row: int, col: int):
+        val = self.puzzle[row][col]
+        return val if val is not None else self.user_inputs[row][col]
 
-                if existing_value is not None and str(existing_value) == value:
-                    if (r, c) not in conflicts and (r, c) not in diagonal_conflicts:
-                        diagonal_conflicts.append((r, c))
+    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
+        conflicts = super().has_conflict(row, col, value)
+        diagonal_conflicts: List[Tuple[int, int]] = []
+        seen_conflicts: Set[Tuple[int, int]] = set(conflicts)
+
+        for r, c in self._iter_diagonal_cells(row, col):
+            if (r, c) in seen_conflicts:
+                continue
+
+            existing_value = self._get_existing_value(r, c)
+            if existing_value is not None and str(existing_value) == value:
+                diagonal_conflicts.append((r, c))
+                seen_conflicts.add((r, c))
 
         return conflicts + diagonal_conflicts
