@@ -30,6 +30,7 @@ class SudokuCell(Gtk.Button):
         self.col = col
         self._editable = editable
         self.compact_mode = False
+        self._active_popover = None
         self._setup_ui()
         self._setup_initial_state(value)
 
@@ -167,3 +168,12 @@ class SudokuCell(Gtk.Button):
         self.set_value("")
         self.update_notes(set())
         self.remove_highlight("wrong")
+
+    def set_popover(self, popover):
+        self.clear_popover()
+        self._active_popover = popover
+
+    def clear_popover(self):
+        if self._active_popover is not None:
+            self._active_popover.popdown()
+            self._active_popover = None
