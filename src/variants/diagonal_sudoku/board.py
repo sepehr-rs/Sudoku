@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import List, Tuple
 from ..classic_sudoku.board import ClassicSudokuBoard
 from .rules import DiagonalSudokuRules
 from .generator import DiagonalSudokuGenerator
@@ -24,7 +25,41 @@ from .generator import DiagonalSudokuGenerator
 
 class DiagonalSudokuBoard(ClassicSudokuBoard):
     def __init__(self, difficulty: float, difficulty_label: str):
-        super().__init__(difficulty, difficulty_label)
+        super().__init__(difficulty, difficulty_label, "Diagonal Sudoku")
         self.rules = DiagonalSudokuRules()
         self.generator = DiagonalSudokuGenerator()
         self.puzzle, self.solution = self.generator.generate(difficulty)
+
+    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
+        conflicts = super().has_conflict(row, col, value)
+        size = self.rules.size
+        diagonal_conflicts: List[Tuple[int, int]] = []
+
+        if row == col:
+            for i in range(size):
+                if i == row:
+                    continue
+
+                existing_value = self.puzzle[i][i]
+                if existing_value is None:
+                    existing_value = self.user_inputs[i][i]
+
+                if existing_value is not None and str(existing_value) == value:
+                    if (i, i) not in conflicts:
+                        diagonal_conflicts.append((i, i))
+
+        if row + col == size - 1:
+            for i in range(size):
+                r, c = i, size - 1 - i
+                if r == row and c == col:
+                    continue
+
+                existing_value = self.puzzle[r][c]
+                if existing_value is None:
+                    existing_value = self.user_inputs[r][c]
+
+                if existing_value is not None and str(existing_value) == value:
+                    if (r, c) not in conflicts and (r, c) not in diagonal_conflicts:
+                        diagonal_conflicts.append((r, c))
+
+        return conflicts + diagonal_conflicts

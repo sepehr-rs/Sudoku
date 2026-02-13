@@ -19,6 +19,7 @@
 
 import json
 import os
+from typing import List, Tuple
 from ...base.board_base import BoardBase
 from ...base.preferences_manager import PreferencesManager
 from .rules import ClassicSudokuRules
@@ -75,3 +76,30 @@ class ClassicSudokuBoard(BoardBase):
                     if self.user_inputs[r][c] != str(self.solution[r][c]):
                         return False
         return True
+
+    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
+        conflicts = []
+        size = self.rules.size
+        block_size = self.rules.block_size
+
+        for r in range(size):
+            for c in range(size):
+                if r == row and c == col:
+                    continue
+
+                if (
+                    r == row
+                    or c == col
+                    or (
+                        r // block_size == row // block_size
+                        and c // block_size == col // block_size
+                    )
+                ):
+                    existing_value = self.puzzle[r][c]
+                    if existing_value is None:
+                        existing_value = self.user_inputs[r][c]
+
+                    if existing_value is not None and str(existing_value) == value:
+                        conflicts.append((r, c))
+
+        return conflicts

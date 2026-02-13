@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from ..classic_sudoku.manager import ClassicSudokuManager
+from ..classic_sudoku.sudoku_cell import SudokuCell
 from .board import DiagonalSudokuBoard
 from .ui_helpers import DiagonalUIHelpers
 
@@ -56,3 +57,38 @@ class DiagonalSudokuManager(ClassicSudokuManager):
                     self.board.rules.block_size,
                     cell.is_editable(),
                 )
+
+    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
+        DiagonalUIHelpers.clear_conflicts(self.conflict_cells)
+
+        if not cell.is_editable():
+            return
+
+        r, c = cell.row, cell.col
+
+        if self.pencil_mode or ctrl_is_pressed:
+            conflicts = self.board.has_conflict(r, c, number)
+            if conflicts:
+                new_conflicts = []
+                for cr, cc in conflicts:
+                    conflict_cell = self.cell_inputs[cr][cc]
+                    conflict_cell.highlight("conflict")
+                    new_conflicts.append(conflict_cell)
+
+                self.conflict_cells.extend(new_conflicts)
+                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+                return
+
+            self.board.toggle_note(r, c, number)
+            cell.update_notes(self.board.get_notes(r, c))
+            self.board.save_to_file()
+            return
+
+        cell.set_value(number)
+        self.board.set_input(r, c, number)
+        self.board.save_to_file()
+
+        self.on_cell_filled(cell, number)
+
+        if self.board.is_solved():
+            self._show_puzzle_finished_dialog()

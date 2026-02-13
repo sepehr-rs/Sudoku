@@ -216,6 +216,14 @@ class ClassicSudokuManager(ManagerBase):
         r, c = cell.row, cell.col
 
         if self.pencil_mode or ctrl_is_pressed:
+            if self.board.has_conflict(r, c, number):
+                new_conflicts = ClassicUIHelpers.highlight_conflicts(
+                    self.cell_inputs, r, c, number, self.board.rules.block_size
+                )
+                self.conflict_cells.extend(new_conflicts)
+                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+                return
+
             self.board.toggle_note(r, c, number)
             cell.update_notes(self.board.get_notes(r, c))
             self.board.save_to_file()
