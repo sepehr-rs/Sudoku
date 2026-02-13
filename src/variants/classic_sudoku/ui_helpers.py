@@ -133,8 +133,8 @@ class ClassicUIHelpers(UIHelpers):
         popover.set_name("sudoku-popover")
         popover.show()
 
-        getattr(cell, "set_popover", lambda p: None)(popover)
-
+        if hasattr(cell, "set_popover"):
+            cell.set_popover(popover)
         return popover
 
     @staticmethod
@@ -169,7 +169,10 @@ class ClassicUIHelpers(UIHelpers):
             done_button.set_size_request(-1, 40)
             done_button.set_hexpand(True)
             done_button.set_tooltip_text(_("Finish Editing Cell"))
-            done_button.connect("clicked", lambda _: popover.popdown())
+            done_button.connect(
+                "clicked",
+                lambda *_: getattr(cell, "clear_popover", popover.popdown)(),
+            )
             button_box.append(done_button)
 
         return clear_button

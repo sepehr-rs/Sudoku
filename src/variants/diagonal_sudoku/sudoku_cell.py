@@ -107,7 +107,7 @@ class SudokuCell(Gtk.Button):
         """Get the main value of the cell."""
         return self.main_label.get_text()
 
-    def update_notes(self, notes: set):
+    def update_notes(self, notes: set[str]):
         """Update the notes display."""
         # Clear old labels
         for child in list(self.notes_grid):
@@ -172,8 +172,29 @@ class SudokuCell(Gtk.Button):
     def set_popover(self, popover):
         self.clear_popover()
         self._active_popover = popover
+        popover.connect("notify::visible", self._on_popover_notify_visible)
+
+    def _on_popover_notify_visible(self, popover, *args):
+        try:
+            visible = popover.get_visible()
+        except Exception:
+            return
+        if visible:
+            return
+
+        if self._active_popover is popover:
+            self._active_popover = None
+        try:
+            popover.unparent()
+        except Exception:
+            pass
 
     def clear_popover(self):
         if self._active_popover is not None:
-            self._active_popover.popdown()
+            popover = self._active_popover
             self._active_popover = None
+            popover.popdown()
+            try:
+                popover.unparent()
+            except Exception:
+                pass
