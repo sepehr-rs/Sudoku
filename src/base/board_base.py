@@ -19,7 +19,8 @@
 
 import json
 import os
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
+from typing import Iterable, List, Optional, Set, Tuple
 from .preferences_manager import PreferencesManager
 
 
@@ -43,20 +44,22 @@ class BoardBase(ABC):
             [set() for _ in range(self.rules.size)] for _ in range(self.rules.size)
         ]
 
-    @abstractclassmethod
-    def load_from_file(cls, filename: str = None):
-        """Variant-specific boards must implement loading logic."""
+    @classmethod
+    @abstractmethod
+    def load_from_file(cls, filename: Optional[str] = None):
         pass
 
-    def save_to_file(self, filename: str = None):
+    def save_to_file(self, filename: Optional[str] = None):
         filename = filename or self.DEFAULT_SAVE_PATH
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         prefs = PreferencesManager.get_preferences()
+        variant_defaults = getattr(prefs, "variant_defaults", {}) if prefs else {}
+        general_defaults = getattr(prefs, "general_defaults", {}) if prefs else {}
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
-            "variant_preferences": prefs.variant_defaults,
-            "general_preferences": prefs.general_defaults,
+            "variant_preferences": variant_defaults,
+            "general_preferences": general_defaults,
             "variant": self.variant,
             "puzzle": self.puzzle,
             "solution": self.solution,
@@ -85,13 +88,59 @@ class BoardBase(ABC):
         else:
             self.notes[row][col].add(value)
 
+    def _iter_row_col_block_peers(
+        self, row: int, col: int
+    ) -> Iterable[Tuple[int, int]]:
+        size = self.rules.size
+        block_size = self.rules.block_size
+        seen: Set[Tuple[int, int]] = set()
+
+        for i in range(size):
+            if i != col:
+                coord = (row, i)
+                if coord not in seen:
+                    seen.add(coord)
+                    yield coord
+            if i != row:
+                coord = (i, col)
+                if coord not in seen:
+                    seen.add(coord)
+                    yield coord
+
+        block_row_start = (row // block_size) * block_size
+        block_col_start = (col // block_size) * block_size
+        for r in range(block_row_start, block_row_start + block_size):
+            for c in range(block_col_start, block_col_start + block_size):
+                if r == row and c == col:
+                    continue
+                coord = (r, c)
+                if coord not in seen:
+                    seen.add(coord)
+                    yield coord
+
+    def iter_note_elimination_peers(
+        self, row: int, col: int
+    ) -> Iterable[Tuple[int, int]]:
+        yield from self._iter_row_col_block_peers(row, col)
+
+    def remove_note_from_peers(
+        self, row: int, col: int, value: str
+    ) -> List[Tuple[int, int]]:
+        affected: List[Tuple[int, int]] = []
+        for r, c in self.iter_note_elimination_peers(row, col):
+            if value in self.notes[r][c]:
+                self.notes[r][c].remove(value)
+                affected.append((r, c))
+
+        return affected
+
     def is_clue(self, row, col):
         return self.puzzle[row][col] is not None
 
-    @abstractclassmethod
+    @abstractmethod
     def is_solved(self):
         pass
 
-    def get_notes(self, row: int, col: int) -> set:
+    def get_notes(self, row: int, col: int) -> Set[str]:
         """Return the set of notes for a cell."""
         return self.notes[row][col]

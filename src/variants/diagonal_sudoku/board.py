@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import List, Tuple, Iterable, Set
+from typing import Iterable, List, Tuple, Set
 from ..classic_sudoku.board import ClassicSudokuBoard
 from .rules import DiagonalSudokuRules
 from .generator import DiagonalSudokuGenerator
@@ -41,6 +41,12 @@ class DiagonalSudokuBoard(ClassicSudokuBoard):
                 r, c = i, size - 1 - i
                 if r != row or c != col:
                     yield (r, c)
+
+    def iter_note_elimination_peers(
+        self, row: int, col: int
+    ) -> Iterable[Tuple[int, int]]:
+        yield from super().iter_note_elimination_peers(row, col)
+        yield from self._iter_diagonal_cells(row, col)
 
     def _get_existing_value(self, row: int, col: int):
         val = self.puzzle[row][col]
