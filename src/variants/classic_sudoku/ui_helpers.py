@@ -132,6 +132,9 @@ class ClassicUIHelpers(UIHelpers):
         grid.grab_focus()
         popover.set_name("sudoku-popover")
         popover.show()
+
+        getattr(cell, "set_popover", lambda p: None)(popover)
+
         return popover
 
     @staticmethod
