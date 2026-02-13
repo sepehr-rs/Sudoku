@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 
 class SudokuCell(Gtk.Button):
@@ -30,6 +30,7 @@ class SudokuCell(Gtk.Button):
         self.col = col
         self._editable = editable
         self.compact_mode = False
+        self._feedback_source_id = None
         self._setup_ui()
         self._setup_initial_state(value)
 
@@ -42,7 +43,7 @@ class SudokuCell(Gtk.Button):
 
     def do_clicked(self, *args):
         """Only trigger clicked if editable."""
-        if self._editable:
+        if self._editable and args:
             super().do_clicked(*args)
         else:
             # swallow the click (make it a no-op)
@@ -159,6 +160,27 @@ class SudokuCell(Gtk.Button):
     def remove_highlight(self, class_name: str):
         """Remove a highlight class from the cell."""
         self.get_style_context().remove_class(class_name)
+
+    def start_feedback_timeout(self, callback, delay=3000):
+        """Start (or replace) a feedback timeout safely."""
+
+        # If one already exists, remove it
+        if self._feedback_source_id is not None:
+            GLib.source_remove(self._feedback_source_id)
+            self._feedback_source_id = None
+
+        def wrapped():
+            # Clear ID before running callback
+            self._feedback_source_id = None
+            callback()
+            return False  # ensure timeout runs only once
+
+        self._feedback_source_id = GLib.timeout_add(delay, wrapped)
+
+    def clear_feedback_timeout(self):
+        if self._feedback_source_id is not None:
+            GLib.source_remove(self._feedback_source_id)
+            self._feedback_source_id = None
 
     def clear(self):
         """Clear the main value and all notes."""
