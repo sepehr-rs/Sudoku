@@ -26,6 +26,10 @@ class Preferences(ABC):
             "Highlight when input does not match the correct solution",
             True,
         ],
+        "prevent_conflicting_pencil_notes": [
+            "Block and highlight pencil notes that conflict with existing numbers",
+            True,
+        ],
         "highlight_row": True,
         "highlight_column": True,
     }
