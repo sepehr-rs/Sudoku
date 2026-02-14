@@ -17,6 +17,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from gi.repository import Gdk
+
 from ..classic_sudoku.manager import ClassicSudokuManager
 from ...base.preferences_manager import PreferencesManager
 from .board import DiagonalSudokuBoard
@@ -31,14 +33,29 @@ class DiagonalSudokuManager(ClassicSudokuManager):
         self.ui_helpers = DiagonalUIHelpers
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell):
-        """Handle mouse clicks on a cell (diagonal-aware)."""
-        # Use diagonal-aware highlighting
+        try:
+            button = gesture.get_current_button()
+        except Exception:
+            button = None
+        if button not in (1, 3):
+            return
+
+        try:
+            state = gesture.get_current_event_state()
+        except Exception:
+            state = 0
+
+        if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):
+            return
+        if button == 3 and (state & Gdk.ModifierType.BUTTON1_MASK):
+            return
+
         self.ui_helpers.highlight_related_cells(
             self.cell_inputs, cell.row, cell.col, self.board.rules.block_size
         )
 
         if cell.is_editable() and n_press == 1:
-            self._show_popover(cell, gesture.get_current_button())
+            self._show_popover(cell, button)
         else:
             cell.grab_focus()
 

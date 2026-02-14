@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class SudokuCell(Gtk.Button):
@@ -30,7 +30,6 @@ class SudokuCell(Gtk.Button):
         self.col = col
         self._editable = editable
         self.compact_mode = False
-        self._active_popover = None
         self._setup_ui()
         self._setup_initial_state(value)
 
@@ -168,33 +167,3 @@ class SudokuCell(Gtk.Button):
         self.set_value("")
         self.update_notes(set())
         self.remove_highlight("wrong")
-
-    def set_popover(self, popover):
-        self.clear_popover()
-        self._active_popover = popover
-        popover.connect("notify::visible", self._on_popover_notify_visible)
-
-    def _on_popover_notify_visible(self, popover, *args):
-        try:
-            visible = popover.get_visible()
-        except Exception:
-            return
-        if visible:
-            return
-
-        if self._active_popover is popover:
-            self._active_popover = None
-        try:
-            popover.unparent()
-        except Exception:
-            pass
-
-    def clear_popover(self):
-        if self._active_popover is not None:
-            popover = self._active_popover
-            self._active_popover = None
-            popover.popdown()
-            try:
-                popover.unparent()
-            except Exception:
-                pass
