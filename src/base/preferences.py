@@ -27,7 +27,6 @@ class Preferences(ABC):
             True,
         ],
         "prevent_conflicting_pencil_notes": [
-            "Block and highlight pencil notes that conflict with existing numbers",
             True,
         ],
         "highlight_row": True,
