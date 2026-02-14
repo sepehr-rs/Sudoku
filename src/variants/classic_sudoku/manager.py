@@ -216,7 +216,22 @@ class ClassicSudokuManager(ManagerBase):
         r, c = cell.row, cell.col
 
         if self.pencil_mode or ctrl_is_pressed:
-            if self.board.has_conflict(r, c, number):
+            if cell.get_value():
+                return
+
+            prefs = PreferencesManager.get_preferences()
+            if prefs is None:
+                pref_enabled = True
+            else:
+                pref_value = prefs.general(
+                    "prevent_conflicting_pencil_notes",
+                    default=True,
+                )
+                pref_enabled = (
+                    pref_value[1] if isinstance(pref_value, list) else pref_value
+                )
+
+            if pref_enabled and self.board.has_conflict(r, c, number):
                 new_conflicts = ClassicUIHelpers.highlight_conflicts(
                     self.cell_inputs, r, c, number, self.board.rules.block_size
                 )

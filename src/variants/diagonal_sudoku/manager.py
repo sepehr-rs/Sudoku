@@ -19,6 +19,7 @@
 
 from ..classic_sudoku.manager import ClassicSudokuManager
 from ..classic_sudoku.sudoku_cell import SudokuCell
+from ...base.preferences_manager import PreferencesManager
 from .board import DiagonalSudokuBoard
 from .ui_helpers import DiagonalUIHelpers
 
@@ -67,17 +68,33 @@ class DiagonalSudokuManager(ClassicSudokuManager):
         r, c = cell.row, cell.col
 
         if self.pencil_mode or ctrl_is_pressed:
-            conflicts = self.board.has_conflict(r, c, number)
-            if conflicts:
-                new_conflicts = []
-                for cr, cc in conflicts:
-                    conflict_cell = self.cell_inputs[cr][cc]
-                    conflict_cell.highlight("conflict")
-                    new_conflicts.append(conflict_cell)
-
-                self.conflict_cells.extend(new_conflicts)
-                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+            if cell.get_value():
                 return
+
+            prefs = PreferencesManager.get_preferences()
+            if prefs is None:
+                pref_enabled = True
+            else:
+                pref_value = prefs.general(
+                    "prevent_conflicting_pencil_notes",
+                    default=True,
+                )
+                pref_enabled = (
+                    pref_value[1] if isinstance(pref_value, list) else pref_value
+                )
+
+            if pref_enabled:
+                conflicts = self.board.has_conflict(r, c, number)
+                if conflicts:
+                    new_conflicts = []
+                    for cr, cc in conflicts:
+                        conflict_cell = self.cell_inputs[cr][cc]
+                        conflict_cell.highlight("conflict")
+                        new_conflicts.append(conflict_cell)
+
+                    self.conflict_cells.extend(new_conflicts)
+                    cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+                    return
 
             self.board.toggle_note(r, c, number)
             cell.update_notes(self.board.get_notes(r, c))
