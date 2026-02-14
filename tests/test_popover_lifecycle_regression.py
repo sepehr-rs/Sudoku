@@ -304,6 +304,29 @@ def get_method_context(lines: list[str], line_num: int, context_size: int = 10) 
     return "\n".join(lines[start:end])
 
 
+def _is_popover_related_function(node: ast.FunctionDef) -> bool:
+    if "popover" in node.name.lower():
+        return True
+    return any("popover" in arg.arg.lower() for arg in node.args.args)
+
+
+def _uses_name(node: ast.AST, name: str) -> bool:
+    return any(
+        isinstance(child, ast.Name) and child.id == name for child in ast.walk(node)
+    )
+
+
+def _uses_self_attr(node: ast.AST, attr: str) -> bool:
+    for child in ast.walk(node):
+        if not isinstance(child, ast.Attribute):
+            continue
+        if not isinstance(child.value, ast.Name):
+            continue
+        if child.value.id == "self" and child.attr == attr:
+            return True
+    return False
+
+
 def verify_mode_preservation_signatures(file_path: str) -> list[str]:
     """
     Verify that popover-related methods preserve pencil mode state.
@@ -322,60 +345,29 @@ def verify_mode_preservation_signatures(file_path: str) -> list[str]:
 
     try:
         tree = ast.parse(source)
-
-        class ModePreservationVisitor(ast.NodeVisitor):
-            def __init__(self):
-                self.popover_methods = []
-                self.violations = []
-
-            def visit_FunctionDef(self, node: ast.FunctionDef):
-                # Check if this is a popover-related method
-                if "popover" in node.name.lower() or any(
-                    "popover" in arg.arg.lower() for arg in node.args.args
-                ):
-                    # Check if pencil_mode is not in arguments but used in body
-                    has_pencil_mode_arg = any(
-                        arg.arg == "pencil_mode" for arg in node.args.args
-                    )
-                    has_pencil_mode_use = self._check_pencil_mode_use(node)
-
-                    if not has_pencil_mode_arg and has_pencil_mode_use:
-                        # If method uses pencil_mode but doesn't accept it as parameter,
-                        # it should access self.pencil_mode
-                        uses_self_pencil_mode = self._check_self_pencil_mode(node)
-                        if not uses_self_pencil_mode:
-                            self.violations.append(
-                                f"{file_path}:{node.lineno}: Method '{node.name}' uses "
-                                "pencil_mode without proper parameter or self reference"
-                            )
-
-                self.generic_visit(node)
-
-            def _check_pencil_mode_use(self, node: ast.FunctionDef) -> bool:
-                """Check if pencil_mode is used in the method body."""
-                for child in ast.walk(node):
-                    if isinstance(child, ast.Name) and child.id == "pencil_mode":
-                        return True
-                return False
-
-            def _check_self_pencil_mode(self, node: ast.FunctionDef) -> bool:
-                """Check if method uses self.pencil_mode."""
-                for child in ast.walk(node):
-                    if isinstance(child, ast.Attribute):
-                        if (
-                            isinstance(child.value, ast.Name)
-                            and child.value.id == "self"
-                            and child.attr == "pencil_mode"
-                        ):
-                            return True
-                return False
-
-        visitor = ModePreservationVisitor()
-        visitor.visit(tree)
-        violations.extend(visitor.violations)
-
     except SyntaxError as e:
-        violations.append(f"Failed to parse {file_path}: {e}")
+        return [f"Failed to parse {file_path}: {e}"]
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.FunctionDef):
+            continue
+        if not _is_popover_related_function(node):
+            continue
+
+        has_pencil_mode_arg = any(arg.arg == "pencil_mode" for arg in node.args.args)
+        if has_pencil_mode_arg:
+            continue
+
+        if not _uses_name(node, "pencil_mode"):
+            continue
+
+        if _uses_self_attr(node, "pencil_mode"):
+            continue
+
+        violations.append(
+            f"{file_path}:{node.lineno}: Method '{node.name}' uses pencil_mode "
+            "without proper parameter or self reference"
+        )
 
     return violations
 
@@ -449,7 +441,8 @@ def test_variant_manager_popover_lifecycle(variant_module, manager_class):
 
 
 def test_gesture_click_handles_all_buttons():
-    source = "/mnt/projects/kgoodwin/Sudoku/src/variants/classic_sudoku/manager.py"
+    project_root = Path(__file__).parent.parent
+    source = project_root / "src/variants/classic_sudoku/manager.py"
 
     with open(source, "r", encoding="utf-8") as f:
         content = f.read()
@@ -462,7 +455,8 @@ def test_gesture_click_handles_all_buttons():
 
 
 def test_popover_opened_from_released_handler_only():
-    source = "/mnt/projects/kgoodwin/Sudoku/src/variants/classic_sudoku/manager.py"
+    project_root = Path(__file__).parent.parent
+    source = project_root / "src/variants/classic_sudoku/manager.py"
 
     with open(source, "r", encoding="utf-8") as f:
         content = f.read()

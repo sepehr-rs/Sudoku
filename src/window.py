@@ -181,23 +181,22 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_preferences(self, *_):
         PreferencesDialog(self).present()
 
-    def on_window_clicked(self, _, event):
+    @staticmethod
+    def _left_button_press_position(event):
         try:
             if event.get_event_type() != Gdk.EventType.BUTTON_PRESS:
-                return False
-        except Exception:
-            return False
-
-        try:
+                return None
             if event.get_button() != 1:
-                return False
+                return None
+            return event.get_position()
         except Exception:
-            return False
+            return None
 
-        try:
-            x, y = event.get_position()
-        except Exception:
+    def on_window_clicked(self, _, event):
+        pos = self._left_button_press_position(event)
+        if pos is None:
             return False
+        x, y = pos
 
         frame = self.grid_container.get_first_child()
         if not frame:
