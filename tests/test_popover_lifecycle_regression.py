@@ -28,9 +28,7 @@ These tests ensure proper popover lifecycle behavior:
 """
 
 import ast
-import importlib.util
 from pathlib import Path
-from typing import List, Set, Tuple
 
 import pytest
 
@@ -78,7 +76,7 @@ def test_no_unparent_calls_in_popover_methods():
     )
 
 
-def find_unparent_calls(tree: ast.AST, file_path: str) -> List[str]:
+def find_unparent_calls(tree: ast.AST, file_path: str) -> list[str]:
     """
     Find all unparent() calls in the AST.
 
@@ -150,7 +148,7 @@ def test_popup_used_instead_of_show_for_popovers():
     )
 
 
-def verify_popup_calls_present(files_to_check: List[str]) -> List[str]:
+def verify_popup_calls_present(files_to_check: list[str]) -> list[str]:
     """
     Verify popup() is used for showing popovers.
 
@@ -206,7 +204,13 @@ def test_released_signal_used_for_gesture_clicks():
             )
 
         if 'connect("pressed"' in source:
-            if 'connect("pressed", self.on_left_click' in source or 'connect("pressed", self.on_right_click' in source:
+            if any(
+                snippet in source
+                for snippet in (
+                    'connect("pressed", self.on_left_click',
+                    'connect("pressed", self.on_right_click',
+                )
+            ):
                 violations.append(
                     f"{file_path}: Click handler must not be wired to 'pressed'"
                 )
@@ -271,9 +275,11 @@ def test_mode_switching_preserved():
                 # Check if this is in a popover lifecycle method
                 method_context = get_method_context(lines, i)
                 if "popover" in method_context.lower():
-                    violations.append(
-                        f"{file_path}:{i}: Possible mode reset in popover method: {stripped}"
+                    msg = (
+                        f"{file_path}:{i}: Possible mode reset in popover method: "
+                        f"{stripped}"
                     )
+                    violations.append(msg)
 
     # Also verify proper mode preservation through method signatures
     mode_violations = verify_mode_preservation_signatures(
@@ -287,7 +293,7 @@ def test_mode_switching_preserved():
     )
 
 
-def get_method_context(lines: List[str], line_num: int, context_size: int = 10) -> str:
+def get_method_context(lines: list[str], line_num: int, context_size: int = 10) -> str:
     """
     Get the method context around a given line number.
 
@@ -298,7 +304,7 @@ def get_method_context(lines: List[str], line_num: int, context_size: int = 10) 
     return "\n".join(lines[start:end])
 
 
-def verify_mode_preservation_signatures(file_path: str) -> List[str]:
+def verify_mode_preservation_signatures(file_path: str) -> list[str]:
     """
     Verify that popover-related methods preserve pencil mode state.
 
@@ -374,37 +380,6 @@ def verify_mode_preservation_signatures(file_path: str) -> List[str]:
     return violations
 
 
-# Integration test: Full popover lifecycle flow (REMOVED - too complex/flaky)
-# This test was overly complex and kept failing due to reading entire file content.
-# The other 7 tests provide adequate coverage.
-    """
-    Integration test to verify complete popover lifecycle follows best practices.
-    
-    This test checks that the entire flow from showing to hiding a popover
-    follows GTK4 best practices.
-    """
-    project_root = Path(__file__).parent.parent
-    
-    # Check of main UI helper file
-    ui_helpers_path = project_root / "src/variants/classic_sudoku/ui_helpers.py"
-    assert ui_helpers_path.exists(), "UI helpers file not found"
-    
-    with open(ui_helpers_path, "r", encoding="utf-8") as f:
-        source = f.read()
-    
-    # Verify required lifecycle components by checking for actual method calls
-    # Look for method calls, not just text patterns
-    
-    # Check that show_number_popover() calls popup()
-    assert "popover.popup()" in source, "show_number_popover() should call popup() to display popovers"
-    
-    # Check that on_number_selected and on_clear_selected call popdown()
-    assert "popover.popdown()" in source, "popover dismissal should use popdown() method"
-    
-    # Verify unparent is NOT used (the only deprecated pattern to check)
-    assert ".unparent()" not in source, "unparent() should not be used in popover lifecycle"
-
-
 def test_popover_shared_design_no_per_cell_cache():
     project_root = Path(__file__).parent.parent
 
@@ -472,6 +447,7 @@ def test_variant_manager_popover_lifecycle(variant_module, manager_class):
         f"{manager_class} popover lifecycle violations:\n" + "\n".join(violations)
     )
 
+
 def test_gesture_click_handles_all_buttons():
     source = "/mnt/projects/kgoodwin/Sudoku/src/variants/classic_sudoku/manager.py"
 
@@ -483,6 +459,7 @@ def test_gesture_click_handles_all_buttons():
     assert "gesture.connect(\"released\", self.on_cell_clicked" in content
     assert "def on_cell_clicked" in content
     assert "self._show_popover" in content
+
 
 def test_popover_opened_from_released_handler_only():
     source = "/mnt/projects/kgoodwin/Sudoku/src/variants/classic_sudoku/manager.py"
