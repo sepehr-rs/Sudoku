@@ -40,14 +40,14 @@ class SudokuWindow(Adw.ApplicationWindow):
     stack = Gtk.Template.Child()
     continue_button = Gtk.Template.Child()
     new_game_button = Gtk.Template.Child()
-    main_menu_box = Gtk.Template.Child() # Main screen
+    main_menu_box = Gtk.Template.Child()  # Main screen
     finished_page = Gtk.Template.Child()
     loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
-    primary_menu_button = Gtk.Template.Child() # Hamburger menu
+    primary_menu_button = Gtk.Template.Child()  # Hamburger menu
     sudoku_window_title = Gtk.Template.Child()
-    home_button = Gtk.Template.Child() # back arrow
+    home_button = Gtk.Template.Child()  # back arrow
     bp_bin = Gtk.Template.Child()
     game_scrolled_window = Gtk.Template.Child()
 
@@ -101,16 +101,20 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_stack_page_changed(self, stack, _):
         """Update UI elements based on the current visible page."""
         visible = stack.get_visible_child()
-        
+
         # Reset pencil mode for non-game pages
         if visible in (self.main_menu_box, self.loading_screen, self.finished_page):
             self._force_disable_pencil_mode()
             self.sudoku_window_title.set_subtitle("")
-        
+
         # Define state for each page type
-        is_game_page = visible not in (self.main_menu_box, self.loading_screen, self.finished_page)
+        is_game_page = visible not in (
+            self.main_menu_box,
+            self.loading_screen,
+            self.finished_page,
+        )
         is_menu_or_loading = visible in (self.main_menu_box, self.loading_screen)
-        
+
         # Update UI in a declarative way
         self._update_preferences_visibility(is_game_page)
         self.lookup_action("show-preferences").set_enabled(is_game_page)
@@ -118,7 +122,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.lookup_action("back-to-menu").set_enabled(not is_menu_or_loading)
         self.home_button.set_visible(not is_menu_or_loading)
         self.primary_menu_button.set_visible(is_game_page)
-        
+
         # Update subtitle for game pages
         if is_game_page:
             self._change_subtitle_for_pencil_mode()
