@@ -24,8 +24,8 @@ from .generator import DiagonalSudokuGenerator
 
 
 class DiagonalSudokuBoard(ClassicSudokuBoard):
-    def __init__(self, difficulty: float, difficulty_label: str):
-        super().__init__(difficulty, difficulty_label, "Diagonal Sudoku")
+    def __init__(self, difficulty: float, difficulty_label: str, variant: str):
+        super().__init__(difficulty, difficulty_label, variant)
         self.rules = DiagonalSudokuRules()
         self.generator = DiagonalSudokuGenerator()
         self.puzzle, self.solution = self.generator.generate(difficulty)

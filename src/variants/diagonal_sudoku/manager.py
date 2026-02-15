@@ -1,4 +1,4 @@
-# finished_page.py
+# manager.py
 #
 # Copyright 2025 sepehr-rs
 #
@@ -17,6 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
+import threading
+from gi.repository import GLib
 from ..classic_sudoku.manager import ClassicSudokuManager
 from ..classic_sudoku.sudoku_cell import SudokuCell
 from ...base.preferences_manager import PreferencesManager
@@ -43,6 +46,22 @@ class DiagonalSudokuManager(ClassicSudokuManager):
         else:
             cell.grab_focus()
 
+    def start_game(self, difficulty: float, difficulty_label: str, variant: str):
+        self.window.stack.set_visible_child(self.window.loading_screen)
+        logging.info(f"Starting Diagonal Sudoku with difficulty: {difficulty}")
+
+        def worker():
+            self.board = DiagonalSudokuBoard(difficulty, difficulty_label, variant)
+            GLib.idle_add(self._finish_start_game, self.board)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _finish_start_game(self, board):
+        self.board = board
+        self.build_grid()
+        self.window.stack.set_visible_child(self.window.game_scrolled_window)
+        return False
+
     def _focus_cell(self, row: int, col: int):
         """Handle keyboard navigation focus (diagonal-aware)."""
         size = self.board.rules.size
@@ -58,6 +77,46 @@ class DiagonalSudokuManager(ClassicSudokuManager):
                     self.board.rules.block_size,
                     cell.is_editable(),
                 )
+
+    def _handle_correct_input(self, cell):
+        """Handle behavior when the user enters the correct number."""
+        cell.set_editable(False)
+        cell.highlight("correct")
+        cell.set_tooltip_text("Correct")
+        cell.start_feedback_timeout(lambda: self._clear_correct_feedback(cell))
+
+    def _handle_wrong_input(self, cell, number: str, conflicts=None):
+        """Handle behavior when the user enters a wrong number."""
+        cell.highlight("wrong")
+        cell.set_tooltip_text("Wrong")
+
+        conflicts = conflicts or DiagonalUIHelpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, 3
+        )
+        self.conflict_cells.extend(conflicts)
+
+        cell.start_feedback_timeout(self._clear_conflicts)
+
+    def on_cell_filled(self, cell, number: str):
+        """Called when a cell is filled with a number."""
+        casual_mode = PreferencesManager.get_preferences().general("casual_mode")[1]
+        correct_value = self.board.get_correct_value(cell.row, cell.col)
+        # TODO: Add auto check for the board when casual_mdoe is turned off
+        self._clear_feedback(cell)
+        if casual_mode:
+            if str(number) == str(correct_value):
+                self._handle_correct_input(cell)
+            else:
+                self._handle_wrong_input(cell, number)
+            return
+
+        # non-casual mode: always check conflicts
+        new_conflicts = DiagonalUIHelpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, 3
+        )
+        if new_conflicts:
+            self._handle_wrong_input(cell, number, new_conflicts)
+
 
     def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
         DiagonalUIHelpers.clear_conflicts(self.conflict_cells)
@@ -79,22 +138,15 @@ class DiagonalSudokuManager(ClassicSudokuManager):
                     "prevent_conflicting_pencil_notes",
                     default=True,
                 )
-                pref_enabled = (
-                    pref_value[1] if isinstance(pref_value, list) else pref_value
+                pref_enabled = pref_value
+
+            if pref_enabled and self.board.has_conflict(r, c, number):
+                new_conflicts = DiagonalUIHelpers.highlight_conflicts(
+                    self.cell_inputs, r, c, number, self.board.rules.block_size
                 )
-
-            if pref_enabled:
-                conflicts = self.board.has_conflict(r, c, number)
-                if conflicts:
-                    new_conflicts = []
-                    for cr, cc in conflicts:
-                        conflict_cell = self.cell_inputs[cr][cc]
-                        conflict_cell.highlight("conflict")
-                        new_conflicts.append(conflict_cell)
-
-                    self.conflict_cells.extend(new_conflicts)
-                    cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
-                    return
+                self.conflict_cells.extend(new_conflicts)
+                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+                return
 
             self.board.toggle_note(r, c, number)
             cell.update_notes(self.board.get_notes(r, c))
