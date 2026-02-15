@@ -37,10 +37,12 @@ class ClassicSudokuManager(ManagerBase):
 
     def start_game(self, difficulty: float, difficulty_label: str, variant: str):
         self.window.stack.set_visible_child(self.window.loading_screen)
-        logging.info(f"Starting Classic Sudoku with difficulty: {difficulty}")
+        logging.info(
+            f"Starting {variant.capitalize()} Sudoku with difficulty: {difficulty}"
+        )
 
         def worker():
-            self.board = ClassicSudokuBoard(difficulty, difficulty_label, variant)
+            self.board = self.board_cls(difficulty, difficulty_label, variant)
             GLib.idle_add(self._finish_start_game, self.board)
 
         threading.Thread(target=worker, daemon=True).start()
@@ -58,7 +60,7 @@ class ClassicSudokuManager(ManagerBase):
         return False
 
     def load_saved_game(self):
-        self.board = ClassicSudokuBoard.load_from_file()
+        self.board = self.board_cls.load_from_file()
         if self.board:
             self.window.sudoku_window_title.set_subtitle(
                 f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
@@ -66,7 +68,9 @@ class ClassicSudokuManager(ManagerBase):
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_scrolled_window)
-            logging.info("Loaded saved Classic Sudoku game")
+            logging.info(
+                f"Loaded saved {self.board.variant.capitalize()} Sudoku game"
+            )
             if self.board.is_solved():
                 self._show_puzzle_finished_dialog()
         else:

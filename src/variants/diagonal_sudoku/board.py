@@ -17,18 +17,62 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import json
+import os
 from typing import List, Tuple, Iterable, Set
 from ..classic_sudoku.board import ClassicSudokuBoard
+from ...base.board_base import BoardBase
+from ...base.preferences_manager import PreferencesManager
 from .rules import DiagonalSudokuRules
 from .generator import DiagonalSudokuGenerator
 
 
 class DiagonalSudokuBoard(ClassicSudokuBoard):
     def __init__(self, difficulty: float, difficulty_label: str, variant: str):
-        super().__init__(difficulty, difficulty_label, variant)
+        BoardBase.__init__(
+            self,
+            DiagonalSudokuRules(),
+            DiagonalSudokuGenerator(),
+            difficulty,
+            difficulty_label,
+            variant,
+        )
+        prefs = PreferencesManager.get_preferences()
+        self.variant_preferences = prefs.variant_defaults.copy()
+        self.general_preferences = prefs.general_defaults.copy()
+
+    @classmethod
+    def load_from_file(cls, filename: str = None):
+        filename = filename or cls.DEFAULT_SAVE_PATH
+        if not os.path.exists(filename):
+            return None
+
+        with open(filename, "r", encoding="utf-8") as f:
+            state = json.load(f)
+
+        self = cls.__new__(cls)
         self.rules = DiagonalSudokuRules()
         self.generator = DiagonalSudokuGenerator()
-        self.puzzle, self.solution = self.generator.generate(difficulty)
+        self.difficulty = state["difficulty"]
+        self.difficulty_label = state.get("difficulty_label", "Unknown")
+        self.variant_preferences = state.get(
+            "variant_preferences", PreferencesManager.get_preferences().variant_defaults
+        )
+        self.general_preferences = state.get(
+            "general_preferences", PreferencesManager.get_preferences().general_defaults
+        )
+        self.variant = state.get("variant", "Unknown")
+        self.puzzle = state["puzzle"]
+        self.solution = state["solution"]
+        self.user_inputs = state["user_inputs"]
+        self.notes = [[set(n) for n in row] for row in state["notes"]]
+        PreferencesManager.get_preferences().variant_defaults.update(
+            self.variant_preferences
+        )
+        PreferencesManager.get_preferences().general_defaults.update(
+            self.general_preferences
+        )
+        return self
 
     def _iter_diagonal_cells(self, row: int, col: int) -> Iterable[Tuple[int, int]]:
         size = self.rules.size
