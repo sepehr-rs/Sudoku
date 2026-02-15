@@ -120,9 +120,8 @@ class TestManagerBoardClassUsage:
 
         assert manager.board_cls == DiagonalSudokuBoard
 
-    def test_start_game_instantiates_using_board_cls_not_classic(self):
-        """Regression: start_game must instantiate self.board_cls."""
-        from src.variants.diagonal_sudoku.manager import DiagonalSudokuManager
+    def test_classic_manager_start_game_instantiates_using_board_cls(self):
+        from src.variants.classic_sudoku.manager import ClassicSudokuManager
 
         class FakeBoard:
             def __init__(self, difficulty, difficulty_label, variant):
@@ -133,14 +132,8 @@ class TestManagerBoardClassUsage:
         mock_window = MagicMock()
         mock_window.stack = MagicMock()
         mock_window.loading_screen = MagicMock()
-        mock_window.game_scrolled_window = MagicMock()
-
-        manager = DiagonalSudokuManager(mock_window)
+        manager = ClassicSudokuManager(mock_window)
         setattr(manager, "board_cls", FakeBoard)
-        manager.build_grid = MagicMock()
-        manager._finish_start_game = MagicMock(
-            side_effect=lambda board: setattr(manager, "board", board) or False
-        )
 
         class _InstantThread:
             def __init__(self, target, daemon=True):
@@ -154,12 +147,12 @@ class TestManagerBoardClassUsage:
             _InstantThread,
         ), patch(
             "src.variants.classic_sudoku.manager.GLib.idle_add",
-            lambda cb, board: cb(board),
+            lambda *_args, **_kwargs: None,
         ):
-            manager.start_game(0.5, "Medium", "diagonal")
+            manager.start_game(0.5, "Medium", "classic")
 
         assert isinstance(manager.board, FakeBoard)
-        assert manager.board.variant == "diagonal"
+        assert manager.board.variant == "classic"
 
 
 class TestGetManagerTypeMigrationGuard:
