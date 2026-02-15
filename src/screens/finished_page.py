@@ -34,7 +34,6 @@ class FinishedPage(Gtk.Box):
         "puzzle-complete-celebration-light.svg"
     )
     finished_label = Gtk.Template.Child()
-    back_button = Gtk.Template.Child()
     picture_contain = Gtk.Template.Child()
 
     VICTORY_MESSAGE = _("Puzzle Complete!")
