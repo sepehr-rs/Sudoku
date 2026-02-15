@@ -227,9 +227,7 @@ class ClassicSudokuManager(ManagerBase):
                     "prevent_conflicting_pencil_notes",
                     default=True,
                 )
-                pref_enabled = (
-                    pref_value[1] if isinstance(pref_value, list) else pref_value
-                )
+                pref_enabled = pref_value
 
             if pref_enabled and self.board.has_conflict(r, c, number):
                 new_conflicts = ClassicUIHelpers.highlight_conflicts(
