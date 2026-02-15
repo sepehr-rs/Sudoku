@@ -46,7 +46,7 @@ class DiagonalUIHelpers(ClassicUIHelpers):
                             and c // block_size == col // block_size
                         )  # same block
                         or (r == c and row == col)
-                        or (r + c == size - 1 and row + col == size - 1) 
+                        or (r + c == size - 1 and row + col == size - 1)
                     )
                 ):
                     cell.highlight("conflict")

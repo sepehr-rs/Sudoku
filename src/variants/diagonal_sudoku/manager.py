@@ -117,7 +117,6 @@ class DiagonalSudokuManager(ClassicSudokuManager):
         if new_conflicts:
             self._handle_wrong_input(cell, number, new_conflicts)
 
-
     def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
         DiagonalUIHelpers.clear_conflicts(self.conflict_cells)
 
