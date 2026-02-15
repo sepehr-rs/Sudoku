@@ -406,7 +406,7 @@ class ClassicSudokuManager(ManagerBase):
         correct_value = self.board.get_correct_value(cell.row, cell.col)
         # TODO: Add auto check for the board when casual_mdoe is turned off
         self._clear_feedback(cell)
-        if prefs.general("casual_mode"):
+        if prefs.general("casual_mode")[1]:
             if str(number) == str(correct_value):
                 self._handle_correct_input(cell)
             else:
