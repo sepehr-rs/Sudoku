@@ -140,29 +140,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             return None
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        variant = data.get("variant", "Unknown")
-
-        if variant == "diagonal":
-            solution = data.get("solution")
-            if solution and not self._is_valid_diagonal_solution(solution):
-                data["variant"] = "classic"
-                with open(path, "w", encoding="utf-8") as wf:
-                    json.dump(data, wf)
-                return "classic"
-
-        return variant
-
-    def _is_valid_diagonal_solution(self, solution):
-        if not solution or len(solution) != 9:
-            return False
-        size = 9
-        main_diag = [solution[i][i] for i in range(size)]
-        if len(set(main_diag)) != size:
-            return False
-        anti_diag = [solution[i][size - 1 - i] for i in range(size)]
-        if len(set(anti_diag)) != size:
-            return False
-        return True
+        return data.get("variant", "Unknown")
 
     def on_continue_clicked(self, _):
         variant = self.get_manager_type()

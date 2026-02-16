@@ -17,9 +17,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import logging
-import threading
-from gi.repository import GLib
 from ..classic_sudoku.manager import ClassicSudokuManager
 from ..classic_sudoku.sudoku_cell import SudokuCell
 from ...base.preferences_manager import PreferencesManager
@@ -45,22 +42,6 @@ class DiagonalSudokuManager(ClassicSudokuManager):
             self._show_popover(cell, gesture.get_current_button())
         else:
             cell.grab_focus()
-
-    def start_game(self, difficulty: float, difficulty_label: str, variant: str):
-        self.window.stack.set_visible_child(self.window.loading_screen)
-        logging.info(f"Starting Diagonal Sudoku with difficulty: {difficulty}")
-
-        def worker():
-            self.board = DiagonalSudokuBoard(difficulty, difficulty_label, variant)
-            GLib.idle_add(self._finish_start_game, self.board)
-
-        threading.Thread(target=worker, daemon=True).start()
-
-    def _finish_start_game(self, board):
-        self.board = board
-        self.build_grid()
-        self.window.stack.set_visible_child(self.window.game_scrolled_window)
-        return False
 
     def _focus_cell(self, row: int, col: int):
         """Handle keyboard navigation focus (diagonal-aware)."""

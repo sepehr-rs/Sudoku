@@ -1,0 +1,21 @@
+{
+  "include": [
+    "src/base/manager_base.py",
+    "src/base/board_base.py",
+    "src/window.py",
+    "src/variants/classic_sudoku/manager.py",
+    "src/variants/diagonal_sudoku/manager.py",
+    "src/variants/classic_sudoku/board.py",
+    "src/variants/diagonal_sudoku/board.py",
+    "tests/test_diagonal_mode_plumbing.py"
+  ],
+  "typeCheckingMode": "basic",
+  "pythonVersion": "3.12",
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportOptionalCall": "none",
+  "reportArgumentType": "none",
+  "reportCallIssue": "none"
+}

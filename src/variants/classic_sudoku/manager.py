@@ -18,9 +18,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
-import threading
 import unicodedata
-from gi.repository import Gtk, Gdk, GLib
+from gi.repository import Gtk, Gdk
 from ...base.manager_base import ManagerBase
 from ...base.preferences_manager import PreferencesManager
 from .board import ClassicSudokuBoard
@@ -34,18 +33,6 @@ class ClassicSudokuManager(ManagerBase):
         self.key_map, self.remove_keys = ClassicUIHelpers.setup_key_mappings()
         self.parent_grid = None
         self.blocks = []
-
-    def start_game(self, difficulty: float, difficulty_label: str, variant: str):
-        self.window.stack.set_visible_child(self.window.loading_screen)
-        logging.info(
-            f"Starting {variant.capitalize()} Sudoku with difficulty: {difficulty}"
-        )
-
-        def worker():
-            self.board = self.board_cls(difficulty, difficulty_label, variant)
-            GLib.idle_add(self._finish_start_game, self.board)
-
-        threading.Thread(target=worker, daemon=True).start()
 
     def _finish_start_game(self, board):
         self.board = board

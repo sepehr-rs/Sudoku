@@ -17,9 +17,10 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 from .ui_helpers import UIHelpers
 import logging
+import threading
 
 
 class ManagerBase:
@@ -36,6 +37,21 @@ class ManagerBase:
 
     def new_game(self, difficulty, difficulty_label):
         self.board = self.board_cls(difficulty, difficulty_label)
+
+    def start_game(self, difficulty: float, difficulty_label: str, variant: str):
+        self.window.stack.set_visible_child(self.window.loading_screen)
+        logging.info(
+            f"Starting {variant.capitalize()} Sudoku with difficulty: {difficulty}"
+        )
+
+        def worker():
+            self.board = self.board_cls(difficulty, difficulty_label, variant)
+            GLib.idle_add(self._finish_start_game, self.board)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _finish_start_game(self, board):
+        raise NotImplementedError
 
     def build_grid(self):
         """Variant managers override this to build the grid UI."""
