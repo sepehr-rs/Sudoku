@@ -26,9 +26,6 @@ from .generator import DiagonalSudokuGenerator
 
 
 class DiagonalSudokuBoard(ClassicSudokuBoard):
-    rules_cls = DiagonalSudokuRules
-    generator_cls = DiagonalSudokuGenerator
-
     def __init__(self, difficulty: float, difficulty_label: str, variant: str):
         BoardBase.__init__(
             self,
@@ -41,6 +38,14 @@ class DiagonalSudokuBoard(ClassicSudokuBoard):
         prefs = PreferencesManager.get_preferences()
         self.variant_preferences = prefs.variant_defaults.copy()
         self.general_preferences = prefs.general_defaults.copy()
+
+    @classmethod
+    def load_from_file(cls, filename: str | None = None):
+        return cls._load_from_file_common(
+            filename=filename,
+            rules=DiagonalSudokuRules(),
+            generator=DiagonalSudokuGenerator(),
+        )
 
     def _iter_diagonal_cells(self, row: int, col: int) -> Iterable[Tuple[int, int]]:
         size = self.rules.size

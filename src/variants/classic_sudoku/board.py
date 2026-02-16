@@ -24,9 +24,6 @@ from .generator import ClassicSudokuGenerator
 
 
 class ClassicSudokuBoard(BoardBase):
-    rules_cls = ClassicSudokuRules
-    generator_cls = ClassicSudokuGenerator
-
     def __init__(self, difficulty: float, difficulty_label: str, variant: str):
         super().__init__(
             ClassicSudokuRules(),
@@ -34,6 +31,14 @@ class ClassicSudokuBoard(BoardBase):
             difficulty,
             difficulty_label,
             variant,
+        )
+
+    @classmethod
+    def load_from_file(cls, filename: str | None = None):
+        return cls._load_from_file_common(
+            filename=filename,
+            rules=ClassicSudokuRules(),
+            generator=ClassicSudokuGenerator(),
         )
 
     def is_solved(self):

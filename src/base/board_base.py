@@ -20,7 +20,7 @@
 import json
 import os
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Self
+from typing import Any, Self
 from .preferences_manager import PreferencesManager
 
 
@@ -63,12 +63,14 @@ class BoardBase(ABC):
             [set() for _ in range(self.rules.size)] for _ in range(self.rules.size)
         ]
 
-    rules_cls: ClassVar[type[Any]]
-    generator_cls: ClassVar[type[Any]]
-
     @classmethod
-    def load_from_file(cls, filename: str | None = None) -> Self | None:
-        """Load board state from file using subclass-provided rules/generator."""
+    def _load_from_file_common(
+        cls,
+        *,
+        filename: str | None,
+        rules: Any,
+        generator: Any,
+    ) -> Self | None:
         filename = filename or cls.DEFAULT_SAVE_PATH
         if not os.path.exists(filename):
             return None
@@ -77,8 +79,8 @@ class BoardBase(ABC):
             state = json.load(f)
 
         self = cls.__new__(cls)
-        self.rules = cls.rules_cls()
-        self.generator = cls.generator_cls()
+        self.rules = rules
+        self.generator = generator
         self.difficulty = state["difficulty"]
         self.difficulty_label = state.get("difficulty_label", "Unknown")
 
@@ -102,6 +104,10 @@ class BoardBase(ABC):
         prefs.variant_defaults.update(self.variant_preferences)
         prefs.general_defaults.update(self.general_preferences)
         return self
+
+    @classmethod
+    def load_from_file(cls, filename: str | None = None) -> Self | None:
+        raise NotImplementedError
 
     def save_to_file(self, filename: str | None = None):
         path = filename or self.DEFAULT_SAVE_PATH
