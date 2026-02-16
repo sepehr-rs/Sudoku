@@ -17,6 +17,12 @@ sys.modules["gi.repository.Adw"] = MagicMock()
 import pytest
 
 from src.base.preferences_manager import PreferencesManager
+from src.variants.classic_sudoku.board import ClassicSudokuBoard
+from src.variants.classic_sudoku.manager import ClassicSudokuManager
+from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
+from src.variants.diagonal_sudoku.generator import DiagonalSudokuGenerator
+from src.variants.diagonal_sudoku.manager import DiagonalSudokuManager
+from src.variants.diagonal_sudoku.rules import DiagonalSudokuRules
 
 
 class _DummyPreferences:
@@ -42,10 +48,6 @@ class TestDiagonalBoardLoadFromFile:
 
     def test_load_from_file_uses_diagonal_rules(self, tmp_path):
         """Verify loaded board has DiagonalSudokuRules."""
-        from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
-        from src.variants.diagonal_sudoku.generator import DiagonalSudokuGenerator
-        from src.variants.diagonal_sudoku.rules import DiagonalSudokuRules
-
         save_data = {
             "difficulty": 0.5,
             "difficulty_label": "Medium",
@@ -73,8 +75,6 @@ class TestDiagonalBoardLoadFromFile:
 
     def test_load_from_file_returns_none_for_missing_file(self):
         """Verify returns None when file doesn't exist."""
-        from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
-
         missing = os.path.join(tempfile.gettempdir(), "sudoku", "nope.json")
         board = DiagonalSudokuBoard.load_from_file(missing)
         assert board is None
@@ -83,21 +83,8 @@ class TestDiagonalBoardLoadFromFile:
 class TestManagerBoardClassUsage:
     """Tests for manager using self.board_cls."""
 
-    def test_diagonal_manager_uses_diagonal_board_cls(self):
-        """Verify DiagonalSudokuManager sets board_cls to DiagonalSudokuBoard."""
-        from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
-        from src.variants.diagonal_sudoku.manager import DiagonalSudokuManager
-
-        mock_window = MagicMock()
-        manager = DiagonalSudokuManager(mock_window)
-
-        assert manager.board_cls == DiagonalSudokuBoard
-
     def test_diagonal_manager_start_game_creates_diagonal_board(self):
         """Verify DiagonalSudokuManager.start_game() creates DiagonalSudokuBoard."""
-        from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
-        from src.variants.diagonal_sudoku.manager import DiagonalSudokuManager
-
         class _InstantThread:
             def __init__(self, *args, target=None, daemon=True, **kwargs):
                 del args, daemon, kwargs
@@ -142,9 +129,6 @@ class TestManagerBoardClassUsage:
 
     def test_classic_manager_start_game_creates_classic_board(self):
         """Verify ClassicSudokuManager.start_game() creates ClassicSudokuBoard."""
-        from src.variants.classic_sudoku.board import ClassicSudokuBoard
-        from src.variants.classic_sudoku.manager import ClassicSudokuManager
-
         class _InstantThread:
             def __init__(self, *args, target=None, daemon=True, **kwargs):
                 del args, daemon, kwargs
