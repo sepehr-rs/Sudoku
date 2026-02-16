@@ -95,14 +95,13 @@ class TestManagerBoardClassUsage:
 
     def test_diagonal_manager_start_game_creates_diagonal_board(self):
         """Verify DiagonalSudokuManager.start_game() creates DiagonalSudokuBoard."""
-        import threading  # noqa: F401
         from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
         from src.variants.diagonal_sudoku.manager import DiagonalSudokuManager
-        from gi.repository import GLib
 
         class _InstantThread:
-            def __init__(self, target, daemon=True):
-                self._target = target
+            def __init__(self, *args, target=None, daemon=True, **kwargs):
+                del args, daemon, kwargs
+                self._target = target or (lambda: None)
 
             def start(self):
                 self._target()
@@ -110,14 +109,30 @@ class TestManagerBoardClassUsage:
         def fake_idle_add(func, *args, **kwargs):
             return func(*args, **kwargs) or True
 
+        def fake_generate(_self, _difficulty, timeout=5):
+            del timeout
+            puzzle = [[None] * 9 for _ in range(9)]
+            solution = [
+                [str((i * 9 + j + 1) % 9 + 1) for j in range(9)]
+                for i in range(9)
+            ]
+            return puzzle, solution
+
         mock_window = MagicMock()
         mock_window.stack = MagicMock()
         mock_window.loading_screen = MagicMock()
         mock_window.game_scrolled_window = MagicMock()
         manager = DiagonalSudokuManager(mock_window)
 
-        with patch("threading.Thread", _InstantThread), patch.object(
-            GLib, "idle_add", fake_idle_add
+        with patch(
+            "src.base.manager_base.threading.Thread",
+            _InstantThread,
+        ), patch(
+            "src.base.manager_base.GLib.idle_add",
+            fake_idle_add,
+        ), patch(
+            "src.base.generator_base.GeneratorBase.generate",
+            fake_generate,
         ):
             with patch.object(manager, "build_grid"):
                 manager.start_game(0.5, "Medium", "diagonal")
@@ -127,14 +142,13 @@ class TestManagerBoardClassUsage:
 
     def test_classic_manager_start_game_creates_classic_board(self):
         """Verify ClassicSudokuManager.start_game() creates ClassicSudokuBoard."""
-        import threading  # noqa: F401
         from src.variants.classic_sudoku.board import ClassicSudokuBoard
         from src.variants.classic_sudoku.manager import ClassicSudokuManager
-        from gi.repository import GLib
 
         class _InstantThread:
-            def __init__(self, target, daemon=True):
-                self._target = target
+            def __init__(self, *args, target=None, daemon=True, **kwargs):
+                del args, daemon, kwargs
+                self._target = target or (lambda: None)
 
             def start(self):
                 self._target()
@@ -142,14 +156,30 @@ class TestManagerBoardClassUsage:
         def fake_idle_add(func, *args, **kwargs):
             return func(*args, **kwargs) or True
 
+        def fake_generate(_self, _difficulty, timeout=5):
+            del timeout
+            puzzle = [[None] * 9 for _ in range(9)]
+            solution = [
+                [str((i * 9 + j + 1) % 9 + 1) for j in range(9)]
+                for i in range(9)
+            ]
+            return puzzle, solution
+
         mock_window = MagicMock()
         mock_window.stack = MagicMock()
         mock_window.loading_screen = MagicMock()
         mock_window.game_scrolled_window = MagicMock()
         manager = ClassicSudokuManager(mock_window)
 
-        with patch("threading.Thread", _InstantThread), patch.object(
-            GLib, "idle_add", fake_idle_add
+        with patch(
+            "src.base.manager_base.threading.Thread",
+            _InstantThread,
+        ), patch(
+            "src.base.manager_base.GLib.idle_add",
+            fake_idle_add,
+        ), patch(
+            "src.base.generator_base.GeneratorBase.generate",
+            fake_generate,
         ):
             with patch.object(manager, "build_grid"):
                 manager.start_game(0.5, "Medium", "classic")
