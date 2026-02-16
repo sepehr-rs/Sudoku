@@ -34,6 +34,23 @@ class ManagerBase:
 
     def load_saved_game(self):
         self.board = self.board_cls.load_from_file()
+        if self.board:
+            self.window.sudoku_window_title.set_subtitle(
+                f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
+            )
+            self.build_grid()
+            self._restore_game_state()
+            self.window.stack.set_visible_child(self.window.game_scrolled_window)
+            logging.info(
+                f"Loaded saved {self.board.variant.capitalize()} Sudoku game"
+            )
+            if self.board.is_solved():
+                self._show_puzzle_finished_dialog()
+        else:
+            logging.error("No saved game found")
+
+    def _restore_game_state(self):
+        raise NotImplementedError
 
     def new_game(self, difficulty, difficulty_label):
         self.board = self.board_cls(difficulty, difficulty_label)
