@@ -41,10 +41,14 @@ class SudokuCell(Gtk.Button):
     def is_editable(self) -> bool:
         return self._editable
 
-    def do_clicked(self, *args):
+    def do_clicked(self):
         if not self._editable:
             return
-        super().do_clicked(*args)
+
+        try:
+            Gtk.Button.do_clicked(self)
+        except AttributeError:
+            Gtk.Button.clicked(self)
 
     def _setup_ui(self):
         """Set up the Sudoku cell UI."""
