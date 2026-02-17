@@ -17,8 +17,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import logging
-
 from gi.repository import Gtk, GLib  # pyright: ignore[reportAttributeAccessIssue]
 
 
@@ -42,15 +40,6 @@ class SudokuCell(Gtk.Button):
 
     def is_editable(self) -> bool:
         return self._editable
-
-    def do_clicked(self):
-        if not self._editable:
-            return
-
-        try:
-            super().do_clicked()
-        except (TypeError, GLib.Error):
-            logging.debug("SudokuCell.do_clicked: failed to chain up", exc_info=True)
 
     def _setup_ui(self):
         """Set up the Sudoku cell UI."""
