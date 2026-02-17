@@ -303,6 +303,32 @@ class ClassicSudokuManager(ManagerBase):
         except AttributeError:
             pass
 
+    def _gesture_get_button(self, gesture):
+        try:
+            return gesture.get_current_button()
+        except AttributeError:
+            return None
+
+    def _gesture_get_state(self, gesture):
+        try:
+            return gesture.get_current_event_state()
+        except AttributeError:
+            return 0
+
+    def _ignore_click_due_to_modifiers(self, button, state):
+        if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):
+            return True
+        if button == 3 and (state & Gdk.ModifierType.BUTTON1_MASK):
+            return True
+        return False
+
+    def _show_popover_for_editable_cell(self, cell, button, n_press):
+        def _deferred_show():
+            self._show_popover(cell, mouse_button=button)
+            return False
+
+        GLib.idle_add(_deferred_show)
+
     def _show_popover(self, cell: SudokuCell, mouse_button=None):
         self._restore_focus_on_popover_close = False
         self._popdown_active_popover()
@@ -358,21 +384,12 @@ class ClassicSudokuManager(ManagerBase):
         if self.board is None:
             raise RuntimeError("Illegal state: received cell click without a board")
 
-        try:
-            button = gesture.get_current_button()
-        except AttributeError:
-            button = None
+        button = self._gesture_get_button(gesture)
         if button not in (1, 3):
             return
 
-        try:
-            state = gesture.get_current_event_state()
-        except AttributeError:
-            state = 0
-
-        if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):
-            return
-        if button == 3 and (state & Gdk.ModifierType.BUTTON1_MASK):
+        state = self._gesture_get_state(gesture)
+        if self._ignore_click_due_to_modifiers(button, state):
             return
 
         self.ui_helpers.highlight_related_cells(
@@ -380,11 +397,7 @@ class ClassicSudokuManager(ManagerBase):
         )
 
         if cell.is_editable() and n_press == 1:
-            def _deferred_show():
-                self._show_popover(cell, mouse_button=button)
-                return False
-
-            GLib.idle_add(_deferred_show)
+            self._show_popover_for_editable_cell(cell, button, n_press)
         else:
             cell.grab_focus()
 
