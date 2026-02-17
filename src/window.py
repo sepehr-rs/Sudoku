@@ -189,7 +189,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             if event.get_button() != 1:
                 return None
             return event.get_position()
-        except Exception:
+        except (AttributeError, TypeError):
             return None
 
     def on_window_clicked(self, _, event):

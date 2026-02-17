@@ -35,14 +35,14 @@ class DiagonalSudokuManager(ClassicSudokuManager):
     def on_cell_clicked(self, gesture, n_press, x, y, cell):
         try:
             button = gesture.get_current_button()
-        except Exception:
+        except (AttributeError, TypeError):
             button = None
         if button not in (1, 3):
             return
 
         try:
             state = gesture.get_current_event_state()
-        except Exception:
+        except (AttributeError, TypeError):
             state = 0
 
         if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):

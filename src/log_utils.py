@@ -40,8 +40,6 @@ class LogBufferHandler(logging.Handler):
 
 def glib_log_handler(domain, level, message, user_data):
     """Route GLib/GTK log messages into Python logging."""
-    if message and "Broken accounting of active state" in str(message):
-        return
     if level & (GLib.LogLevelFlags.LEVEL_ERROR | GLib.LogLevelFlags.LEVEL_CRITICAL):
         logging.error(f"[{domain}] {message}")
     elif level & GLib.LogLevelFlags.LEVEL_WARNING:
@@ -55,15 +53,8 @@ def glib_log_handler(domain, level, message, user_data):
 def _glib_log_writer(log_level, fields, n_fields=None, user_data=None):
     if user_data is None and n_fields is not None and not isinstance(n_fields, int):
         user_data = n_fields
-    try:
-        if os.environ.get("SUDOKU_SHOW_GTK_ACTIVE_WARNINGS") == "1":
-            return GLib.log_writer_default(log_level, fields, user_data)
-
-        formatted = GLib.log_writer_format_fields(log_level, fields, False)
-        if formatted and "Broken accounting of active state" in formatted:
-            return GLib.LogWriterOutput.HANDLED
-    except Exception:
-        pass
+    if os.environ.get("SUDOKU_SHOW_GTK_ACTIVE_WARNINGS") == "1":
+        return GLib.log_writer_default(log_level, fields, user_data)
 
     return GLib.log_writer_default(log_level, fields, user_data)
 
@@ -80,10 +71,7 @@ def setup_logging():
     root_logger = logging.getLogger()
     root_logger.addHandler(log_handler)
 
-    try:
-        GLib.log_set_writer_func(_glib_log_writer, None)
-    except Exception:
-        pass
+    GLib.log_set_writer_func(_glib_log_writer, None)
 
     for domain in ("Gtk", "GLib", "Gdk", "Adwaita", None):
         GLib.log_set_handler(
