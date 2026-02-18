@@ -170,7 +170,9 @@ class ClassicSudokuManager(ManagerBase):
 
     def _create_cells(self, size, block_size):
         """Create SudokuCell widgets, add controllers, and place into blocks."""
-        board = self._require_board("Illegal state: cannot create cells without a board")
+        board = self._require_board(
+            "Illegal state: cannot create cells without a board"
+        )
         cells: list[list[SudokuCell]] = []
 
         for r in range(size):
@@ -402,7 +404,9 @@ class ClassicSudokuManager(ManagerBase):
         return popover
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell: SudokuCell):
-        board = self._require_board("Illegal state: received cell click without a board")
+        board = self._require_board(
+            "Illegal state: received cell click without a board"
+        )
 
         button = self._gesture_get_button(gesture)
         if button not in (1, 3):
