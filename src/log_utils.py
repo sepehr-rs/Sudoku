@@ -19,8 +19,7 @@
 
 import logging
 import io
-import os
-from gi.repository import GLib
+from gi.repository import GLib  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class LogBufferHandler(logging.Handler):
@@ -53,9 +52,6 @@ def glib_log_handler(domain, level, message, user_data):
 def _glib_log_writer(log_level, fields, n_fields=None, user_data=None):
     if user_data is None and n_fields is not None and not isinstance(n_fields, int):
         user_data = n_fields
-    if os.environ.get("SUDOKU_SHOW_GTK_ACTIVE_WARNINGS") == "1":
-        return GLib.log_writer_default(log_level, fields, user_data)
-
     return GLib.log_writer_default(log_level, fields, user_data)
 
 

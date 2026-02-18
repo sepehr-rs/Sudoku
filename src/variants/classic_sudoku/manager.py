@@ -42,6 +42,12 @@ class ClassicSudokuManager(ManagerBase):
         self._restore_focus_on_popover_close = False
         self.board_frame = None
 
+    def _require_board(self, message: str):
+        board = self.board
+        if board is None:
+            raise RuntimeError(message)
+        return board
+
     def _get_cell_popover(self):
         if self._cell_popover is not None:
             return self._cell_popover
@@ -81,17 +87,16 @@ class ClassicSudokuManager(ManagerBase):
 
 
     def _restore_game_state(self):
-        if self.board is None:
-            raise RuntimeError("Illegal state: no board for restore_game_state")
-        size = self.board.rules.size
+        board = self._require_board("Illegal state: no board for restore_game_state")
+        size = board.rules.size
         for r in range(size):
             for c in range(size):
-                value = self.board.user_inputs[r][c]
-                notes = self.board.notes[r][c]
+                value = board.user_inputs[r][c]
+                notes = board.notes[r][c]
                 cell = self.cell_inputs[r][c]
                 if value:
                     cell.set_value(str(value))
-                    correct_value = self.board.get_correct_value(r, c)
+                    correct_value = board.get_correct_value(r, c)
                     if str(value) != str(correct_value):
                         cell.highlight("wrong")
                 if notes:
@@ -99,12 +104,11 @@ class ClassicSudokuManager(ManagerBase):
 
     def build_grid(self):
         """Build or rebuild the Sudoku grid in the UI."""
-        if self.board is None:
-            raise RuntimeError("Illegal state: cannot build grid without a board")
+        board = self._require_board("Illegal state: cannot build grid without a board")
         self._clear_previous_grid()
 
-        size = self.board.rules.size
-        block_size = self.board.rules.block_size
+        size = board.rules.size
+        block_size = board.rules.block_size
 
         self.parent_grid = self._create_parent_grid()
         self.blocks = self._create_blocks(block_size)
@@ -166,15 +170,14 @@ class ClassicSudokuManager(ManagerBase):
 
     def _create_cells(self, size, block_size):
         """Create SudokuCell widgets, add controllers, and place into blocks."""
-        if self.board is None:
-            raise RuntimeError("Illegal state: cannot create cells without a board")
+        board = self._require_board("Illegal state: cannot create cells without a board")
         cells: list[list[SudokuCell]] = []
 
         for r in range(size):
             row_cells: list[SudokuCell] = []
             for c in range(size):
-                value = self.board.puzzle[r][c]
-                editable = not self.board.is_clue(r, c)
+                value = board.puzzle[r][c]
+                editable = not board.is_clue(r, c)
                 cell = SudokuCell(r, c, value, editable)
 
                 self._attach_controllers(cell, r, c)
@@ -229,19 +232,17 @@ class ClassicSudokuManager(ManagerBase):
         )
 
     def _focus_cell(self, row: int, col: int):
-        if self.board is None:
-            raise RuntimeError("Illegal state: cannot focus cell without a board")
+        board = self._require_board("Illegal state: cannot focus cell without a board")
         self.cell_inputs[row][col].grab_focus()
         ClassicUIHelpers.highlight_related_cells(
-            self.cell_inputs, row, col, self.board.rules.block_size
+            self.cell_inputs, row, col, board.rules.block_size
         )
 
     def get_ui_helpers(self):
         return ClassicUIHelpers
 
     def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
-        if self.board is None:
-            raise RuntimeError("Illegal state: cannot fill cell without a board")
+        board = self._require_board("Illegal state: cannot fill cell without a board")
         ClassicUIHelpers.clear_conflicts(self.conflict_cells)
 
         if not cell.is_editable():
@@ -250,46 +251,66 @@ class ClassicSudokuManager(ManagerBase):
         r, c = cell.row, cell.col
 
         if self.pencil_mode or ctrl_is_pressed:
-            self.board.toggle_note(r, c, number)
-            cell.update_notes(self.board.get_notes(r, c))
-            self.board.save_to_file()
+            if cell.get_value():
+                return
+
+            prefs = PreferencesManager.get_preferences()
+            if prefs is None:
+                pref_enabled = True
+            else:
+                pref_value = prefs.general(
+                    "prevent_conflicting_pencil_notes",
+                    default=True,
+                )
+                pref_enabled = pref_value
+
+            if pref_enabled and board.has_conflict(r, c, number):
+                new_conflicts = ClassicUIHelpers.highlight_conflicts(
+                    self.cell_inputs, r, c, number, board.rules.block_size
+                )
+                self.conflict_cells.extend(new_conflicts)
+                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+                return
+
+            board.toggle_note(r, c, number)
+            cell.update_notes(board.get_notes(r, c))
+            board.save_to_file()
             return
 
         cell.set_value(number)
-        self.board.set_input(r, c, number)
-        self.board.save_to_file()
+        board.set_input(r, c, number)
+        board.save_to_file()
 
         self.on_cell_filled(cell, number)
 
-        if self.board.is_solved():
+        if board.is_solved():
             self._show_puzzle_finished_dialog()
 
     def _clear_cell(self, cell: SudokuCell, clear_all=False):
-        if self.board is None:
-            raise RuntimeError("Illegal state: cannot clear cell without a board")
+        board = self._require_board("Illegal state: cannot clear cell without a board")
         r, c = cell.row, cell.col
         if not cell.is_editable():
             return
         if clear_all:
-            self.board.clear_input(r, c)
+            board.clear_input(r, c)
             cell.clear()
-            self.board.notes[r][c].clear()
+            board.notes[r][c].clear()
             cell.update_notes(set())
 
         elif self.pencil_mode:
-            current_notes = self.board.get_notes(r, c)
+            current_notes = board.get_notes(r, c)
             if current_notes:
                 # remove the last note numerically
                 last_note = sorted(current_notes, key=int)[-1]
-                self.board.toggle_note(r, c, last_note)
-                cell.update_notes(self.board.get_notes(r, c))
+                board.toggle_note(r, c, last_note)
+                cell.update_notes(board.get_notes(r, c))
 
         else:
-            self.board.clear_input(r, c)
+            board.clear_input(r, c)
             cell.clear()
-            self.board.notes[r][c].clear()
+            board.notes[r][c].clear()
             cell.update_notes(set())
-        self.board.save_to_file()
+        board.save_to_file()
 
     def _popdown_active_popover(self):
         popover: Any = getattr(self, "_active_popover", None)
@@ -301,7 +322,7 @@ class ClassicSudokuManager(ManagerBase):
             if popover.get_visible():
                 popover.popdown()
         except AttributeError:
-            pass
+            logging.debug("Popover popdown skipped (attribute missing)", exc_info=True)
 
     def _gesture_get_button(self, gesture):
         try:
@@ -362,7 +383,7 @@ class ClassicSudokuManager(ManagerBase):
         try:
             popover.set_pointing_to(rect)
         except (AttributeError, TypeError):
-            pass
+            logging.debug("Failed to set popover pointing rect", exc_info=True)
 
         popover = ClassicUIHelpers.show_number_popover(
             cell,
@@ -381,8 +402,7 @@ class ClassicSudokuManager(ManagerBase):
         return popover
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell: SudokuCell):
-        if self.board is None:
-            raise RuntimeError("Illegal state: received cell click without a board")
+        board = self._require_board("Illegal state: received cell click without a board")
 
         button = self._gesture_get_button(gesture)
         if button not in (1, 3):
@@ -393,7 +413,7 @@ class ClassicSudokuManager(ManagerBase):
             return
 
         self.ui_helpers.highlight_related_cells(
-            self.cell_inputs, cell.row, cell.col, self.board.rules.block_size
+            self.cell_inputs, cell.row, cell.col, board.rules.block_size
         )
 
         if cell.is_editable() and n_press == 1:
@@ -402,8 +422,7 @@ class ClassicSudokuManager(ManagerBase):
             cell.grab_focus()
 
     def on_key_pressed(self, controller, keyval, keycode, state, row, col):
-        if self.board is None:
-            raise RuntimeError("Illegal state: received key press without a board")
+        self._require_board("Illegal state: received key press without a board")
         ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
 
         if self._handle_arrow_keys(keyval, ctrl, row, col):
@@ -424,8 +443,7 @@ class ClassicSudokuManager(ManagerBase):
         return False
 
     def _handle_arrow_keys(self, keyval, ctrl, row, col):
-        if self.board is None:
-            raise RuntimeError("Illegal state: no board for arrow key handling")
+        board = self._require_board("Illegal state: no board for arrow key handling")
         direction = self.window.get_direction()
         is_rtl = direction == Gtk.TextDirection.RTL
         directions = {
@@ -442,7 +460,7 @@ class ClassicSudokuManager(ManagerBase):
             dr *= 3
             dc *= 3
         new_r, new_c = row + dr, col + dc
-        if 0 <= new_r < self.board.rules.size and 0 <= new_c < self.board.rules.size:
+        if 0 <= new_r < board.rules.size and 0 <= new_c < board.rules.size:
             self._focus_cell(new_r, new_c)
         return True
 
@@ -521,13 +539,12 @@ class ClassicSudokuManager(ManagerBase):
 
     def on_cell_filled(self, cell, number: str):
         """Called when a cell is filled with a number."""
-        if self.board is None:
-            raise RuntimeError("Illegal state: no board for on_cell_filled")
+        board = self._require_board("Illegal state: no board for on_cell_filled")
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
             raise RuntimeError("Illegal state: preferences unavailable")
         casual_mode = prefs.general("casual_mode")[1]
-        correct_value = self.board.get_correct_value(cell.row, cell.col)
+        correct_value = board.get_correct_value(cell.row, cell.col)
         # TODO: Add auto check for the board when casual_mdoe is turned off
         self._clear_feedback(cell)
         if casual_mode:

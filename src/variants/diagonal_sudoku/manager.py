@@ -17,8 +17,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gdk
-
 from ..classic_sudoku.manager import ClassicSudokuManager
 from ...base.preferences_manager import PreferencesManager
 from .board import DiagonalSudokuBoard
@@ -32,36 +30,10 @@ class DiagonalSudokuManager(ClassicSudokuManager):
         self.key_map, self.remove_keys = DiagonalUIHelpers.setup_key_mappings()
         self.ui_helpers = DiagonalUIHelpers
 
-    def on_cell_clicked(self, gesture, n_press, x, y, cell):
-        try:
-            button = gesture.get_current_button()
-        except (AttributeError, TypeError):
-            button = None
-        if button not in (1, 3):
-            return
-
-        try:
-            state = gesture.get_current_event_state()
-        except (AttributeError, TypeError):
-            state = 0
-
-        if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):
-            return
-        if button == 3 and (state & Gdk.ModifierType.BUTTON1_MASK):
-            return
-
-        self.ui_helpers.highlight_related_cells(
-            self.cell_inputs, cell.row, cell.col, self.board.rules.block_size
-        )
-
-        if cell.is_editable() and n_press == 1:
-            self._show_popover(cell, button)
-        else:
-            cell.grab_focus()
-
     def _focus_cell(self, row: int, col: int):
         """Handle keyboard navigation focus (diagonal-aware)."""
-        size = self.board.rules.size
+        board = self._require_board("Illegal state: cannot focus cell without a board")
+        size = board.rules.size
         if 0 <= row < size and 0 <= col < size:
             cell = self.cell_inputs[row][col]
             if cell:
@@ -71,7 +43,7 @@ class DiagonalSudokuManager(ClassicSudokuManager):
                     self.cell_inputs,
                     row,
                     col,
-                    self.board.rules.block_size,
+                    board.rules.block_size,
                     cell.is_editable(),
                 )
 
@@ -96,8 +68,12 @@ class DiagonalSudokuManager(ClassicSudokuManager):
 
     def on_cell_filled(self, cell, number: str):
         """Called when a cell is filled with a number."""
-        casual_mode = PreferencesManager.get_preferences().general("casual_mode")[1]
-        correct_value = self.board.get_correct_value(cell.row, cell.col)
+        board = self._require_board("Illegal state: no board for on_cell_filled")
+        prefs = PreferencesManager.get_preferences()
+        if prefs is None:
+            raise RuntimeError("Illegal state: preferences unavailable")
+        casual_mode = prefs.general("casual_mode")[1]
+        correct_value = board.get_correct_value(cell.row, cell.col)
         # TODO: Add auto check for the board when casual_mdoe is turned off
         self._clear_feedback(cell)
         if casual_mode:
