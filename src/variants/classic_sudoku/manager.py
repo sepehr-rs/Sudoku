@@ -79,12 +79,12 @@ class ClassicSudokuManager(ManagerBase):
             return False
 
         GLib.idle_add(_restore_focus)
+
     def _finish_start_game(self, board):
         self.board = board
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_scrolled_window)
         return False
-
 
     def _restore_game_state(self):
         board = self._require_board("Illegal state: no board for restore_game_state")
