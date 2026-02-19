@@ -5,7 +5,7 @@ src/main.py
 src/window.py
 src/window.blp
 src/gtk/finished-overlay.blp
-src/gtk/help-overlay.blp
+src/gtk/shortcuts-overlay.blp
 src/finished_overlay.py
 src/game_manager.py
 src/help_dialog.py

@@ -263,32 +263,32 @@ msgstr "خروج"
 msgid "Back to Main Menu"
 msgstr "بازگشت به فهرست اصلی"
 
-#: src/gtk/help-overlay.blp:11
+#: src/gtk/shortcuts-overlay.blp:11
 msgctxt "shortcut window"
 msgid "Game"
 msgstr "بازی"
 
-#: src/gtk/help-overlay.blp:14
+#: src/gtk/shortcuts-overlay.blp:14
 msgctxt "shortcut window"
 msgid "Pencil Mode"
 msgstr "حالت مداد"
 
-#: src/gtk/help-overlay.blp:20
+#: src/gtk/shortcuts-overlay.blp:20
 msgctxt "shortcut window"
 msgid "General"
 msgstr "عمومی"
 
-#: src/gtk/help-overlay.blp:23
+#: src/gtk/shortcuts-overlay.blp:23
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
 msgstr "نمایش میانبرها"
 
-#: src/gtk/help-overlay.blp:28
+#: src/gtk/shortcuts-overlay.blp:28
 msgctxt "shortcut window"
 msgid "Back to Main Menu"
 msgstr "بازگشت به فهرست اصلی"
 
-#: src/gtk/help-overlay.blp:33
+#: src/gtk/shortcuts-overlay.blp:33
 msgctxt "shortcut window"
 msgid "Quit"
 msgstr "خروج"

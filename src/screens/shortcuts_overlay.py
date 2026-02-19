@@ -20,6 +20,6 @@
 from gi.repository import Gtk
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/help-overlay.ui")
-class HelpOverlay(Gtk.ShortcutsWindow):
-    __gtype_name__ = "HelpOverlay"
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/shortcuts-overlay.ui")
+class ShortcutsOverlay(Gtk.ShortcutsWindow):
+    __gtype_name__ = "ShortcutsOverlay"

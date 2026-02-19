@@ -224,32 +224,32 @@ msgstr "Thoát"
 msgid "Back to Main Menu"
 msgstr "Quay lại menu chính"
 
-#: src/gtk/help-overlay.blp:11
+#: src/gtk/shortcuts-overlay.blp:11
 msgctxt "shortcut window"
 msgid "Game"
 msgstr "Trò chơi"
 
-#: src/gtk/help-overlay.blp:14
+#: src/gtk/shortcuts-overlay.blp:14
 msgctxt "shortcut window"
 msgid "Pencil Mode"
 msgstr "Chế độ bút chì"
 
-#: src/gtk/help-overlay.blp:20
+#: src/gtk/shortcuts-overlay.blp:20
 msgctxt "shortcut window"
 msgid "General"
 msgstr "Chung"
 
-#: src/gtk/help-overlay.blp:23
+#: src/gtk/shortcuts-overlay.blp:23
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
 msgstr "Hiển thị phím tắt"
 
-#: src/gtk/help-overlay.blp:28
+#: src/gtk/shortcuts-overlay.blp:28
 msgctxt "shortcut window"
 msgid "Back to Main Menu"
 msgstr "Quay lại menu chính"
 
-#: src/gtk/help-overlay.blp:33
+#: src/gtk/shortcuts-overlay.blp:33
 msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Thoát"

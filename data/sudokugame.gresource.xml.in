@@ -4,7 +4,7 @@
     <file alias="style.css">style.css</file>
     <file alias="style-dark.css">style-dark.css</file>
     <file preprocess="xml-stripblanks">blueprints/window.ui</file>
-    <file preprocess="xml-stripblanks">blueprints/help-overlay.ui</file>
+    <file preprocess="xml-stripblanks">blueprints/shortcuts-overlay.ui</file>
     <file preprocess="xml-stripblanks">blueprints/finished-page.ui</file>
     <file preprocess="xml-stripblanks">blueprints/loading-screen.ui</file>
     <file preprocess="xml-stripblanks">blueprints/how-to-play-dialog.ui</file>

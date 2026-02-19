@@ -53,7 +53,7 @@ class SudokuApplication(Adw.Application):
         self.set_accels_for_action("win.pencil-toggled", ["p"])
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
         self.set_accels_for_action("win.show-primary-menu", ["F10"])
-        self.set_accels_for_action("win.show-help-overlay", ["<Ctrl>question"])
+        self.set_accels_for_action("win.show-shortcuts-overlay", ["<Ctrl>question"])
         self.set_accels_for_action("win.show-preferences", ["<primary>comma"])
 
     def do_activate(self):

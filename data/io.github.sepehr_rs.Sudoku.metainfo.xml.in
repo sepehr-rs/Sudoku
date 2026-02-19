@@ -22,7 +22,7 @@
   </description>
 
   <screenshots>
-    <screenshot type="default">
+    <screenshot>
       <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/dd82b1819691e9994fcb689bf465b5976454ce55/data/screenshots/sudoku.png</image>
       <caption>Sudoku in light mode</caption>
     </screenshot>
@@ -30,11 +30,11 @@
       <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/dd82b1819691e9994fcb689bf465b5976454ce55/data/screenshots/sudoku-dark.png</image>
       <caption>Sudoku in dark mode</caption>
     </screenshot>
-    <screenshot>
+    <screenshot environment="gnome:dark">
       <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/c15d66297f2c887dac8d41e588794c97b30d1f4e/data/screenshots/landing-page-dark.png</image>
       <caption>Sudoku landing page in dark mode</caption>
     </screenshot>
-    <screenshot>
+    <screenshot type="default">
       <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/c15d66297f2c887dac8d41e588794c97b30d1f4e/data/screenshots/landing-page.png</image>
       <caption>Sudoku landing page in light mode</caption>
     </screenshot>
@@ -72,7 +72,7 @@
     <email>sepehrrasouli06_at_gmail.com</email>
   </developer>
 
-  <releases  translate="no">
+  <releases translate="no">
       <release version="1.5.0" date="2025-09-26">
         <description>
           <p>Bugfixes and new features:</p>

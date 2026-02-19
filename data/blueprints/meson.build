@@ -2,7 +2,7 @@ blueprint_compiler = find_program('blueprint-compiler', required: true)
 
 blueprint_files = files(
   'window.blp',
-  'help-overlay.blp',
+  'shortcuts-overlay.blp',
   'finished-page.blp',
   'how-to-play-dialog.blp',
   'loading-screen.blp'

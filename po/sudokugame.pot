@@ -248,32 +248,32 @@ msgstr ""
 msgid "Back to Main Menu"
 msgstr ""
 
-#: src/gtk/help-overlay.blp:11
+#: src/gtk/shortcuts-overlay.blp:11
 msgctxt "shortcut window"
 msgid "Game"
 msgstr ""
 
-#: src/gtk/help-overlay.blp:14
+#: src/gtk/shortcuts-overlay.blp:14
 msgctxt "shortcut window"
 msgid "Pencil Mode"
 msgstr ""
 
-#: src/gtk/help-overlay.blp:20
+#: src/gtk/shortcuts-overlay.blp:20
 msgctxt "shortcut window"
 msgid "General"
 msgstr ""
 
-#: src/gtk/help-overlay.blp:23
+#: src/gtk/shortcuts-overlay.blp:23
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
 msgstr ""
 
-#: src/gtk/help-overlay.blp:28
+#: src/gtk/shortcuts-overlay.blp:28
 msgctxt "shortcut window"
 msgid "Back to Main Menu"
 msgstr ""
 
-#: src/gtk/help-overlay.blp:33
+#: src/gtk/shortcuts-overlay.blp:33
 msgctxt "shortcut window"
 msgid "Quit"
 msgstr ""

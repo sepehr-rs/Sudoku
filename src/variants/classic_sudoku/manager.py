@@ -181,49 +181,8 @@ class ClassicSudokuManager(ManagerBase):
             self.cell_inputs, row, col, self.board.rules.block_size
         )
 
-    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
-        ClassicUIHelpers.clear_conflicts(self.conflict_cells)
-
-        if not cell.is_editable():
-            return
-
-        r, c = cell.row, cell.col
-
-        if self.pencil_mode or ctrl_is_pressed:
-            if cell.get_value():
-                return
-
-            prefs = PreferencesManager.get_preferences()
-            if prefs is None:
-                pref_enabled = True
-            else:
-                pref_value = prefs.general(
-                    "prevent_conflicting_pencil_notes",
-                    default=True,
-                )
-                pref_enabled = pref_value
-
-            if pref_enabled and self.board.has_conflict(r, c, number):
-                new_conflicts = ClassicUIHelpers.highlight_conflicts(
-                    self.cell_inputs, r, c, number, self.board.rules.block_size
-                )
-                self.conflict_cells.extend(new_conflicts)
-                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
-                return
-
-            self.board.toggle_note(r, c, number)
-            cell.update_notes(self.board.get_notes(r, c))
-            self.board.save_to_file()
-            return
-
-        cell.set_value(number)
-        self.board.set_input(r, c, number)
-        self.board.save_to_file()
-
-        self.on_cell_filled(cell, number)
-
-        if self.board.is_solved():
-            self._show_puzzle_finished_dialog()
+    def get_ui_helpers(self):
+        return ClassicUIHelpers
 
     def _clear_cell(self, cell: SudokuCell, clear_all=False):
         r, c = cell.row, cell.col

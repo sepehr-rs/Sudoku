@@ -26,7 +26,7 @@ class Preferences(ABC):
             "Highlight when input does not match the correct solution",
             True,
         ],
-        "prevent_conflicting_pencil_notes": True,
+        "prevent_conflicting_pencil_notes": False,
         "highlight_row": True,
         "highlight_column": True,
     }

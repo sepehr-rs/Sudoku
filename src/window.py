@@ -20,7 +20,7 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
-from .screens.help_overlay import HelpOverlay
+from .screens.shortcuts_overlay import ShortcutsOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401
 from .screens.loading_screen import LoadingScreen  # noqa: F401
 from .screens.preferences_dialog import PreferencesDialog
@@ -55,10 +55,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
         self.manager = None
         self.is_game_page = False
-
         actions = {
             "show-primary-menu": self.on_show_primary_menu,
-            "show-help-overlay": self.on_show_help_overlay,
+            "show-shortcuts-overlay": self.on_show_shortcuts_overlay,
             "back-to-menu": self.on_back_to_menu,
             "pencil-toggled": self._on_pencil_toggled_action,
             "show-preferences": self.on_show_preferences,
@@ -119,13 +118,17 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._update_preferences_visibility(is_game_page)
         self.lookup_action("show-preferences").set_enabled(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
+        self.lookup_action("show-primary-menu").set_enabled(is_game_page)
         self.lookup_action("back-to-menu").set_enabled(not is_menu_or_loading)
         self.home_button.set_visible(not is_menu_or_loading)
         self.primary_menu_button.set_visible(is_game_page)
 
         # Update subtitle for game pages
         if is_game_page:
+            self.is_game_page = True
             self._change_subtitle_for_pencil_mode()
+        else:
+            self.is_game_page = False
 
     def _get_variant_and_prefs(self, variant):
         if variant in ("classic", "Unknown"):
@@ -171,10 +174,10 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_primary_menu(self, *_):
         self.primary_menu_button.popup()
 
-    def on_show_help_overlay(self, *_):
-        help_overlay = HelpOverlay()
-        help_overlay.set_transient_for(self)
-        help_overlay.present()
+    def on_show_shortcuts_overlay(self, *_):
+        shortcuts_overlay = ShortcutsOverlay(transient_for=self)
+        shortcuts_overlay.present()
+
 
     def on_show_preferences(self, *_):
         PreferencesDialog(self).present()
@@ -278,7 +281,6 @@ class SudokuWindow(Adw.ApplicationWindow):
     def _on_pencil_toggled_action(self, *_):
         if not self.is_game_page:
             return
-
         self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
         self._change_subtitle_for_pencil_mode()
 
@@ -316,7 +318,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _build_primary_menu(self, show_preferences=True):
         menu, section = Gio.Menu(), Gio.Menu()
-        section.append(_("Keyboard Shortcuts"), "win.show-help-overlay")
+        section.append(_("Keyboard Shortcuts"), "win.show-shortcuts-overlay")
         if show_preferences:
             section.append(_("Preferences"), "win.show-preferences")
         for label, action in [
