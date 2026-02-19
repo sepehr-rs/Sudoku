@@ -42,9 +42,7 @@ class ManagerBase:
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_scrolled_window)
-            logging.info(
-                f"Loaded saved {self.board.variant.capitalize()} Sudoku game"
-            )
+            logging.info(f"Loaded saved {self.board.variant.capitalize()} Sudoku game")
             if self.board.is_solved():
                 self._show_puzzle_finished_dialog()
         else:
@@ -135,7 +133,6 @@ class ManagerBase:
 
         if self.board.is_solved():
             self._show_puzzle_finished_dialog()
-
 
     def _clear_cell(self, cell):
         pass

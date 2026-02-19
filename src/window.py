@@ -178,7 +178,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         shortcuts_overlay = ShortcutsOverlay(transient_for=self)
         shortcuts_overlay.present()
 
-
     def on_show_preferences(self, *_):
         PreferencesDialog(self).present()
 

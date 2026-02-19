@@ -18,7 +18,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from ..classic_sudoku.manager import ClassicSudokuManager
-from ..classic_sudoku.sudoku_cell import SudokuCell
 from ...base.preferences_manager import PreferencesManager
 from .board import DiagonalSudokuBoard
 from .ui_helpers import DiagonalUIHelpers

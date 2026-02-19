@@ -46,14 +46,8 @@ class BoardBase(ABC):
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
             raise RuntimeError("Preferences not initialized")
-        self.variant_preferences = (
-            variant_preferences
-            or prefs.variant_defaults
-        )
-        self.general_preferences = (
-            general_preferences
-            or prefs.general_defaults
-        )
+        self.variant_preferences = variant_preferences or prefs.variant_defaults
+        self.general_preferences = general_preferences or prefs.general_defaults
 
         self.puzzle, self.solution = self.generator.generate(difficulty)
         self.user_inputs = [

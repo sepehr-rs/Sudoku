@@ -85,6 +85,7 @@ class TestManagerBoardClassUsage:
 
     def test_diagonal_manager_start_game_creates_diagonal_board(self):
         """Verify DiagonalSudokuManager.start_game() creates DiagonalSudokuBoard."""
+
         class _InstantThread:
             def __init__(self, *args, target=None, daemon=True, **kwargs):
                 del args, daemon, kwargs
@@ -100,8 +101,7 @@ class TestManagerBoardClassUsage:
             del timeout
             puzzle = [[None] * 9 for _ in range(9)]
             solution = [
-                [str((i * 9 + j + 1) % 9 + 1) for j in range(9)]
-                for i in range(9)
+                [str((i * 9 + j + 1) % 9 + 1) for j in range(9)] for i in range(9)
             ]
             return puzzle, solution
 
@@ -129,6 +129,7 @@ class TestManagerBoardClassUsage:
 
     def test_classic_manager_start_game_creates_classic_board(self):
         """Verify ClassicSudokuManager.start_game() creates ClassicSudokuBoard."""
+
         class _InstantThread:
             def __init__(self, *args, target=None, daemon=True, **kwargs):
                 del args, daemon, kwargs
@@ -144,8 +145,7 @@ class TestManagerBoardClassUsage:
             del timeout
             puzzle = [[None] * 9 for _ in range(9)]
             solution = [
-                [str((i * 9 + j + 1) % 9 + 1) for j in range(9)]
-                for i in range(9)
+                [str((i * 9 + j + 1) % 9 + 1) for j in range(9)] for i in range(9)
             ]
             return puzzle, solution
 
