@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, Gio, Gdk
+from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
 from .screens.shortcuts_overlay import ShortcutsOverlay
@@ -31,6 +31,9 @@ from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
 from .base.preferences_manager import PreferencesManager
 import os
 import json
+
+# Keep template widget types imported for GTK template registration
+_TEMPLATE_WIDGET_TYPES = (FinishedPage, LoadingScreen)
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
@@ -72,9 +75,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._connect_buttons()
         self._build_primary_menu(show_preferences=False)
 
-        legacy = Gtk.EventControllerLegacy()
-        legacy.connect("event", self.on_window_clicked)
-        self.add_controller(legacy)
+        gesture = Gtk.GestureClick.new()
+        gesture.set_button(0)
+        gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        gesture.connect("pressed", self._on_window_pressed)
+        self.add_controller(gesture)
 
     def _connect_buttons(self):
         self.continue_button.connect("clicked", self.on_continue_clicked)
@@ -181,34 +186,22 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_preferences(self, *_):
         PreferencesDialog(self).present()
 
-    @staticmethod
-    def _left_button_press_position(event):
-        try:
-            if event.get_event_type() != Gdk.EventType.BUTTON_PRESS:
-                return None
-            if event.get_button() != 1:
-                return None
-            return event.get_position()
-        except (AttributeError, TypeError):
-            return None
-
-    def on_window_clicked(self, _, event):
-        pos = self._left_button_press_position(event)
-        if pos is None:
-            return False
-        x, y = pos
-
+    def _on_window_pressed(self, gesture, n_press, x, y):
+        if gesture.get_current_button() != 1:
+            return
+        if not self.manager:
+            return
         frame = self.grid_container.get_first_child()
         if not frame:
-            return False
+            return
         grid = frame.get_child()
+        translated = grid.translate_coordinates(self, 0, 0)
+        if translated is None:
+            return
+        gx, gy = translated
         alloc = grid.get_allocation()
-        if not (
-            alloc.x <= x < alloc.x + alloc.width
-            and alloc.y <= y < alloc.y + alloc.height
-        ):
+        if not (gx <= x < gx + alloc.width and gy <= y < gy + alloc.height):
             self.manager.on_grid_unfocus()
-        return False
 
     def _setup_breakpoints(self):
         def bp(cond, apply_cb, unapply_cb):

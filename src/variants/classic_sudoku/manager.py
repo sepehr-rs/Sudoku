@@ -55,7 +55,8 @@ class ClassicSudokuManager(ManagerBase):
         if self.parent_grid is None:
             return None
 
-        popover = Gtk.Popover(has_arrow=False, position=Gtk.PositionType.BOTTOM)
+        popover = Gtk.Popover(position=Gtk.PositionType.BOTTOM)
+        popover.set_has_arrow(False)
         popover.set_name("sudoku-popover")
         popover.set_parent(self.parent_grid)
         popover.connect("closed", self._on_cell_popover_closed)
@@ -339,9 +340,9 @@ class ClassicSudokuManager(ManagerBase):
             return 0
 
     def _ignore_click_due_to_modifiers(self, button, state):
-        if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):
+        if button == 1 and (state & Gdk.ModifierType.BUTTON3):
             return True
-        if button == 3 and (state & Gdk.ModifierType.BUTTON1_MASK):
+        if button == 3 and (state & Gdk.ModifierType.BUTTON1):
             return True
         return False
 
@@ -374,13 +375,11 @@ class ClassicSudokuManager(ManagerBase):
             w, h = alloc.width, alloc.height
 
         try:
-            rect = Gdk.Rectangle()
-            rect.x = int(x)
-            rect.y = int(y)
-            rect.width = int(w)
-            rect.height = int(h)
+            rect = Gdk.Rectangle(
+                x=int(x), y=int(y), width=int(w), height=int(h)
+            )
         except TypeError:
-            rect = Gdk.Rectangle(int(x), int(y), int(w), int(h))
+            rect = Gdk.Rectangle()
 
         try:
             popover.set_pointing_to(rect)
