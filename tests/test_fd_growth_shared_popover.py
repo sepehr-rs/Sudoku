@@ -52,12 +52,11 @@ def test_fd_count_bounded_when_reusing_one_popover():
     first = buttons[0]
     x0, y0 = first.translate_coordinates(grid, 0, 0)
     alloc0 = first.get_allocation()
-    rect0 = Gdk.Rectangle(
-        x=int(x0),
-        y=int(y0),
-        width=int(alloc0.width),
-        height=int(alloc0.height),
-    )
+    rect0 = Gdk.Rectangle()
+    rect0.x = int(x0)
+    rect0.y = int(y0)
+    rect0.width = int(alloc0.width)
+    rect0.height = int(alloc0.height)
     popover.set_pointing_to(rect0)
     popover.set_child(Gtk.Label(label="x"))
     popover.popup()
@@ -70,12 +69,11 @@ def test_fd_count_bounded_when_reusing_one_popover():
     for b in buttons[1:]:
         x, y = b.translate_coordinates(grid, 0, 0)
         alloc = b.get_allocation()
-        rect = Gdk.Rectangle(
-            x=int(x),
-            y=int(y),
-            width=int(alloc.width),
-            height=int(alloc.height),
-        )
+        rect = Gdk.Rectangle()
+        rect.x = int(x)
+        rect.y = int(y)
+        rect.width = int(alloc.width)
+        rect.height = int(alloc.height)
         popover.set_pointing_to(rect)
         popover.popup()
         _drain_events(GLib)

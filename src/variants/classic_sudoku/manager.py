@@ -375,11 +375,13 @@ class ClassicSudokuManager(ManagerBase):
             w, h = alloc.width, alloc.height
 
         try:
-            rect = Gdk.Rectangle(
-                x=int(x), y=int(y), width=int(w), height=int(h)
-            )
-        except TypeError:
             rect = Gdk.Rectangle()
+            rect.x = int(x)
+            rect.y = int(y)
+            rect.width = int(w)
+            rect.height = int(h)
+        except TypeError:
+            rect = Gdk.Rectangle(int(x), int(y), int(w), int(h))
 
         try:
             popover.set_pointing_to(rect)
