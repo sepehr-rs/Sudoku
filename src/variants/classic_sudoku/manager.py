@@ -340,9 +340,9 @@ class ClassicSudokuManager(ManagerBase):
             return 0
 
     def _ignore_click_due_to_modifiers(self, button, state):
-        if button == 1 and (state & Gdk.ModifierType.BUTTON3):
+        if button == 1 and (state & Gdk.ModifierType.BUTTON3_MASK):
             return True
-        if button == 3 and (state & Gdk.ModifierType.BUTTON1):
+        if button == 3 and (state & Gdk.ModifierType.BUTTON1_MASK):
             return True
         return False
 
