@@ -8,7 +8,7 @@ class PreferencesDialog(Adw.PreferencesWindow):
     def __init__(self, parent, auto_save_function):
         super().__init__(title="Preferences")
         self.auto_save_function = auto_save_function
-        self.set_default_size(600, 600)
+        self.set_default_size(600, 550)
         self.set_search_enabled(False)
         self.set_transient_for(parent)
         self.set_modal(True)
