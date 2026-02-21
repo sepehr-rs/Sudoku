@@ -5,6 +5,7 @@ services_sources = [
     'generator.py',
     'manager.py',
     'rules.py',
+    'sudoku_cell.py',
     'ui_helpers.py',
     'preferences.py'
 ]
