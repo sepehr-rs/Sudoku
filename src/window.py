@@ -94,7 +94,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._build_primary_menu(show_preferences=visible)
 
     def _setup_ui(self):
-        self.lookup_action("show-preferences").set_enabled(True)
         self.pencil_toggle_button.set_active(False)
         self.lookup_action("show-preferences").set_enabled(True)
         self._update_preferences_visibility(True)
