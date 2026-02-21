@@ -41,14 +41,10 @@ class PreferencesDialog(Adw.PreferencesWindow):
 
         page = Adw.PreferencesPage()
         general_group = GeneralPreferencesPage(
-            self.preferences.general_defaults,
-            "", 
-            auto_save_function
+            self.preferences.general_defaults, "", auto_save_function
         )
         variant_group = VariantPreferencesPage(
-            self.preferences.variant_defaults,
-            self.preferences.name,
-            auto_save_function
+            self.preferences.variant_defaults, self.preferences.name, auto_save_function
         )
 
         page.add(general_group)

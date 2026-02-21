@@ -180,9 +180,6 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_primary_menu(self):
         self.primary_menu_button.popup()
 
-    def on_show_primary_menu(self, *_):
-        self.primary_menu_button.popup()
-
     def on_show_shortcuts_overlay(self, *_):
         shortcuts_overlay = ShortcutsOverlay(transient_for=self)
         shortcuts_overlay.present()
