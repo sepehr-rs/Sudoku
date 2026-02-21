@@ -17,14 +17,64 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import List, Tuple, Iterable, Set
 from ..classic_sudoku.board import ClassicSudokuBoard
+from ...base.board_base import BoardBase
+from ...base.preferences_manager import PreferencesManager
 from .rules import DiagonalSudokuRules
 from .generator import DiagonalSudokuGenerator
 
 
 class DiagonalSudokuBoard(ClassicSudokuBoard):
-    def __init__(self, difficulty: float, difficulty_label: str):
-        super().__init__(difficulty, difficulty_label)
-        self.rules = DiagonalSudokuRules()
-        self.generator = DiagonalSudokuGenerator()
-        self.puzzle, self.solution = self.generator.generate(difficulty)
+    def __init__(self, difficulty: float, difficulty_label: str, variant: str):
+        BoardBase.__init__(
+            self,
+            DiagonalSudokuRules(),
+            DiagonalSudokuGenerator(),
+            difficulty,
+            difficulty_label,
+            variant,
+        )
+        prefs = PreferencesManager.get_preferences()
+        self.variant_preferences = prefs.variant_defaults.copy()
+        self.general_preferences = prefs.general_defaults.copy()
+
+    @classmethod
+    def load_from_file(cls, filename: str | None = None):
+        return cls._load_from_file_common(
+            filename=filename,
+            rules=DiagonalSudokuRules(),
+            generator=DiagonalSudokuGenerator(),
+        )
+
+    def _iter_diagonal_cells(self, row: int, col: int) -> Iterable[Tuple[int, int]]:
+        size = self.rules.size
+        if row == col:
+            for i in range(size):
+                if i != row:
+                    yield (i, i)
+        if row + col == size - 1:
+            for i in range(size):
+                r, c = i, size - 1 - i
+                if r != row or c != col:
+                    yield (r, c)
+
+    def _get_existing_value(self, row: int, col: int):
+        val = self.puzzle[row][col]
+        return val if val is not None else self.user_inputs[row][col]
+
+    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
+        conflicts = super().has_conflict(row, col, value)
+        diagonal_conflicts: List[Tuple[int, int]] = []
+        seen_conflicts: Set[Tuple[int, int]] = set(conflicts)
+
+        for r, c in self._iter_diagonal_cells(row, col):
+            if (r, c) in seen_conflicts:
+                continue
+
+            existing_value = self._get_existing_value(r, c)
+            if existing_value is not None and str(existing_value) == value:
+                diagonal_conflicts.append((r, c))
+                seen_conflicts.add((r, c))
+
+        return conflicts + diagonal_conflicts

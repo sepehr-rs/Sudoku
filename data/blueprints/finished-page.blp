@@ -21,37 +21,25 @@ template $FinishedPage: Box {
 
       Box {
         orientation: vertical;
-        spacing: 24;
+        spacing: 12;
 
         Picture picture_contain {
           halign: center;
           valign: fill;
           hexpand: true;
           vexpand: true;
+          margin-bottom: 60;
           can-shrink: true;
           content-fit: contain;
-          file: "resource://io/github/sepehr_rs/Sudoku/illustrations/puzzle-complete-celebration.svg";
         }
 
         Label finished_label {
           wrap: true;
           justify: center;
           styles [
-            "title-3",
+            "title-1",
           ]
         }
-      }
-    }
-
-    Adw.Clamp {
-      maximum-size: 150;
-      tightening-threshold: 100;
-
-      Button back_button {
-        margin-top: 12;
-        label: _("Back to Main Menu");
-        action-name:  "win.back-to-menu";
-        styles ["pill"]
       }
     }
   }

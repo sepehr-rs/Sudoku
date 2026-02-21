@@ -17,10 +17,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import json
-import os
+from typing import List, Tuple
 from ...base.board_base import BoardBase
-from ...base.preferences_manager import PreferencesManager
 from .rules import ClassicSudokuRules
 from .generator import ClassicSudokuGenerator
 
@@ -36,37 +34,12 @@ class ClassicSudokuBoard(BoardBase):
         )
 
     @classmethod
-    def load_from_file(cls, filename: str = None):
-        filename = filename or cls.DEFAULT_SAVE_PATH
-        if not os.path.exists(filename):
-            return None
-
-        with open(filename, "r", encoding="utf-8") as f:
-            state = json.load(f)
-
-        self = cls.__new__(cls)
-        self.rules = ClassicSudokuRules()
-        self.generator = ClassicSudokuGenerator()
-        self.difficulty = state["difficulty"]
-        self.difficulty_label = state.get("difficulty_label", "Unknown")
-        self.variant_preferences = state.get(
-            "variant_preferences", PreferencesManager.get_preferences().variant_defaults
+    def load_from_file(cls, filename: str | None = None):
+        return cls._load_from_file_common(
+            filename=filename,
+            rules=ClassicSudokuRules(),
+            generator=ClassicSudokuGenerator(),
         )
-        self.general_preferences = state.get(
-            "general_preferences", PreferencesManager.get_preferences().general_defaults
-        )
-        self.variant = state.get("variant", "Unknown")
-        self.puzzle = state["puzzle"]
-        self.solution = state["solution"]
-        self.user_inputs = state["user_inputs"]
-        self.notes = [[set(n) for n in row] for row in state["notes"]]
-        PreferencesManager.get_preferences().variant_defaults.update(
-            self.variant_preferences
-        )
-        PreferencesManager.get_preferences().general_defaults.update(
-            self.general_preferences
-        )
-        return self
 
     def is_solved(self):
         for r in range(self.rules.size):
@@ -75,3 +48,30 @@ class ClassicSudokuBoard(BoardBase):
                     if self.user_inputs[r][c] != str(self.solution[r][c]):
                         return False
         return True
+
+    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
+        conflicts = []
+        size = self.rules.size
+        block_size = self.rules.block_size
+
+        for r in range(size):
+            for c in range(size):
+                if r == row and c == col:
+                    continue
+
+                if (
+                    r == row
+                    or c == col
+                    or (
+                        r // block_size == row // block_size
+                        and c // block_size == col // block_size
+                    )
+                ):
+                    existing_value = self.puzzle[r][c]
+                    if existing_value is None:
+                        existing_value = self.user_inputs[r][c]
+
+                    if existing_value is not None and str(existing_value) == value:
+                        conflicts.append((r, c))
+
+        return conflicts

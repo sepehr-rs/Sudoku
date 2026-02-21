@@ -19,7 +19,7 @@
 
 import logging
 import io
-from gi.repository import GLib
+from gi.repository import GLib  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class LogBufferHandler(logging.Handler):
@@ -49,6 +49,12 @@ def glib_log_handler(domain, level, message, user_data):
         logging.debug(f"[{domain}] {message}")
 
 
+def _glib_log_writer(log_level, fields, n_fields=None, user_data=None):
+    if user_data is None and n_fields is not None and not isinstance(n_fields, int):
+        user_data = n_fields
+    return GLib.log_writer_default(log_level, fields, user_data)
+
+
 def setup_logging():
     """Configure logging for the application.
 
@@ -60,6 +66,8 @@ def setup_logging():
     logging.basicConfig(level=logging.DEBUG)  # Capture DEBUG+
     root_logger = logging.getLogger()
     root_logger.addHandler(log_handler)
+
+    GLib.log_set_writer_func(_glib_log_writer, None)
 
     for domain in ("Gtk", "GLib", "Gdk", "Adwaita", None):
         GLib.log_set_handler(

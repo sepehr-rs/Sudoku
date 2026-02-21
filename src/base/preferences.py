@@ -22,9 +22,26 @@ from abc import ABC
 
 class Preferences(ABC):
     general_defaults = {
-        "casual_mode": True,
+        "casual_mode": [
+            "Highlight when input does not match the correct solution",
+            True,
+        ],
+        "prevent_conflicting_pencil_notes": False,
+        "highlight_row": True,
+        "highlight_column": True,
+        "highlight_conflicts": True,
+        "highlight_wrong_input": True,
     }
+
+    variant_defaults = {}
 
     def __init__(self):
         self.general_defaults = self.general_defaults.copy()
-        self.name = "General Preferences"
+        self.variant_defaults = self.variant_defaults.copy()
+        self.name = ""
+
+    def general(self, key, default=False):
+        return self.general_defaults.get(key, default)
+
+    def variant(self, key, default=False):
+        return self.variant_defaults.get(key, default)

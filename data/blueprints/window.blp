@@ -7,8 +7,8 @@ template $SudokuWindow: Adw.ApplicationWindow {
   ]
 
   title: _("Sudoku");
-  default-width: 730;
-  default-height: 790;
+  default-width: 710;
+  default-height: 810;
   width-request: 360;
   height-request: 420;
 
@@ -21,21 +21,20 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
       [start]
       Button home_button {
-        icon-name: "user-home-symbolic";
-        tooltip-text: _("Back to main menu");
+        icon-name: "back-symbolic";
+        tooltip-text: _("Back to Main Menu");
         action-name: "win.back-to-menu";
       }
 
       [end]
       MenuButton primary_menu_button {
         icon-name: "open-menu-symbolic";
-        menu-model: main_menu;
         tooltip-text: _("Menu");
       }
 
       [end]
       ToggleButton pencil_toggle_button {
-        icon-name: "pencil-symbolic";
+        icon-name: "document-edit-symbolic";
         tooltip-text: _("Toggle Pencil Mode");
       }
     }
@@ -47,117 +46,67 @@ template $SudokuWindow: Adw.ApplicationWindow {
 
         ScrolledWindow main_menu_box {
           hscrollbar-policy: never;
+          vscrollbar-policy: never;
+          hexpand: true;
+          vexpand: true;
 
-          child: Adw.Clamp {
-            child: Box main_menu_page_box {
+          child: Adw.StatusPage main_menu_status_page {
+            Box menu_box {
               orientation: vertical;
+              spacing: 12;
               halign: center;
               valign: center;
-              spacing: 24;
 
-              Adw.StatusPage overlay_placeholder {
+              Image main_menu_icon {
                 icon-name: "io.github.sepehr_rs.Sudoku";
-                tooltip-text: _("Sudoku Game Icon");
+                pixel-size: 256;
                 halign: center;
                 valign: center;
-              }
+                margin-bottom: 65;
 
-              Label {
-                label: _("Sudoku Game");
-                tooltip-text: _("Sudoku Game");
                 styles [
-                  "title-1",
+                  "icon-dropshadow",
                 ]
-
-                halign: center;
-                valign: center;
               }
 
-              Box menu_box {
-                orientation: vertical;
-                spacing: 12;
-                halign: center;
-                hexpand: false;
-                vexpand: false;
+              Button continue_button {
+                label: _("Continue Game");
+                use-underline: true;
 
-                Button continue_button {
-                  label: _("_Continue Game");
-                  use-underline: true;
-
-                  styles [
-                    "pill",
-                  ]
-                }
-
-                Button new_game_button {
-                  label: _("_New Game");
-                  use-underline: true;
-
-                  styles [
-                    "pill",
-                  ]
-                }
+                styles [
+                  "pill",
+                ]
               }
-            };
-          };
-        }
 
-        Adw.Clamp game_view_box {
-          maximum-size: 950;
-          tightening-threshold: 300;
-          child: Box {
-            orientation: vertical;
-            halign: fill;
-            valign: fill;
-            hexpand: true;
-            vexpand: true;
-            spacing: 12;
+              Button new_game_button {
+                label: _("New Game");
+                use-underline: true;
 
-            Box grid_container {
-              orientation: vertical;
-              hexpand: true;
-              vexpand: true;
+                styles [
+                  "pill",
+                ]
+              }
             }
           };
         }
 
+        ScrolledWindow game_scrolled_window {
+          hscrollbar-policy: automatic;
+          vscrollbar-policy: automatic;
+          hexpand: true;
+          vexpand: true;
+
+          child: Box grid_container {
+            orientation: vertical;
+            hexpand: true;
+            vexpand: true;
+          };
+        }
+
         $FinishedPage finished_page {}
+
         $LoadingScreen loading_screen {}
       };
     };
   };
-}
-
-menu main_menu {
-  section {
-    item {
-      label: _("_Keyboard Shortcuts");
-      action: "app.shortcuts";
-      tooltip-text: _("Keyboard shortcuts");
-    }
-
-    item {
-      label: _("_Preferences");
-      action: "win.show-preferences";
-      tooltip-text: _("Preferences");
-    }
-
-    item {
-      label: _("How to play");
-      action: "app.how_to_play";
-      tooltip-text: _("How to play");
-    }
-
-    item {
-      label: _("_About");
-      action: "app.about";
-      tooltip-text: _("About");
-    }
-
-    item {
-      label: _("_Quit");
-      action: "app.quit";
-      tooltip-text: _("Quit");
-    }
-  }
 }

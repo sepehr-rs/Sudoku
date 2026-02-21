@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk  # pyright: ignore[reportAttributeAccessIssue]
 from gettext import gettext as _
 
 from ...base.ui_helpers import UIHelpers
@@ -65,15 +65,15 @@ class ClassicUIHelpers(UIHelpers):
         """Highlight row, column, and block when the cell is empty."""
         size = len(cells)
 
-        if prefs.variant_defaults.get("highlight_row"):
+        if prefs.general("highlight_row"):
             for i in range(size):
                 ClassicUIHelpers.highlight_cell(cells, row, i, "highlight")
 
-        if prefs.variant_defaults.get("highlight_column"):
+        if prefs.general("highlight_column"):
             for i in range(size):
                 ClassicUIHelpers.highlight_cell(cells, i, col, "highlight")
 
-        if prefs.variant_defaults.get("highlight_block"):
+        if prefs.variant("highlight_block"):
             block_row_start = (row // block_size) * block_size
             block_col_start = (col // block_size) * block_size
             for r in range(block_row_start, block_row_start + block_size):
@@ -83,7 +83,7 @@ class ClassicUIHelpers(UIHelpers):
     @staticmethod
     def _highlight_same_value(cells, selected_value: int, prefs):
         """Highlight all cells containing the same value."""
-        if not prefs.variant_defaults.get("highlight_related_cells"):
+        if not prefs.variant("highlight_related_cells"):
             return
 
         size = len(cells)
@@ -104,13 +104,14 @@ class ClassicUIHelpers(UIHelpers):
         mouse_button,
         on_number_selected,
         on_clear_selected,
+        popover,
         pencil_mode=False,
         key_map=None,
         remove_keys=None,
     ):
         """Show the number selection popover for a Sudoku cell."""
-        popover = Gtk.Popover(has_arrow=False, position=Gtk.PositionType.BOTTOM)
-        popover.set_parent(cell)
+        if popover is None:
+            raise ValueError("popover is required (shared popover)")
 
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
         popover.set_child(grid)
@@ -130,7 +131,8 @@ class ClassicUIHelpers(UIHelpers):
         )
         grid.set_focus_on_click(True)
         grid.grab_focus()
-        popover.show()
+
+        popover.popup()
         return popover
 
     @staticmethod
@@ -156,7 +158,7 @@ class ClassicUIHelpers(UIHelpers):
         clear_button = Gtk.Button(label=_("Clear"))
         clear_button.set_size_request(-1, 40)
         clear_button.set_hexpand(True)
-        clear_button.set_tooltip_text(_("Clear cell (Del/Backspace)"))
+        clear_button.set_tooltip_text(_("Clear Cell (Del/Backspace)"))
         clear_button.connect("clicked", on_clear_selected, cell, popover)
         button_box.append(clear_button)
 
@@ -164,8 +166,11 @@ class ClassicUIHelpers(UIHelpers):
             done_button = Gtk.Button(label=_("Done"))
             done_button.set_size_request(-1, 40)
             done_button.set_hexpand(True)
-            done_button.set_tooltip_text(_("Finish editing cell"))
-            done_button.connect("clicked", lambda _: popover.popdown())
+            done_button.set_tooltip_text(_("Finish Editing Cell"))
+            done_button.connect(
+                "clicked",
+                lambda *_: popover.popdown(),
+            )
             button_box.append(done_button)
 
         return clear_button

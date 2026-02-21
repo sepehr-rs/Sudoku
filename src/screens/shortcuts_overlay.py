@@ -1,4 +1,4 @@
-# preferences.py
+# finished_page.py
 #
 # Copyright 2025 sepehr-rs
 #
@@ -17,15 +17,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from ..classic_sudoku.preferences import ClassicSudokuPreferences
+from gi.repository import Gtk
 
 
-class DiagonalSudokuPreferences(ClassicSudokuPreferences):
-    def __init__(self):
-        super().__init__()
-        self.variant_defaults.update(
-            {
-                "highlight_diagonals": True,
-            }
-        )
-        self.name = "Diagonal Sudoku"
+@Gtk.Template(
+    resource_path="/io/github/sepehr_rs/Sudoku/blueprints/shortcuts-overlay.ui"
+)
+class ShortcutsOverlay(Gtk.ShortcutsWindow):
+    __gtype_name__ = "ShortcutsOverlay"

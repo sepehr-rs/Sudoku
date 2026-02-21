@@ -271,32 +271,32 @@ msgstr "Sluiten"
 msgid "Back to Main Menu"
 msgstr "Terug naar hoofdmenu"
 
-#: src/gtk/help-overlay.blp:11
+#: src/gtk/shortcuts-overlay.blp:11
 msgctxt "shortcut window"
 msgid "Game"
 msgstr "Spel"
 
-#: src/gtk/help-overlay.blp:14
+#: src/gtk/shortcuts-overlay.blp:14
 msgctxt "shortcut window"
 msgid "Pencil Mode"
 msgstr "Potloodmodus"
 
-#: src/gtk/help-overlay.blp:20
+#: src/gtk/shortcuts-overlay.blp:20
 msgctxt "shortcut window"
 msgid "General"
 msgstr "Algemeen"
 
-#: src/gtk/help-overlay.blp:23
+#: src/gtk/shortcuts-overlay.blp:23
 msgctxt "shortcut window"
 msgid "Show Shortcuts"
 msgstr "Snelkoppelingen tonen"
 
-#: src/gtk/help-overlay.blp:28
+#: src/gtk/shortcuts-overlay.blp:28
 msgctxt "shortcut window"
 msgid "Back to Main Menu"
 msgstr "Terug naar hoofdmenu"
 
-#: src/gtk/help-overlay.blp:33
+#: src/gtk/shortcuts-overlay.blp:33
 msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Afsluiten"

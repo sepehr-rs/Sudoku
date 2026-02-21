@@ -19,7 +19,8 @@
 
 import json
 import os
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
+from typing import Any, Self
 from .preferences_manager import PreferencesManager
 
 
@@ -27,13 +28,26 @@ class BoardBase(ABC):
     DEFAULT_SAVE_PATH = "saves/board.json"
 
     def __init__(
-        self, rules, generator, difficulty: float, difficulty_label: str, variant: str
+        self,
+        rules: Any,
+        generator: Any,
+        difficulty: float,
+        difficulty_label: str,
+        variant: str,
+        variant_preferences: dict[str, Any] | None = None,
+        general_preferences: dict[str, Any] | None = None,
     ):
         self.rules = rules
         self.generator = generator
         self.difficulty = difficulty
         self.difficulty_label = difficulty_label
         self.variant = variant
+
+        prefs = PreferencesManager.get_preferences()
+        if prefs is None:
+            raise RuntimeError("Preferences not initialized")
+        self.variant_preferences = variant_preferences or prefs.variant_defaults
+        self.general_preferences = general_preferences or prefs.general_defaults
 
         self.puzzle, self.solution = self.generator.generate(difficulty)
         self.user_inputs = [
@@ -43,15 +57,58 @@ class BoardBase(ABC):
             [set() for _ in range(self.rules.size)] for _ in range(self.rules.size)
         ]
 
-    @abstractclassmethod
-    def load_from_file(cls, filename: str = None):
-        """Variant-specific boards must implement loading logic."""
-        pass
+    @classmethod
+    def _load_from_file_common(
+        cls,
+        *,
+        filename: str | None,
+        rules: Any,
+        generator: Any,
+    ) -> Self | None:
+        filename = filename or cls.DEFAULT_SAVE_PATH
+        if not os.path.exists(filename):
+            return None
 
-    def save_to_file(self, filename: str = None):
-        filename = filename or self.DEFAULT_SAVE_PATH
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "r", encoding="utf-8") as f:
+            state = json.load(f)
+
+        self = cls.__new__(cls)
+        self.rules = rules
+        self.generator = generator
+        self.difficulty = state["difficulty"]
+        self.difficulty_label = state.get("difficulty_label", "Unknown")
+
         prefs = PreferencesManager.get_preferences()
+        if prefs is None:
+            raise RuntimeError("Preferences not initialized")
+        self.variant_preferences = state.get(
+            "variant_preferences",
+            prefs.variant_defaults,
+        )
+        self.general_preferences = state.get(
+            "general_preferences",
+            prefs.general_defaults,
+        )
+        self.variant = state.get("variant", "Unknown")
+        self.puzzle = state["puzzle"]
+        self.solution = state["solution"]
+        self.user_inputs = state["user_inputs"]
+        self.notes = [[set(n) for n in row] for row in state["notes"]]
+
+        prefs.variant_defaults.update(self.variant_preferences)
+        prefs.general_defaults.update(self.general_preferences)
+        return self
+
+    @classmethod
+    def load_from_file(cls, filename: str | None = None) -> Self | None:
+        raise NotImplementedError
+
+    def save_to_file(self, filename: str | None = None):
+        path = filename or self.DEFAULT_SAVE_PATH
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        prefs = PreferencesManager.get_preferences()
+        if prefs is None:
+            raise RuntimeError("Preferences not initialized")
         state = {
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
@@ -63,7 +120,7 @@ class BoardBase(ABC):
             "user_inputs": self.user_inputs,
             "notes": [[list(n) for n in row] for row in self.notes],
         }
-        with open(filename, "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(state, f)
 
     def set_input(self, row, col, value):
@@ -88,8 +145,8 @@ class BoardBase(ABC):
     def is_clue(self, row, col):
         return self.puzzle[row][col] is not None
 
-    @abstractclassmethod
-    def is_solved(self):
+    @abstractmethod
+    def is_solved(self) -> bool:
         pass
 
     def get_notes(self, row: int, col: int) -> set:

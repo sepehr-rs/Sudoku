@@ -48,7 +48,9 @@ class GeneratorBase(ABC):
         queue.put((puzzle, solution))
 
     @abstractmethod
-    def _generate_impl(self, difficulty: float):
+    def _generate_impl(
+        self, difficulty: float
+    ) -> tuple[list[list[int]], list[list[int]]]:
         """
         Must be implemented by variants.
         Return (puzzle, solution) as 2D lists.

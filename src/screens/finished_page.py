@@ -17,8 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import random
-from gi.repository import Gtk
+from gi.repository import Gtk, Adw
 from gettext import gettext as _
 
 
@@ -26,34 +25,35 @@ from gettext import gettext as _
 class FinishedPage(Gtk.Box):
     __gtype_name__ = "FinishedPage"
 
+    dark_picture = (
+        "/io/github/sepehr_rs/Sudoku/illustrations/"
+        "puzzle-complete-celebration-dark.svg"
+    )
+    light_picture = (
+        "/io/github/sepehr_rs/Sudoku/illustrations/"
+        "puzzle-complete-celebration-light.svg"
+    )
     finished_label = Gtk.Template.Child()
-    back_button = Gtk.Template.Child()
+    picture_contain = Gtk.Template.Child()
 
-    VICTORY_MESSAGES = [
-        _("Sudoku Master! You've solved the puzzle with perfect logic!"),
-        _("Incredible! Every number found its perfect place!"),
-        _("Brilliant deduction! You've conquered this Sudoku challenge!"),
-        _("Perfect solution! Your logical thinking is outstanding!"),
-        _("Amazing work! You've mastered the art of Sudoku!"),
-        _("Fantastic! Every row, column, and box is perfectly filled!"),
-        _("Outstanding! Your puzzle-solving skills are remarkable!"),
-        _("Excellent! You've completed the Sudoku with flying colors!"),
-        _("Spectacular! Your mathematical reasoning is top-notch!"),
-        _("Well done! You've proven yourself a Sudoku champion!"),
-        _("Congratulations! You've solved the puzzle flawlessly!"),
-        _("Victory! Your strategic thinking led to perfect completion!"),
-        _("Genius! You've mastered the Sudoku grid with precision!"),
-        _("Masterpiece! Every number placement was calculated perfectly!"),
-        _("Phenomenal! You've conquered this Sudoku with style!"),
-    ]
+    VICTORY_MESSAGE = _("Puzzle Complete!")
 
     def __init__(self):
         super().__init__()
+        self._style_manager = Adw.StyleManager.get_default()
+        self._style_manager.connect("notify::dark", self._update_picture)
         self.connect("map", self._on_map)
 
     def _on_map(self, widget):
         self._set_random_message()
+        self._update_picture()
 
     def _set_random_message(self):
-        message = random.choice(self.VICTORY_MESSAGES)
+        message = self.VICTORY_MESSAGE
         self.finished_label.set_label(message)
+
+    def _update_picture(self, *args):
+        if self._style_manager.get_dark():
+            self.picture_contain.set_resource(self.dark_picture)
+        else:
+            self.picture_contain.set_resource(self.light_picture)
