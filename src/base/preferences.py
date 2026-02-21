@@ -29,8 +29,6 @@ class Preferences(ABC):
         "prevent_conflicting_pencil_notes": False,
         "highlight_row": True,
         "highlight_column": True,
-        "highlight_conflicts": True,
-        "highlight_wrong_input": True,
     }
 
     variant_defaults = {}

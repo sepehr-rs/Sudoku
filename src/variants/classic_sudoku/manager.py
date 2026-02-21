@@ -591,16 +591,13 @@ class ClassicSudokuManager(ManagerBase):
 
     def _handle_wrong_input(self, cell, number: str, conflicts=None):
         """Handle behavior when the user enters a wrong number."""
-        prefs = PreferencesManager.get_preferences()
-        if prefs and prefs.general("highlight_wrong_input", default=True):
-            cell.highlight("wrong")
-            cell.set_tooltip_text("Wrong")
+        cell.highlight("wrong")
+        cell.set_tooltip_text("Wrong")
 
-        if prefs and prefs.general("highlight_conflicts", default=True):
-            conflicts = conflicts or ClassicUIHelpers.highlight_conflicts(
-                self.cell_inputs, cell.row, cell.col, number, 3
-            )
-            self.conflict_cells.extend(conflicts)
+        conflicts = conflicts or ClassicUIHelpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, 3
+        )
+        self.conflict_cells.extend(conflicts)
 
         cell.start_feedback_timeout(self._clear_conflicts)
 
