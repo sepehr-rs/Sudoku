@@ -36,9 +36,13 @@ class ManagerBase:
     def load_saved_game(self):
         self.board = self.board_cls.load_from_file()
         if self.board:
-            self.window.sudoku_window_title.set_subtitle(
-                f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
-            )
+            refresh = getattr(self.window, "refresh_game_subtitle", None)
+            if callable(refresh):
+                refresh()
+            else:
+                self.window.sudoku_window_title.set_subtitle(
+                    f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
+                )
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_scrolled_window)
@@ -133,6 +137,21 @@ class ManagerBase:
 
         if self.board.is_solved():
             self._show_puzzle_finished_dialog()
+
+    def _increment_mistake_count(self):
+        if self.board is None:
+            return
+
+        current_count = getattr(self.board, "mistake_count", 0)
+        self.board.mistake_count = int(current_count) + 1
+
+        save = getattr(self.board, "save_to_file", None)
+        if callable(save):
+            save()
+
+        refresh = getattr(self.window, "refresh_game_subtitle", None)
+        if callable(refresh):
+            refresh()
 
     def _clear_cell(self, cell):
         pass

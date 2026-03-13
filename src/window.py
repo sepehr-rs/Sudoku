@@ -294,6 +294,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._change_subtitle_for_pencil_mode()
 
     def _change_subtitle_for_pencil_mode(self):
+        self.refresh_game_subtitle()
+
+    def refresh_game_subtitle(self):
         non_game_pages = {
             self.main_menu_box,
             self.finished_page,
@@ -304,18 +307,24 @@ class SudokuWindow(Adw.ApplicationWindow):
         if (
             not self.sudoku_window_title
             or not self.manager
+            or not self.manager.board
             or visible in non_game_pages
         ):
             return
 
+        mistake_count = getattr(self.manager.board, "mistake_count", 0)
+
         if self.pencil_toggle_button.get_active():
             self.sudoku_window_title.set_subtitle(
-                _("Pencil Mode • Note possible numbers")
+                _("Pencil Mode • Mistakes: {count}").format(count=mistake_count)
             )
         else:
             self.sudoku_window_title.set_subtitle(
-                f"{self.manager.board.variant.capitalize()} • "
-                f"{self.manager.board.difficulty_label}"
+                _("{variant} • {difficulty} • Mistakes: {count}").format(
+                    variant=self.manager.board.variant.capitalize(),
+                    difficulty=self.manager.board.difficulty_label,
+                    count=mistake_count,
+                )
             )
 
     def _force_disable_pencil_mode(self):

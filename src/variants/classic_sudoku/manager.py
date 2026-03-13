@@ -85,6 +85,9 @@ class ClassicSudokuManager(ManagerBase):
         self.board = board
         self.build_grid()
         self.window.stack.set_visible_child(self.window.game_scrolled_window)
+        refresh = getattr(self.window, "refresh_game_subtitle", None)
+        if callable(refresh):
+            refresh()
         return False
 
     def _restore_game_state(self):
@@ -559,6 +562,7 @@ class ClassicSudokuManager(ManagerBase):
             if str(number) == str(correct_value):
                 self._handle_correct_input(cell)
             else:
+                self._increment_mistake_count()
                 self._handle_wrong_input(cell, number)
             return
 
@@ -567,6 +571,7 @@ class ClassicSudokuManager(ManagerBase):
             self.cell_inputs, cell.row, cell.col, number, 3
         )
         if new_conflicts:
+            self._increment_mistake_count()
             self._handle_wrong_input(cell, number, new_conflicts)
 
     def _clear_feedback(self, cell):

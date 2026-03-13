@@ -56,6 +56,7 @@ class BoardBase(ABC):
         self.notes = [
             [set() for _ in range(self.rules.size)] for _ in range(self.rules.size)
         ]
+        self.mistake_count = 0
 
     @classmethod
     def _load_from_file_common(
@@ -94,6 +95,7 @@ class BoardBase(ABC):
         self.solution = state["solution"]
         self.user_inputs = state["user_inputs"]
         self.notes = [[set(n) for n in row] for row in state["notes"]]
+        self.mistake_count = state.get("mistake_count", 0)
 
         prefs.variant_defaults.update(self.variant_preferences)
         prefs.general_defaults.update(self.general_preferences)
@@ -119,6 +121,7 @@ class BoardBase(ABC):
             "solution": self.solution,
             "user_inputs": self.user_inputs,
             "notes": [[list(n) for n in row] for row in self.notes],
+            "mistake_count": self.mistake_count,
         }
         with open(path, "w", encoding="utf-8") as f:
             json.dump(state, f)

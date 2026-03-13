@@ -80,6 +80,7 @@ class DiagonalSudokuManager(ClassicSudokuManager):
             if str(number) == str(correct_value):
                 self._handle_correct_input(cell)
             else:
+                self._increment_mistake_count()
                 self._handle_wrong_input(cell, number)
             return
 
@@ -88,6 +89,7 @@ class DiagonalSudokuManager(ClassicSudokuManager):
             self.cell_inputs, cell.row, cell.col, number, 3
         )
         if new_conflicts:
+            self._increment_mistake_count()
             self._handle_wrong_input(cell, number, new_conflicts)
 
     def get_ui_helpers(self):
