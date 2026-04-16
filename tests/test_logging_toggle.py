@@ -111,3 +111,27 @@ def test_debug_logging_toggle_disables_calls_save_and_set_debug_logging():
 
     mock_save_preference.assert_called_once_with(False)
     mock_set_debug_logging.assert_called_once_with(False)
+
+
+def test_debug_logging_toggle_save_failure_still_sets_runtime_logging():
+    mock_set_debug_logging = MagicMock()
+    mock_is_debug_logging_enabled = MagicMock(return_value=True)
+    mock_save_preference = MagicMock(side_effect=OSError("disk is read-only"))
+
+    _install_fake_gi()
+    _install_fake_log_utils(mock_set_debug_logging, mock_is_debug_logging_enabled)
+    _install_fake_debug_settings(mock_save_preference)
+
+    module = _import_about_dialog()
+    module.log_utils.set_debug_logging = mock_set_debug_logging
+    module.log_utils.is_debug_logging_enabled = mock_is_debug_logging_enabled
+    module.save_debug_logging_preference = mock_save_preference
+    dialog = module.SudokuAboutDialog.__new__(module.SudokuAboutDialog)
+
+    switch = MagicMock()
+    switch.get_active.return_value = True
+
+    dialog._on_debug_logging_toggled(switch, None)
+
+    mock_save_preference.assert_called_once_with(True)
+    mock_set_debug_logging.assert_called_once_with(True)
