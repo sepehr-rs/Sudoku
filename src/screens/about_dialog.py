@@ -74,7 +74,10 @@ class SudokuAboutDialog(Adw.PreferencesWindow):
             save_debug_logging_preference(enabled)
         except OSError:
             logging.warning(
-                "Unable to persist debug logging preference; applying runtime setting only",
+                (
+                    "Unable to persist debug logging preference; "
+                    "applying runtime setting only"
+                ),
                 exc_info=True,
             )
         log_utils.set_debug_logging(enabled)
