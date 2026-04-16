@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Tests for diagonal mode plumbing fixes (issue #273)."""
 
 import json
