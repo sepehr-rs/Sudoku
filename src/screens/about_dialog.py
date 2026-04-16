@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gettext import gettext as _
+import logging
 
 from gi.repository import Adw, Gtk
 
@@ -69,5 +70,14 @@ class SudokuAboutDialog(Adw.PreferencesWindow):
 
     def _on_debug_logging_toggled(self, switch, _gparam) -> None:
         enabled = switch.get_active()
-        save_debug_logging_preference(enabled)
+        try:
+            save_debug_logging_preference(enabled)
+        except OSError:
+            logging.warning(
+                (
+                    "Unable to persist debug logging preference; "
+                    "applying runtime setting only"
+                ),
+                exc_info=True,
+            )
         log_utils.set_debug_logging(enabled)
