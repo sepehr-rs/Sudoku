@@ -22,6 +22,7 @@ from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
 from .screens.shortcuts_overlay import ShortcutsOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401
+from .screens.game_over_page import GameOverPage  # noqa: F401
 from .screens.loading_screen import LoadingScreen  # noqa: F401
 from .screens.preferences_dialog import PreferencesDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
@@ -33,7 +34,7 @@ import os
 import json
 
 # Keep template widget types imported for GTK template registration
-_TEMPLATE_WIDGET_TYPES = (FinishedPage, LoadingScreen)
+_TEMPLATE_WIDGET_TYPES = (FinishedPage, GameOverPage, LoadingScreen)
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
@@ -45,6 +46,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     new_game_button = Gtk.Template.Child()
     main_menu_box = Gtk.Template.Child()  # Main screen
     finished_page = Gtk.Template.Child()
+    game_over_page = Gtk.Template.Child()
     loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
@@ -74,6 +76,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._setup_breakpoints()
         self._connect_buttons()
         self._build_primary_menu(show_preferences=False)
+        self._wire_game_over_buttons()
 
         gesture = Gtk.GestureClick.new()
         gesture.set_button(0)
@@ -107,7 +110,12 @@ class SudokuWindow(Adw.ApplicationWindow):
         visible = stack.get_visible_child()
 
         # Reset pencil mode for non-game pages
-        if visible in (self.main_menu_box, self.loading_screen, self.finished_page):
+        if visible in (
+            self.main_menu_box,
+            self.loading_screen,
+            self.finished_page,
+            self.game_over_page,
+        ):
             self._force_disable_pencil_mode()
             self.sudoku_window_title.set_subtitle("")
 
@@ -116,6 +124,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.main_menu_box,
             self.loading_screen,
             self.finished_page,
+            self.game_over_page,
         )
         is_menu_or_loading = visible in (self.main_menu_box, self.loading_screen)
 
@@ -342,19 +351,22 @@ class SudokuWindow(Adw.ApplicationWindow):
                 self.sudoku_window_title.set_subtitle(_("Pencil Mode"))
             return
 
+        variant = getattr(self.manager.board, "variant", "")
+        difficulty = getattr(self.manager.board, "difficulty_label", "")
+
         if counter_enabled:
             self.sudoku_window_title.set_subtitle(
                 _("{variant} • {difficulty} • Mistakes: {count}").format(
-                    variant=self.manager.board.variant.capitalize(),
-                    difficulty=self.manager.board.difficulty_label,
+                    variant=variant.capitalize(),
+                    difficulty=difficulty,
                     count=mistake_count,
                 )
             )
         else:
             self.sudoku_window_title.set_subtitle(
                 _("{variant} • {difficulty}").format(
-                    variant=self.manager.board.variant.capitalize(),
-                    difficulty=self.manager.board.difficulty_label,
+                    variant=variant.capitalize(),
+                    difficulty=difficulty,
                 )
             )
 
@@ -364,6 +376,43 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         if self.manager:
             self.manager.pencil_mode = False
+
+    def _wire_game_over_buttons(self):
+        self.game_over_page.try_again_button.connect("clicked", self.on_try_again)
+        self.game_over_page.new_game_button.connect("clicked", self.on_new_game_clicked)
+        self.game_over_page.main_menu_button.connect("clicked", self.on_back_to_menu)
+
+    def on_try_again(self, _button):
+        if not self.manager or not self.manager.board:
+            return
+        board = self.manager.board
+
+        board.mistake_count = 0
+        try:
+            size = int(board.rules.size)
+        except AttributeError:
+            size = len(board.user_inputs)
+
+        for r in range(size):
+            for c in range(size):
+                board.user_inputs[r][c] = None
+                board.notes[r][c] = set()
+
+        save = getattr(board, "save_to_file", None)
+        if callable(save):
+            save()
+
+        build = getattr(self.manager, "build_grid", None)
+        if callable(build):
+            build()
+
+        restore = getattr(self.manager, "_restore_game_state", None)
+        if callable(restore):
+            restore()
+
+        self.stack.set_visible_child(self.game_scrolled_window)
+        self.pencil_toggle_button.set_visible(True)
+        self.refresh_game_subtitle()
 
     def _build_primary_menu(self, show_preferences=True):
         menu, section = Gio.Menu(), Gio.Menu()

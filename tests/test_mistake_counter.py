@@ -378,3 +378,53 @@ def test_game_over_page_populate_sets_stats():
     page.stats_mistakes_value.set_label.assert_called_once_with("3")
     page.stats_progress_value.set_label.assert_called_once_with("47%")
     page.stats_difficulty_value.set_label.assert_called_once_with("Medium")
+
+
+def test_on_try_again_resets_count_inputs_and_notes(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return True
+            if key == "mistake_limit":
+                return 3
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+    SudokuWindow = _load_sudoku_window()
+
+    manager = manager_with_board
+    manager.board.mistake_count = 3
+    for r in range(9):
+        for c in range(9):
+            manager.board.user_inputs[r][c] = "5"
+            manager.board.notes[r][c] = {"1", "2"}
+    manager.board.is_clue = MagicMock(return_value=False)
+    manager.build_grid = MagicMock()
+    manager._restore_game_state = MagicMock()
+
+    window = SudokuWindow.__new__(SudokuWindow)
+    window.manager = manager
+    window.stack = MagicMock()
+    window.pencil_toggle_button = MagicMock()
+    window.pencil_toggle_button.get_active = MagicMock(return_value=False)
+    window.sudoku_window_title = MagicMock()
+    window.main_menu_box = object()
+    window.finished_page = object()
+    window.loading_screen = object()
+    window.game_scrolled_window = object()
+    window.game_over_page = object()
+
+    SudokuWindow.on_try_again(window, None)
+
+    assert manager.board.mistake_count == 0
+    for r in range(9):
+        for c in range(9):
+            assert manager.board.user_inputs[r][c] is None
+            assert manager.board.notes[r][c] == set()
+    manager.board.save_to_file.assert_called()
+    manager.build_grid.assert_called()
+    window.stack.set_visible_child.assert_called_with(window.game_scrolled_window)
