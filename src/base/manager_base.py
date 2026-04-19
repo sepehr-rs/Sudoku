@@ -153,6 +153,78 @@ class ManagerBase:
         if callable(refresh):
             refresh()
 
+        prefs = PreferencesManager.get_preferences()
+        if prefs is None:
+            return
+
+        enabled = prefs.general("mistake_counter_enabled", default=True)
+        if not enabled:
+            return
+
+        limit = int(prefs.general("mistake_limit", default=3))
+        if self.board.mistake_count >= limit:
+            self._trigger_game_over()
+
+    def _cleanup_active_grid(self):
+        """Variant hook for clearing popovers / feedback before tearing the grid down."""
+        pass
+
+    def _trigger_game_over(self):
+        self._cleanup_active_grid()
+
+        pencil_toggle = getattr(self.window, "pencil_toggle_button", None)
+        if pencil_toggle is not None:
+            pencil_toggle.set_visible(False)
+
+        grid_container = getattr(self.window, "grid_container", None)
+        if grid_container is not None:
+            while child := grid_container.get_first_child():
+                grid_container.remove(child)
+
+        game_over_page = getattr(self.window, "game_over_page", None)
+        if game_over_page is None:
+            return
+
+        stats = self._compute_game_over_stats()
+        populate = getattr(game_over_page, "populate", None)
+        if callable(populate):
+            populate(**stats)
+
+        stack = getattr(self.window, "stack", None)
+        if stack is not None:
+            stack.set_visible_child(game_over_page)
+
+    def _compute_game_over_stats(self):
+        board = self.board
+        mistakes = int(getattr(board, "mistake_count", 0)) if board is not None else 0
+        difficulty = getattr(board, "difficulty_label", "") if board is not None else ""
+        percent = 0
+
+        if board is not None:
+            try:
+                size = int(board.rules.size)
+                total_non_clues = 0
+                filled_non_clues = 0
+                for r in range(size):
+                    for c in range(size):
+                        is_clue_fn = getattr(board, "is_clue", None)
+                        if callable(is_clue_fn) and is_clue_fn(r, c):
+                            continue
+                        total_non_clues += 1
+                        cell_value = board.user_inputs[r][c]
+                        if cell_value:
+                            filled_non_clues += 1
+                if total_non_clues > 0:
+                    percent = round(filled_non_clues / total_non_clues * 100)
+            except (AttributeError, TypeError, IndexError):
+                percent = 0
+
+        return {
+            "mistakes": mistakes,
+            "percent": percent,
+            "difficulty": difficulty,
+        }
+
     def _clear_cell(self, cell):
         pass
 

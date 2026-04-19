@@ -231,3 +231,74 @@ def test_subtitle_omits_mistakes_when_counter_disabled(manager_with_board):
     assert "Mistakes" not in args[0]
     assert "Classic" in args[0]
     assert "Easy" in args[0]
+
+
+def test_increment_triggers_game_over_at_limit(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return True
+            if key == "mistake_limit":
+                return 2
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+    manager = manager_with_board
+    manager._trigger_game_over = MagicMock()
+
+    manager._increment_mistake_count()
+    assert not manager._trigger_game_over.called
+
+    manager._increment_mistake_count()
+    assert manager._trigger_game_over.called
+
+
+def test_increment_does_not_trigger_when_counter_disabled(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return False
+            if key == "mistake_limit":
+                return 1
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+    manager = manager_with_board
+    manager._trigger_game_over = MagicMock()
+
+    for _ in range(5):
+        manager._increment_mistake_count()
+
+    assert not manager._trigger_game_over.called
+
+
+def test_increment_does_not_trigger_below_limit(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return True
+            if key == "mistake_limit":
+                return 5
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+    manager = manager_with_board
+    manager._trigger_game_over = MagicMock()
+
+    for _ in range(4):
+        manager._increment_mistake_count()
+
+    assert not manager._trigger_game_over.called
+    assert manager.board.mistake_count == 4
