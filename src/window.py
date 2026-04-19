@@ -20,7 +20,6 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
-from .screens.shortcuts_overlay import ShortcutsOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401
 from .screens.loading_screen import LoadingScreen  # noqa: F401
 from .screens.preferences_dialog import PreferencesDialog
@@ -61,7 +60,6 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.is_game_page = False
         actions = {
             "show-primary-menu": self.on_show_primary_menu,
-            "show-shortcuts-overlay": self.on_show_shortcuts_overlay,
             "back-to-menu": self.on_back_to_menu,
             "pencil-toggled": self._on_pencil_toggled_action,
             "show-preferences": self.on_show_preferences,
@@ -180,12 +178,8 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_primary_menu(self):
         self.primary_menu_button.popup()
 
-    def on_show_shortcuts_overlay(self, *_):
-        shortcuts_overlay = ShortcutsOverlay(transient_for=self)
-        shortcuts_overlay.present()
-
     def on_show_preferences(self, *_):
-        PreferencesDialog(self, self.manager.board.save_to_file).present()
+        PreferencesDialog(self.manager.board.save_to_file).present(self)
 
     def _on_window_pressed(self, gesture, n_press, x, y):
         if gesture.get_current_button() != 1:
@@ -328,7 +322,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _build_primary_menu(self, show_preferences=True):
         menu, section = Gio.Menu(), Gio.Menu()
-        section.append(_("Keyboard Shortcuts"), "win.show-shortcuts-overlay")
+        section.append(_("Keyboard Shortcuts"), "app.shortcuts")
         if show_preferences:
             section.append(_("Preferences"), "win.show-preferences")
         for label, action in [
