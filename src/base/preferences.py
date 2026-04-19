@@ -41,6 +41,9 @@ def _unwrap(entry):
     return entry
 
 
+unwrap = _unwrap
+
+
 class Preferences(ABC):
     general_defaults = {
         "casual_mode": [

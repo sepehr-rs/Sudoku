@@ -10,8 +10,6 @@ sys.modules["gi.repository.Adw"] = MagicMock()
 sys.modules["sudoku"] = MagicMock()
 sys.modules["sudoku.base_sudoku"] = MagicMock()
 
-import pytest  # noqa: E402
-
 from src.base.preferences import Preferences  # noqa: E402
 
 
@@ -80,3 +78,43 @@ def test_schema_metadata_preserved():
     assert entry["schema"]["min"] == 1
     assert entry["schema"]["max"] == 99
     assert entry["schema"]["depends_on"] == "typed_bool"
+
+
+def test_typed_entry_save_and_load_roundtrip_preserves_values():
+    """A wrapped entry serializes as its unwrapped value and re-loads via merge."""
+    import json
+    from src.base.preferences import unwrap
+
+    prefs = _TestPrefs()
+    # Mutate a typed value
+    prefs.general_defaults["typed_int"]["value"] = 7
+    prefs.general_defaults["typed_bool"]["value"] = False
+
+    # Simulate what board_base.save_to_file now does
+    serialized = {
+        key: unwrap(entry) for key, entry in prefs.general_defaults.items()
+    }
+    payload = json.dumps(serialized)
+
+    # Legacy pass-through: bool/list stay as-is
+    assert json.loads(payload)["legacy_bool"] is True
+    assert json.loads(payload)["legacy_list"] == ["subtitle text", False]
+    # Typed values are flat in the save file
+    assert json.loads(payload)["typed_int"] == 7
+    assert json.loads(payload)["typed_bool"] is False
+
+    # Simulate what board_base.load_from_file merges
+    fresh = _TestPrefs()
+    for key, saved_value in json.loads(payload).items():
+        current = fresh.general_defaults.get(key)
+        if isinstance(current, dict) and "schema" in current and "value" in current:
+            current["value"] = saved_value
+        else:
+            fresh.general_defaults[key] = saved_value
+
+    # Values restored, schema preserved
+    assert fresh.general("typed_int") == 7
+    assert fresh.general("typed_bool") is False
+    assert fresh.general_defaults["typed_int"]["schema"]["min"] == 1
+    assert fresh.general("legacy_bool") is True
+    assert fresh.general("legacy_list") == ["subtitle text", False]

@@ -21,6 +21,7 @@ import json
 import os
 from abc import ABC, abstractmethod
 from typing import Any, Self
+from .preferences import unwrap
 from .preferences_manager import PreferencesManager
 
 
@@ -86,10 +87,7 @@ class BoardBase(ABC):
             "variant_preferences",
             prefs.variant_defaults,
         )
-        self.general_preferences = state.get(
-            "general_preferences",
-            prefs.general_defaults,
-        )
+        self.general_preferences = state.get("general_preferences", {})
         self.variant = state.get("variant", "Unknown")
         self.puzzle = state["puzzle"]
         self.solution = state["solution"]
@@ -98,7 +96,14 @@ class BoardBase(ABC):
         self.mistake_count = state.get("mistake_count", 0)
 
         prefs.variant_defaults.update(self.variant_preferences)
-        prefs.general_defaults.update(self.general_preferences)
+        for key, saved_value in self.general_preferences.items():
+            current = prefs.general_defaults.get(key)
+            if isinstance(current, dict) and "schema" in current and "value" in current:
+                # Typed entry: keep schema, update value only
+                current["value"] = saved_value
+            else:
+                # Legacy entry (bool or [subtitle, bool]): replace wholesale
+                prefs.general_defaults[key] = saved_value
         return self
 
     @classmethod
@@ -115,7 +120,9 @@ class BoardBase(ABC):
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
             "variant_preferences": prefs.variant_defaults,
-            "general_preferences": prefs.general_defaults,
+            "general_preferences": {
+                key: unwrap(entry) for key, entry in prefs.general_defaults.items()
+            },
             "variant": self.variant,
             "puzzle": self.puzzle,
             "solution": self.solution,
