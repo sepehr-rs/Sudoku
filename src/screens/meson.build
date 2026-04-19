@@ -2,6 +2,7 @@ modulesubdir = join_paths(moduledir, 'screens')
 
 services_sources = [
     'finished_page.py',
+    'game_over_page.py',
     'help_dialog.py',
     'shortcuts_overlay.py',
     'loading_screen.py',

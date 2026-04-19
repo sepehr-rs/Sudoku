@@ -322,3 +322,59 @@ def test_classic_cleanup_active_grid_clears_feedback(manager_with_board):
     assert calls["cells_cleared"] == 9
     assert manager._active_popover is None
     assert manager._cell_popover is None
+
+
+def test_game_over_page_populate_sets_stats():
+    import sys
+    from unittest.mock import MagicMock
+
+    # Remove stale cache so the module is re-imported with the right mock.
+    for key in list(sys.modules.keys()):
+        if key == "src.screens.game_over_page" or key.startswith("src.screens.game_over_page."):
+            del sys.modules[key]
+
+    # Make Gtk.Template an identity decorator so GameOverPage stays a real class.
+    def _template(**_kwargs):
+        def _decorator(cls):
+            return cls
+        return _decorator
+
+    # Create real fake base classes
+    class _FakeGtkBox:
+        def connect(self, *args, **kwargs):
+            pass
+
+    gtk_mock = MagicMock()
+    gtk_mock.Template = _template
+    gtk_mock.Template.Child = MagicMock
+    gtk_mock.Box = _FakeGtkBox
+    sys.modules["gi.repository.Gtk"] = gtk_mock
+    sys.modules["gi.repository"].Gtk = gtk_mock
+
+    # Adw.StyleManager must exist for __init__ to work.
+    class _FakeStyleManager:
+        @staticmethod
+        def get_default():
+            return MagicMock(connect=MagicMock())
+
+    adw_mock = sys.modules["gi.repository.Adw"]
+    adw_mock.StyleManager = _FakeStyleManager
+    sys.modules["gi.repository"].Adw = adw_mock
+
+    from src.screens.game_over_page import GameOverPage
+
+    page = GameOverPage.__new__(GameOverPage)
+    page.subtitle_label = MagicMock()
+    page.stats_mistakes_value = MagicMock()
+    page.stats_progress_value = MagicMock()
+    page.stats_difficulty_value = MagicMock()
+
+    page.populate(mistakes=3, percent=47, difficulty="Medium")
+
+    page.subtitle_label.set_label.assert_called_once()
+    subtitle_arg = page.subtitle_label.set_label.call_args[0][0]
+    assert "3" in subtitle_arg
+
+    page.stats_mistakes_value.set_label.assert_called_once_with("3")
+    page.stats_progress_value.set_label.assert_called_once_with("47%")
+    page.stats_difficulty_value.set_label.assert_called_once_with("Medium")
