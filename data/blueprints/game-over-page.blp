@@ -1,0 +1,124 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $GameOverPage: Box {
+  hexpand: true;
+  vexpand: true;
+  margin-bottom: 30;
+
+  Box {
+    orientation: vertical;
+    spacing: 12;
+    margin-bottom: 20;
+    halign: fill;
+    valign: center;
+    hexpand: true;
+    vexpand: true;
+
+    Adw.Clamp {
+      maximum-size: 1200;
+      tightening-threshold: 300;
+
+      Box {
+        orientation: vertical;
+        spacing: 18;
+
+        Picture picture_contain {
+          halign: center;
+          valign: fill;
+          hexpand: true;
+          vexpand: true;
+          margin-bottom: 20;
+          can-shrink: true;
+          content-fit: contain;
+        }
+
+        Label title_label {
+          wrap: true;
+          justify: center;
+          styles [ "title-1" ]
+        }
+
+        Label subtitle_label {
+          wrap: true;
+          justify: center;
+          styles [ "dim-label" ]
+        }
+
+        Box stats_box {
+          orientation: horizontal;
+          spacing: 24;
+          halign: center;
+          margin-top: 12;
+
+          Box {
+            orientation: vertical;
+            spacing: 2;
+
+            Label stats_mistakes_value {
+              justify: center;
+              styles [ "title-2" ]
+            }
+
+            Label stats_mistakes_label {
+              justify: center;
+              styles [ "caption", "dim-label" ]
+            }
+          }
+
+          Box {
+            orientation: vertical;
+            spacing: 2;
+
+            Label stats_progress_value {
+              justify: center;
+              styles [ "title-2" ]
+            }
+
+            Label stats_progress_label {
+              justify: center;
+              styles [ "caption", "dim-label" ]
+            }
+          }
+
+          Box {
+            orientation: vertical;
+            spacing: 2;
+
+            Label stats_difficulty_value {
+              justify: center;
+              styles [ "title-2" ]
+            }
+
+            Label stats_difficulty_label {
+              justify: center;
+              styles [ "caption", "dim-label" ]
+            }
+          }
+        }
+
+        Box actions_box {
+          orientation: horizontal;
+          spacing: 12;
+          halign: center;
+          margin-top: 18;
+
+          Button try_again_button {
+            label: _("Try Again");
+            styles [ "suggested-action", "pill" ]
+          }
+
+          Button new_game_button {
+            label: _("New Game");
+            styles [ "pill" ]
+          }
+
+          Button main_menu_button {
+            label: _("Main Menu");
+            styles [ "pill" ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,6 +4,7 @@ blueprint_files = files(
   'window.blp',
   'shortcuts-overlay.blp',
   'finished-page.blp',
+  'game-over-page.blp',
   'how-to-play-dialog.blp',
   'loading-screen.blp'
 )

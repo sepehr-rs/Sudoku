@@ -6,6 +6,7 @@
     <file preprocess="xml-stripblanks">blueprints/window.ui</file>
     <file preprocess="xml-stripblanks">blueprints/shortcuts-overlay.ui</file>
     <file preprocess="xml-stripblanks">blueprints/finished-page.ui</file>
+    <file preprocess="xml-stripblanks">blueprints/game-over-page.ui</file>
     <file preprocess="xml-stripblanks">blueprints/loading-screen.ui</file>
     <file preprocess="xml-stripblanks">blueprints/how-to-play-dialog.ui</file>
   </gresource>
@@ -18,6 +19,8 @@
   <gresource prefix="/io/github/sepehr_rs/Sudoku/illustrations">
     <file preprocess="xml-stripblanks" alias="puzzle-complete-celebration-dark.svg">illustrations/puzzle-complete-celebration-dark.svg</file>
     <file preprocess="xml-stripblanks" alias="puzzle-complete-celebration-light.svg">illustrations/puzzle-complete-celebration-light.svg</file>
+    <file preprocess="xml-stripblanks" alias="game-over-dark.svg">illustrations/game-over-dark.svg</file>
+    <file preprocess="xml-stripblanks" alias="game-over-light.svg">illustrations/game-over-light.svg</file>
     <file preprocess="xml-stripblanks" alias="basics.svg">illustrations/basics.svg</file>
     <file preprocess="xml-stripblanks" alias="rows-and-columns.svg">illustrations/rows-and-columns.svg</file>
     <file preprocess="xml-stripblanks" alias="blocks.svg">illustrations/blocks.svg</file>
