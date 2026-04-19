@@ -29,6 +29,7 @@ from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
 from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
 from .base.preferences_manager import PreferencesManager
+from .base.board_base import _get_save_path
 import os
 import json
 
@@ -87,7 +88,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
         self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.set_tooltip_text(_("New Game"))
-        self.continue_button.set_visible(os.path.exists("saves/board.json"))
+        self.continue_button.set_visible(os.path.exists(_get_save_path()))
         self.home_button.set_visible(False)
 
     def _update_preferences_visibility(self, visible: bool):
@@ -143,7 +144,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         raise ValueError(f"Unknown Sudoku variant: {variant}")
 
     def get_manager_type(self, filename=None):
-        path = filename or "saves/board.json"
+        path = filename or _get_save_path()
         if not os.path.exists(path):
             return None
         with open(path, "r", encoding="utf-8") as f:
@@ -275,7 +276,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.set_valign(Gtk.Align.FILL)
 
     def on_back_to_menu(self, *_):
-        self.continue_button.set_visible(os.path.exists("saves/board.json"))
+        self.continue_button.set_visible(os.path.exists(_get_save_path()))
         self.sudoku_window_title.set_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)

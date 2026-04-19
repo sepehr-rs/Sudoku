@@ -21,12 +21,19 @@ import json
 import os
 from abc import ABC, abstractmethod
 from typing import Any, Self
+from gi.repository import GLib
 from .preferences_manager import PreferencesManager
 
 
-class BoardBase(ABC):
-    DEFAULT_SAVE_PATH = "saves/board.json"
+def _get_save_path():
+    """Get the save file path following XDG spec."""
+    data_dir = GLib.get_user_data_dir()
+    save_dir = os.path.join(data_dir, "sudokugame")
+    os.makedirs(save_dir, exist_ok=True)
+    return os.path.join(save_dir, "board.json")
 
+
+class BoardBase(ABC):
     def __init__(
         self,
         rules: Any,
@@ -65,7 +72,7 @@ class BoardBase(ABC):
         rules: Any,
         generator: Any,
     ) -> Self | None:
-        filename = filename or cls.DEFAULT_SAVE_PATH
+        filename = filename or _get_save_path()
         if not os.path.exists(filename):
             return None
 
@@ -104,7 +111,7 @@ class BoardBase(ABC):
         raise NotImplementedError
 
     def save_to_file(self, filename: str | None = None):
-        path = filename or self.DEFAULT_SAVE_PATH
+        path = filename or _get_save_path()
         os.makedirs(os.path.dirname(path), exist_ok=True)
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
