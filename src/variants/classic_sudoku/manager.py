@@ -128,15 +128,7 @@ class ClassicSudokuManager(ManagerBase):
 
     def _clear_previous_grid(self):
         """Remove all children from the grid container."""
-        self._popdown_active_popover()
-        self._active_popover = None
-        self._cell_popover = None
-
-        if hasattr(self, "cell_inputs") and self.cell_inputs:
-            for row in self.cell_inputs:
-                for cell in row:
-                    if cell:
-                        cell.clear_feedback_timeout()
+        self._cleanup_active_grid()
 
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
@@ -533,17 +525,20 @@ class ClassicSudokuManager(ManagerBase):
             "Pencil Mode is now ON" if self.pencil_mode else "Pencil Mode is now OFF"
         )
 
-    def _show_puzzle_finished_dialog(self):
+    def _cleanup_active_grid(self):
         self._popdown_active_popover()
         self._active_popover = None
         self._cell_popover = None
 
-        self.window.pencil_toggle_button.set_visible(False)
         if hasattr(self, "cell_inputs") and self.cell_inputs:
             for row in self.cell_inputs:
                 for cell in row:
                     if cell:
                         cell.clear_feedback_timeout()
+
+    def _show_puzzle_finished_dialog(self):
+        self._cleanup_active_grid()
+        self.window.pencil_toggle_button.set_visible(False)
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
         self.window.stack.set_visible_child(self.window.finished_page)

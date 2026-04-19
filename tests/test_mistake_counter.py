@@ -302,3 +302,23 @@ def test_increment_does_not_trigger_below_limit(manager_with_board):
 
     assert not manager._trigger_game_over.called
     assert manager.board.mistake_count == 4
+
+
+def test_classic_cleanup_active_grid_clears_feedback(manager_with_board):
+    manager = manager_with_board
+    manager._popdown_active_popover = lambda: setattr(manager, "_popdown_called", True)
+
+    calls = {"cells_cleared": 0}
+
+    class _FeedbackCell:
+        def clear_feedback_timeout(self):
+            calls["cells_cleared"] += 1
+
+    manager.cell_inputs = [[_FeedbackCell() for _ in range(3)] for _ in range(3)]
+
+    manager._cleanup_active_grid()
+
+    assert getattr(manager, "_popdown_called", False) is True
+    assert calls["cells_cleared"] == 9
+    assert manager._active_popover is None
+    assert manager._cell_popover is None
