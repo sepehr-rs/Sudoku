@@ -184,7 +184,17 @@ class SudokuWindow(Adw.ApplicationWindow):
         shortcuts_overlay.present()
 
     def on_show_preferences(self, *_):
-        PreferencesDialog(self, self.manager.board.save_to_file).present()
+        def _on_save():
+            self.manager.board.save_to_file()
+            self.refresh_game_subtitle()
+
+        dialog = PreferencesDialog(self, _on_save)
+        dialog.connect("close-request", self._on_preferences_closed)
+        dialog.present()
+
+    def _on_preferences_closed(self, _dialog):
+        self.refresh_game_subtitle()
+        return False
 
     def _on_window_pressed(self, gesture, n_press, x, y):
         if gesture.get_current_button() != 1:
@@ -302,6 +312,9 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.finished_page,
             self.loading_screen,
         }
+        game_over_page = getattr(self, "game_over_page", None)
+        if game_over_page is not None:
+            non_game_pages.add(game_over_page)
 
         visible = self.stack.get_visible_child()
         if (
@@ -312,18 +325,36 @@ class SudokuWindow(Adw.ApplicationWindow):
         ):
             return
 
+        prefs = PreferencesManager.get_preferences()
+        counter_enabled = (
+            prefs.general("mistake_counter_enabled", default=True)
+            if prefs is not None
+            else True
+        )
         mistake_count = getattr(self.manager.board, "mistake_count", 0)
 
         if self.pencil_toggle_button.get_active():
-            self.sudoku_window_title.set_subtitle(
-                _("Pencil Mode • Mistakes: {count}").format(count=mistake_count)
-            )
-        else:
+            if counter_enabled:
+                self.sudoku_window_title.set_subtitle(
+                    _("Pencil Mode • Mistakes: {count}").format(count=mistake_count)
+                )
+            else:
+                self.sudoku_window_title.set_subtitle(_("Pencil Mode"))
+            return
+
+        if counter_enabled:
             self.sudoku_window_title.set_subtitle(
                 _("{variant} • {difficulty} • Mistakes: {count}").format(
                     variant=self.manager.board.variant.capitalize(),
                     difficulty=self.manager.board.difficulty_label,
                     count=mistake_count,
+                )
+            )
+        else:
+            self.sudoku_window_title.set_subtitle(
+                _("{variant} • {difficulty}").format(
+                    variant=self.manager.board.variant.capitalize(),
+                    difficulty=self.manager.board.difficulty_label,
                 )
             )
 

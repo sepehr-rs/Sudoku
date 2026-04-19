@@ -120,3 +120,114 @@ def test_pencil_note_does_not_increment_mistake_counter(manager_with_board):
     manager._fill_cell(target_cell, "2")
 
     assert manager.board.mistake_count == 0
+
+
+def _load_sudoku_window():
+    """Import SudokuWindow with mocks that preserve the class under @Gtk.Template."""
+    import sys
+    from unittest.mock import MagicMock
+
+    # Remove stale cache so the module is re-imported with the right mock.
+    for key in list(sys.modules.keys()):
+        if key == "src.window" or key.startswith("src.window."):
+            del sys.modules[key]
+
+    # Make Gtk.Template an identity decorator so SudokuWindow stays a real class.
+    def _template(**_kwargs):
+        def _decorator(cls):
+            return cls
+        return _decorator
+
+    # Patch both the sys.modules entry AND the gi.repository attribute, because
+    # `from gi.repository import Gtk` resolves via the gi.repository MagicMock's
+    # attribute (not sys.modules['gi.repository.Gtk']).
+    gtk_mock = MagicMock()
+    gtk_mock.Template = _template
+    gtk_mock.Template.Child = MagicMock
+    sys.modules["gi.repository.Gtk"] = gtk_mock
+    sys.modules["gi.repository"].Gtk = gtk_mock
+
+    # Adw.ApplicationWindow must be a real class so SudokuWindow can inherit from it.
+    class _FakeAdwWindow:
+        pass
+
+    adw_mock = sys.modules["gi.repository.Adw"]
+    adw_mock.ApplicationWindow = _FakeAdwWindow
+    sys.modules["gi.repository"].Adw = adw_mock
+
+    from src.window import SudokuWindow
+    return SudokuWindow
+
+
+def test_subtitle_includes_mistakes_when_counter_enabled(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return True
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+    SudokuWindow = _load_sudoku_window()
+
+    manager = manager_with_board
+    manager.board.variant = "classic"
+    manager.board.difficulty_label = "Easy"
+    manager.board.mistake_count = 2
+
+    window = SudokuWindow.__new__(SudokuWindow)
+    window.manager = manager
+    window.sudoku_window_title = MagicMock()
+    window.main_menu_box = object()
+    window.finished_page = object()
+    window.loading_screen = object()
+    window.pencil_toggle_button = MagicMock()
+    window.pencil_toggle_button.get_active = MagicMock(return_value=False)
+    window.stack = MagicMock()
+    window.stack.get_visible_child = MagicMock(return_value=object())
+
+    SudokuWindow.refresh_game_subtitle(window)
+
+    args, _kwargs = window.sudoku_window_title.set_subtitle.call_args
+    assert "Mistakes: 2" in args[0]
+
+
+def test_subtitle_omits_mistakes_when_counter_disabled(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return False
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+    SudokuWindow = _load_sudoku_window()
+
+    manager = manager_with_board
+    manager.board.variant = "classic"
+    manager.board.difficulty_label = "Easy"
+    manager.board.mistake_count = 2
+
+    window = SudokuWindow.__new__(SudokuWindow)
+    window.manager = manager
+    window.sudoku_window_title = MagicMock()
+    window.main_menu_box = object()
+    window.finished_page = object()
+    window.loading_screen = object()
+    window.pencil_toggle_button = MagicMock()
+    window.pencil_toggle_button.get_active = MagicMock(return_value=False)
+    window.stack = MagicMock()
+    window.stack.get_visible_child = MagicMock(return_value=object())
+
+    SudokuWindow.refresh_game_subtitle(window)
+
+    args, _kwargs = window.sudoku_window_title.set_subtitle.call_args
+    assert "Mistakes" not in args[0]
+    assert "Classic" in args[0]
+    assert "Easy" in args[0]
