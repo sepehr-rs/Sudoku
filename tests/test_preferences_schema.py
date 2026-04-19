@@ -144,3 +144,15 @@ def test_mistake_limit_has_bounds_metadata():
     assert entry["schema"]["min"] == 1
     assert entry["schema"]["max"] == 99
     assert entry["schema"]["depends_on"] == "mistake_counter_enabled"
+
+
+def test_mutating_typed_int_value_is_visible_through_general():
+    prefs = _RealBasePrefs()
+    prefs.general_defaults["mistake_limit"]["value"] = 5
+    assert prefs.general("mistake_limit") == 5
+
+
+def test_mutating_typed_bool_value_is_visible_through_general():
+    prefs = _RealBasePrefs()
+    prefs.general_defaults["mistake_counter_enabled"]["value"] = False
+    assert prefs.general("mistake_counter_enabled") is False
