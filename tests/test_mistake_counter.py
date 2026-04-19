@@ -330,7 +330,9 @@ def test_game_over_page_populate_sets_stats():
 
     # Remove stale cache so the module is re-imported with the right mock.
     for key in list(sys.modules.keys()):
-        if key == "src.screens.game_over_page" or key.startswith("src.screens.game_over_page."):
+        if key == "src.screens.game_over_page" or key.startswith(
+            "src.screens.game_over_page."
+        ):
             del sys.modules[key]
 
     # Make Gtk.Template an identity decorator so GameOverPage stays a real class.

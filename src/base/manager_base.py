@@ -187,7 +187,7 @@ class ManagerBase:
             self._trigger_game_over()
 
     def _cleanup_active_grid(self):
-        """Variant hook for clearing popovers / feedback before tearing the grid down."""
+        """Variant hook for clearing popovers/feedback before tearing down grid."""
         pass
 
     def _trigger_game_over(self):
