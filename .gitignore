@@ -232,3 +232,6 @@ docs/_build/
 local/
 dev/
 test-data/
+
+# Superpowers brainstorming companion
+.superpowers/
