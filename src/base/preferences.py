@@ -18,6 +18,27 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from abc import ABC
+from copy import deepcopy
+
+
+def _is_schema_dict(value) -> bool:
+    return isinstance(value, dict) and "type" in value and "default" in value
+
+
+def _normalize_entry(value):
+    """Convert a schema dict to {"schema": ..., "value": default}.
+
+    Leaves bool, list, and already-normalized entries unchanged.
+    """
+    if _is_schema_dict(value):
+        return {"schema": deepcopy(value), "value": deepcopy(value["default"])}
+    return deepcopy(value)
+
+
+def _unwrap(entry):
+    if isinstance(entry, dict) and "schema" in entry and "value" in entry:
+        return entry["value"]
+    return entry
 
 
 class Preferences(ABC):
@@ -34,12 +55,17 @@ class Preferences(ABC):
     variant_defaults = {}
 
     def __init__(self):
-        self.general_defaults = self.general_defaults.copy()
-        self.variant_defaults = self.variant_defaults.copy()
+        cls = type(self)
+        self.general_defaults = {
+            key: _normalize_entry(value) for key, value in cls.general_defaults.items()
+        }
+        self.variant_defaults = deepcopy(cls.variant_defaults)
         self.name = ""
 
     def general(self, key, default=False):
-        return self.general_defaults.get(key, default)
+        if key not in self.general_defaults:
+            return default
+        return _unwrap(self.general_defaults[key])
 
     def variant(self, key, default=False):
         return self.variant_defaults.get(key, default)
