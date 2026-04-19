@@ -35,22 +35,43 @@ class ManagerBase:
 
     def load_saved_game(self):
         self.board = self.board_cls.load_from_file()
-        if self.board:
-            refresh = getattr(self.window, "refresh_game_subtitle", None)
-            if callable(refresh):
-                refresh()
-            else:
-                self.window.sudoku_window_title.set_subtitle(
-                    f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
-                )
-            self.build_grid()
-            self._restore_game_state()
-            self.window.stack.set_visible_child(self.window.game_scrolled_window)
-            logging.info(f"Loaded saved {self.board.variant.capitalize()} Sudoku game")
-            if self.board.is_solved():
-                self._show_puzzle_finished_dialog()
-        else:
+        if self.board is None:
             logging.error("No saved game found")
+            return
+
+        refresh = getattr(self.window, "refresh_game_subtitle", None)
+        if callable(refresh):
+            refresh()
+        else:
+            self.window.sudoku_window_title.set_subtitle(
+                f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
+            )
+
+        self.build_grid()
+        self._restore_game_state()
+
+        variant = getattr(self.board, "variant", "")
+        variant_cap = variant.capitalize() if variant else "Sudoku"
+
+        if self.board.is_solved():
+            self._show_puzzle_finished_dialog()
+            logging.info(f"Loaded completed {variant_cap} Sudoku game")
+            return
+
+        prefs = PreferencesManager.get_preferences()
+        if prefs is not None:
+            enabled = prefs.general("mistake_counter_enabled", default=True)
+            if enabled:
+                limit = int(prefs.general("mistake_limit", default=3))
+                if int(getattr(self.board, "mistake_count", 0)) >= limit:
+                    self._trigger_game_over()
+                    logging.info(
+                        f"Loaded {variant_cap} Sudoku game in Game Over state"
+                    )
+                    return
+
+        self.window.stack.set_visible_child(self.window.game_scrolled_window)
+        logging.info(f"Loaded saved {variant_cap} Sudoku game")
 
     def _restore_game_state(self):
         raise NotImplementedError

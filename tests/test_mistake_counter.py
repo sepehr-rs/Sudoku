@@ -428,3 +428,77 @@ def test_on_try_again_resets_count_inputs_and_notes(manager_with_board):
     manager.board.save_to_file.assert_called()
     manager.build_grid.assert_called()
     window.stack.set_visible_child.assert_called_with(window.game_scrolled_window)
+
+
+def test_load_saved_game_shows_game_over_when_over_limit(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return True
+            if key == "mistake_limit":
+                return 3
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+
+    manager = manager_with_board
+    manager.board.mistake_count = 3
+    manager.board.is_solved = MagicMock(return_value=False)
+    manager.board_cls = MagicMock()
+    manager.board_cls.load_from_file = MagicMock(return_value=manager.board)
+    manager.build_grid = MagicMock()
+    manager._restore_game_state = MagicMock()
+    manager._trigger_game_over = MagicMock()
+
+    manager.window.refresh_game_subtitle = MagicMock()
+    manager.window.sudoku_window_title = MagicMock()
+    manager.window.stack = MagicMock()
+    manager.window.game_scrolled_window = object()
+
+    manager.load_saved_game()
+
+    assert manager._trigger_game_over.called
+    calls = manager.window.stack.set_visible_child.call_args_list
+    for call in calls:
+        assert call.args[0] is not manager.window.game_scrolled_window
+
+
+def test_load_saved_game_shows_normal_view_when_under_limit(manager_with_board):
+    from unittest.mock import MagicMock
+
+    class _Prefs:
+        def general(self, key, default=False):
+            if key == "mistake_counter_enabled":
+                return True
+            if key == "mistake_limit":
+                return 3
+            if key == "casual_mode":
+                return ["desc", True]
+            return default
+
+    PreferencesManager.set_preferences(_Prefs())
+
+    manager = manager_with_board
+    manager.board.mistake_count = 1
+    manager.board.is_solved = MagicMock(return_value=False)
+    manager.board_cls = MagicMock()
+    manager.board_cls.load_from_file = MagicMock(return_value=manager.board)
+    manager.build_grid = MagicMock()
+    manager._restore_game_state = MagicMock()
+    manager._trigger_game_over = MagicMock()
+
+    manager.window.refresh_game_subtitle = MagicMock()
+    manager.window.sudoku_window_title = MagicMock()
+    manager.window.stack = MagicMock()
+    manager.window.game_scrolled_window = object()
+
+    manager.load_saved_game()
+
+    assert not manager._trigger_game_over.called
+    manager.window.stack.set_visible_child.assert_called_with(
+        manager.window.game_scrolled_window
+    )
