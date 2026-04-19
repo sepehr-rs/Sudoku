@@ -118,3 +118,29 @@ def test_typed_entry_save_and_load_roundtrip_preserves_values():
     assert fresh.general_defaults["typed_int"]["schema"]["min"] == 1
     assert fresh.general("legacy_bool") is True
     assert fresh.general("legacy_list") == ["subtitle text", False]
+
+
+class _RealBasePrefs(Preferences):
+    """Uses the real Preferences.general_defaults (no override)."""
+
+    def __init__(self):
+        super().__init__()
+        self.name = "Real"
+
+
+def test_mistake_counter_enabled_default_is_true():
+    prefs = _RealBasePrefs()
+    assert prefs.general("mistake_counter_enabled") is True
+
+
+def test_mistake_limit_default_is_three():
+    prefs = _RealBasePrefs()
+    assert prefs.general("mistake_limit") == 3
+
+
+def test_mistake_limit_has_bounds_metadata():
+    prefs = _RealBasePrefs()
+    entry = prefs.general_defaults["mistake_limit"]
+    assert entry["schema"]["min"] == 1
+    assert entry["schema"]["max"] == 99
+    assert entry["schema"]["depends_on"] == "mistake_counter_enabled"

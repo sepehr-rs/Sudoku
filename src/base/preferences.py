@@ -53,6 +53,19 @@ class Preferences(ABC):
         "prevent_conflicting_pencil_notes": False,
         "highlight_row": True,
         "highlight_column": True,
+        "mistake_counter_enabled": {
+            "type": "bool",
+            "default": True,
+            "subtitle": "Track mistakes and end the game at the limit",
+        },
+        "mistake_limit": {
+            "type": "int",
+            "default": 3,
+            "min": 1,
+            "max": 99,
+            "subtitle": "Maximum mistakes before Game Over",
+            "depends_on": "mistake_counter_enabled",
+        },
     }
 
     variant_defaults = {}
