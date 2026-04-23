@@ -18,18 +18,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
-import logging
 
 from .application import SudokuApplication
-
-# Setup logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+from .log_utils import setup_logging
 
 
 def main(version):
+    setup_logging()
     app = SudokuApplication(version)
     return app.run(sys.argv)
