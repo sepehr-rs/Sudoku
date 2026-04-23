@@ -202,8 +202,7 @@ def setup_logging(version: str | None = None):
     - Redirect stderr into logging.
     """
     global _logging_configured
-    global _log_buffer_handler
-
+ 
     root_logger = logging.getLogger()
 
     if not _logging_configured:
