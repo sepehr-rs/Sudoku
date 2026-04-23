@@ -24,6 +24,6 @@ from .log_utils import setup_logging
 
 
 def main(version):
-    setup_logging()
+    setup_logging(version)
     app = SudokuApplication(version)
     return app.run(sys.argv)

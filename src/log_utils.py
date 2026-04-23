@@ -27,21 +27,11 @@ from gi.repository import GLib  # pyright: ignore[reportAttributeAccessIssue]
 
 from .base.log_paths import get_log_file_path
 
+
 _logging_configured = False
 _log_buffer_handler = None
 _session_id = None
-
-
-class SessionIdFormatter(logging.Formatter):
-    """Custom formatter that includes session_id in all log records."""
-
-    def format(self, record):
-        formatted = super().format(record)
-        # Append session_id to the end of the formatted message
-        sid = get_session_id()
-        if sid:
-            formatted = f"{formatted} [session_id={sid}]"
-        return formatted
+_startup_header_logged = False
 
 
 def get_session_id() -> str:
@@ -116,77 +106,117 @@ def _get_initial_file_log_level():
     return logging.INFO
 
 
-def setup_logging():
-    """Configure logging for the application.
+def _ensure_buffer_handler(root_logger: logging.Logger) -> LogBufferHandler:
+    global _log_buffer_handler
 
-    - Attach LogBufferHandler (in-memory logs).
-    - Register GLib log handler for Gtk/Gdk/Adwaita/etc.
-    - Redirect stderr into logging.
-    """
-    global _logging_configured, _log_buffer_handler
-    root_logger = logging.getLogger()
-    if not _logging_configured:
-        logging.basicConfig(level=logging.DEBUG)  # Capture DEBUG+
-        root_logger.setLevel(logging.DEBUG)
+    if (
+        _log_buffer_handler is not None
+        and _log_buffer_handler in root_logger.handlers
+        and isinstance(_log_buffer_handler, LogBufferHandler)
+    ):
+        _log_buffer_handler.setFormatter(logging.Formatter("%(message)s"))
+        return _log_buffer_handler
 
-        existing_buffer_handler = next(
-            (h for h in root_logger.handlers if isinstance(h, LogBufferHandler)),
-            None,
+    handler = next(
+        (h for h in root_logger.handlers if isinstance(h, LogBufferHandler)),
+        None,
+    )
+    if handler is None:
+        handler = LogBufferHandler()
+
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    if handler not in root_logger.handlers:
+        root_logger.addHandler(handler)
+
+    _log_buffer_handler = handler
+    return handler
+
+
+def _configure_glib_logging() -> None:
+    GLib.log_set_writer_func(_glib_log_writer, None)
+    for domain in ("Gtk", "GLib", "Gdk", "Adwaita", None):
+        GLib.log_set_handler(
+            domain, GLib.LogLevelFlags.LEVEL_MASK, glib_log_handler, None
         )
-        if existing_buffer_handler is None:
-            existing_buffer_handler = LogBufferHandler()
-            existing_buffer_handler.setFormatter(SessionIdFormatter())
-            root_logger.addHandler(existing_buffer_handler)
 
-        _log_buffer_handler = existing_buffer_handler
 
-        GLib.log_set_writer_func(_glib_log_writer, None)
-        for domain in ("Gtk", "GLib", "Gdk", "Adwaita", None):
-            GLib.log_set_handler(
-                domain, GLib.LogLevelFlags.LEVEL_MASK, glib_log_handler, None
-            )
-
-        _logging_configured = True
-
-    if _log_buffer_handler is None:
-        _log_buffer_handler = next(
-            (h for h in root_logger.handlers if isinstance(h, LogBufferHandler)),
-            LogBufferHandler(),
-        )
-        if _log_buffer_handler not in root_logger.handlers:
-            _log_buffer_handler.setFormatter(SessionIdFormatter())
-            root_logger.addHandler(_log_buffer_handler)
-
+def _ensure_file_handler(root_logger: logging.Logger, log_file_path: str) -> None:
     try:
-        log_file_path = get_log_file_path()
         log_file_dir = os.path.dirname(log_file_path)
         if log_file_dir:
             os.makedirs(log_file_dir, exist_ok=True)
 
         abs_log_file_path = os.path.abspath(log_file_path)
-        has_file_handler = any(
-            isinstance(h, RotatingFileHandler)
-            and getattr(h, "baseFilename", None) == abs_log_file_path
-            for h in root_logger.handlers
-        )
+        for handler in root_logger.handlers:
+            if (
+                isinstance(handler, RotatingFileHandler)
+                and getattr(handler, "baseFilename", None) == abs_log_file_path
+            ):
+                return
 
-        if not has_file_handler:
-            file_handler = RotatingFileHandler(
-                log_file_path,
-                maxBytes=5 * 1024 * 1024,
-                backupCount=5,
-                encoding="utf-8",
-            )
-            file_handler.setLevel(_get_initial_file_log_level())
-            file_handler.setFormatter(SessionIdFormatter(
+        file_handler = RotatingFileHandler(
+            log_file_path,
+            maxBytes=5 * 1024 * 1024,
+            backupCount=5,
+            encoding="utf-8",
+        )
+        file_handler.setLevel(_get_initial_file_log_level())
+        file_handler.setFormatter(
+            logging.Formatter(
                 fmt="%(asctime)s %(levelname)s %(name)s: %(message)s",
                 datefmt="%Y-%m-%d %H:%M:%S",
-            ))
-            root_logger.addHandler(file_handler)
+            )
+        )
+        root_logger.addHandler(file_handler)
     except Exception:
         logging.getLogger(__name__).warning(
             "Failed to set up rotating file logging; continuing with in-memory logs",
             exc_info=True,
         )
 
-    return _log_buffer_handler
+
+def _log_startup_header_once(version: str | None, log_file_path: str) -> None:
+    global _startup_header_logged
+    if _startup_header_logged:
+        return
+
+    _startup_header_logged = True
+    sid = get_session_id()
+    pid = os.getpid()
+    ver = version if version else "unknown"
+    log_file = get_log_file_path() or log_file_path
+    logging.info(
+        "session_start session_id=%s pid=%s version=%s log_file=%s",
+        sid,
+        pid,
+        ver,
+        log_file,
+    )
+
+
+def setup_logging(version: str | None = None):
+    """Configure logging for the application.
+
+    - Attach LogBufferHandler (in-memory logs).
+    - Register GLib log handler for Gtk/Gdk/Adwaita/etc.
+    - Redirect stderr into logging.
+    """
+    global _logging_configured
+    global _log_buffer_handler
+
+    root_logger = logging.getLogger()
+
+    if not _logging_configured:
+        logging.basicConfig(level=logging.DEBUG)  # Capture DEBUG+
+        root_logger.setLevel(logging.DEBUG)
+
+        _ensure_buffer_handler(root_logger)
+        _configure_glib_logging()
+
+        _logging_configured = True
+
+    buffer_handler = _ensure_buffer_handler(root_logger)
+    log_file_path = get_log_file_path()
+    _ensure_file_handler(root_logger, log_file_path)
+    _log_startup_header_once(version, log_file_path)
+    return buffer_handler
