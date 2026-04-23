@@ -56,7 +56,8 @@ def set_debug_logging(enabled: bool) -> None:
     root_logger = logging.getLogger()
     for handler in root_logger.handlers:
         if isinstance(handler, RotatingFileHandler):
-            handler.setLevel(logging.DEBUG if enabled else _get_initial_file_log_level())
+            handler.setLevel(logging.DEBUG if enabled
+                             else _get_initial_file_log_level())
 
 
 class LogBufferHandler(logging.Handler):
