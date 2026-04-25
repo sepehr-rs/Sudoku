@@ -116,6 +116,22 @@ def test_diagonal_conflict(diagonal_board):
     assert (0, 8) in conflicts
 
 
+def test_diagonal_conflict_uses_puzzle_clue(diagonal_board):
+    diagonal_board.puzzle[0][8] = "6"
+
+    conflicts = diagonal_board.has_conflict(8, 0, "6")
+
+    assert (0, 8) in conflicts
+
+
+def test_classic_conflict_does_not_treat_diagonal_as_related(classic_board):
+    classic_board.user_inputs[0][0] = "5"
+
+    conflicts = classic_board.has_conflict(4, 4, "5")
+
+    assert (0, 0) not in conflicts
+
+
 def test_no_conflict(classic_board):
     classic_board.user_inputs[0][0] = "5"
     conflicts = classic_board.has_conflict(1, 4, "5")
