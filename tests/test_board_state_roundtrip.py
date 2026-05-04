@@ -10,30 +10,23 @@ from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
 from src.variants.diagonal_sudoku.rules import DiagonalSudokuRules
 
 
-class _DummyPreferences:
-    def __init__(self):
-        self.variant_defaults = {
-            "highlight_block": True,
-            "highlight_related_cells": True,
-            "highlight_diagonals": True,
-        }
-        self.general_defaults = {
-            "highlight_row": True,
-            "highlight_column": True,
-            "casual_mode": [False, True],
-            "prevent_conflicting_pencil_notes": True,
-        }
-
-    def general(self, key, default=None):
-        return self.general_defaults.get(key, default)
-
-    def variant(self, key, default=None):
-        return self.variant_defaults.get(key, default)
-
-
 @pytest.fixture(autouse=True)
-def _prefs_guard():
-    PreferencesManager.set_preferences(_DummyPreferences())
+def _prefs_guard(dummy_preferences_factory):
+    PreferencesManager.set_preferences(
+        dummy_preferences_factory(
+            variant_defaults={
+                "highlight_block": True,
+                "highlight_related_cells": True,
+                "highlight_diagonals": True,
+            },
+            general_defaults={
+                "highlight_row": True,
+                "highlight_column": True,
+                "casual_mode": [False, True],
+                "prevent_conflicting_pencil_notes": True,
+            },
+        )
+    )
     try:
         yield
     finally:

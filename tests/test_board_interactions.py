@@ -3,30 +3,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-from src.base.preferences_manager import PreferencesManager
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
 from src.variants.classic_sudoku.manager import ClassicSudokuManager, Gdk
-
-
-class _DummyPreferences:
-    def __init__(self):
-        self.variant_defaults = {}
-        self.general_defaults = {}
-
-    def general(self, _key, default=None):
-        return default
-
-    def variant(self, _key, default=None):
-        return default
-
-
-@pytest.fixture(autouse=True)
-def _prefs_guard():
-    PreferencesManager.set_preferences(_DummyPreferences())
-    try:
-        yield
-    finally:
-        PreferencesManager.set_preferences(None)
 
 
 def _sample_solution():

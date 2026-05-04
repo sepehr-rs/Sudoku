@@ -17,19 +17,7 @@ from src.variants.diagonal_sudoku.rules import DiagonalSudokuRules
 from src.variants.diagonal_sudoku.ui_helpers import DiagonalUIHelpers
 
 
-class _DummyPreferences:
-    def __init__(self):
-        self.variant_defaults = {}
-        self.general_defaults = {}
-
-    def general(self, _key, default=None):
-        return default
-
-    def variant(self, _key, default=None):
-        return default
-
-
-class _HighlightPreferences(_DummyPreferences):
+class _HighlightPreferences:
     def __init__(self):
         self.variant_defaults = {
             "highlight_block": False,
@@ -46,15 +34,6 @@ class _HighlightPreferences(_DummyPreferences):
 
     def variant(self, key, default=None):
         return self.variant_defaults.get(key, default)
-
-
-@pytest.fixture(autouse=True)
-def _prefs_guard():
-    PreferencesManager.set_preferences(_DummyPreferences())
-    try:
-        yield
-    finally:
-        PreferencesManager.set_preferences(None)
 
 
 class _MockCell:
