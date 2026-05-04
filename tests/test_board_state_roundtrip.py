@@ -1,17 +1,8 @@
 import json
-import sys
 from unittest.mock import MagicMock
 
 import pytest
 
-
-# Mock GTK modules before importing board code
-sys.modules["gi"] = MagicMock()
-sys.modules["gi.repository"] = MagicMock()
-sys.modules["gi.repository.Gtk"] = MagicMock()
-sys.modules["gi.repository.Gdk"] = MagicMock()
-sys.modules["gi.repository.GLib"] = MagicMock()
-sys.modules["gi.repository.Adw"] = MagicMock()
 
 from src.base.preferences_manager import PreferencesManager
 from src.variants.classic_sudoku.board import ClassicSudokuBoard

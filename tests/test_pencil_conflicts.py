@@ -1,13 +1,5 @@
 import pytest
-import sys
 from unittest.mock import MagicMock
-
-# Mock gi.repository before importing manager to avoid GTK dependency
-sys.modules["gi"] = MagicMock()
-sys.modules["gi.repository"] = MagicMock()
-sys.modules["gi.repository.Gtk"] = MagicMock()
-sys.modules["gi.repository.Gdk"] = MagicMock()
-sys.modules["gi.repository.GLib"] = MagicMock()
 
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
 from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard

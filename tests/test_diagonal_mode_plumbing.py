@@ -2,17 +2,8 @@
 
 import json
 import os
-import sys
 import tempfile
 from unittest.mock import MagicMock, patch
-
-# Mock GTK modules before importing anything else
-sys.modules["gi"] = MagicMock()
-sys.modules["gi.repository"] = MagicMock()
-sys.modules["gi.repository.Gtk"] = MagicMock()
-sys.modules["gi.repository.Gdk"] = MagicMock()
-sys.modules["gi.repository.GLib"] = MagicMock()
-sys.modules["gi.repository.Adw"] = MagicMock()
 
 import pytest
 
