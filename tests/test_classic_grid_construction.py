@@ -3,9 +3,30 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
+from src.base.preferences_manager import PreferencesManager
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
 from src.variants.classic_sudoku.manager import ClassicSudokuManager, Gtk
-from src.variants.classic_sudoku.rules import ClassicSudokuRules
+
+
+class _DummyPreferences:
+    def __init__(self):
+        self.variant_defaults = {}
+        self.general_defaults = {}
+
+    def general(self, _key, default=None):
+        return default
+
+    def variant(self, _key, default=None):
+        return default
+
+
+@pytest.fixture(autouse=True)
+def _prefs_guard():
+    PreferencesManager.set_preferences(_DummyPreferences())
+    try:
+        yield
+    finally:
+        PreferencesManager.set_preferences(None)
 
 
 class _FakeStyleContext:
@@ -78,29 +99,23 @@ class _FakeSudokuCell:
 
 
 def _build_board():
-    board = ClassicSudokuBoard.__new__(ClassicSudokuBoard)
-    board.rules = ClassicSudokuRules()
-    board.puzzle = [[None for _ in range(9)] for _ in range(9)]
+    with patch(
+        "src.base.generator_base.GeneratorBase.generate",
+        return_value=(
+            [[None for _ in range(9)] for _ in range(9)],
+            [[None for _ in range(9)] for _ in range(9)],
+        ),
+    ):
+        board = ClassicSudokuBoard(0.5, "Medium", "classic")
+
     board.puzzle[0][0] = "9"
     board.puzzle[4][4] = "5"
-    board.user_inputs = [[None for _ in range(9)] for _ in range(9)]
-    board.solution = [[None for _ in range(9)] for _ in range(9)]
-    board.notes = [[set() for _ in range(9)] for _ in range(9)]
     return board
 
 
 def _build_manager(board):
-    manager = ClassicSudokuManager.__new__(ClassicSudokuManager)
+    manager = ClassicSudokuManager(MagicMock())
     manager.board = board
-    manager.cell_inputs = []
-    manager.conflict_cells = []
-    manager.parent_grid = None
-    manager.blocks = []
-    manager._active_popover = None
-    manager._cell_popover = None
-    manager._last_popover_cell = None
-    manager._restore_focus_on_popover_close = False
-    manager.board_frame = None
 
     grid_container = MagicMock()
     grid_container.get_first_child.return_value = None
@@ -224,7 +239,7 @@ def test_build_grid_wraps_appends_and_reapplies_layout():
 
 
 def test_create_blocks_requires_parent_grid():
-    manager = ClassicSudokuManager.__new__(ClassicSudokuManager)
+    manager = ClassicSudokuManager(MagicMock())
     manager.parent_grid = None
 
     with pytest.raises(RuntimeError, match="no parent_grid"):

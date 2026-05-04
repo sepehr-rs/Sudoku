@@ -3,9 +3,34 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
+from src.base.preferences_manager import PreferencesManager
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
 from src.variants.classic_sudoku.manager import ClassicSudokuManager, Gdk
-from src.variants.classic_sudoku.rules import ClassicSudokuRules
+
+
+class _DummyPreferences:
+    def __init__(self):
+        self.variant_defaults = {}
+        self.general_defaults = {}
+
+    def general(self, _key, default=None):
+        return default
+
+    def variant(self, _key, default=None):
+        return default
+
+
+@pytest.fixture(autouse=True)
+def _prefs_guard():
+    PreferencesManager.set_preferences(_DummyPreferences())
+    try:
+        yield
+    finally:
+        PreferencesManager.set_preferences(None)
+
+
+def _sample_solution():
+    return [[str((r * 3 + r // 3 + c) % 9 + 1) for c in range(9)] for r in range(9)]
 
 
 class MockCell:
@@ -39,23 +64,20 @@ class MockCell:
 
 @pytest.fixture
 def classic_board():
-    board = ClassicSudokuBoard.__new__(ClassicSudokuBoard)
-    board.rules = ClassicSudokuRules()
-    board.puzzle = [[None for _ in range(9)] for _ in range(9)]
-    board.user_inputs = [[None for _ in range(9)] for _ in range(9)]
-    board.solution = [
-        [str((r * 3 + r // 3 + c) % 9 + 1) for c in range(9)] for r in range(9)
-    ]
-    board.notes = [[set() for _ in range(9)] for _ in range(9)]
-    return board
+    with patch(
+        "src.base.generator_base.GeneratorBase.generate",
+        return_value=(
+            [[None for _ in range(9)] for _ in range(9)],
+            _sample_solution(),
+        ),
+    ):
+        return ClassicSudokuBoard(0.5, "Medium", "classic")
 
 
 @pytest.fixture
 def manager(classic_board):
-    test_manager = ClassicSudokuManager.__new__(ClassicSudokuManager)
+    test_manager = ClassicSudokuManager(MagicMock())
     test_manager.board = classic_board
-    test_manager.pencil_mode = False
-    test_manager.conflict_cells = []
     test_manager.key_map = {Gdk.KEY_5: "5"}
     test_manager.remove_keys = (Gdk.KEY_BackSpace, Gdk.KEY_Delete)
     test_manager.cell_inputs = [[MockCell(r, c) for c in range(9)] for r in range(9)]

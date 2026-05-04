@@ -76,13 +76,14 @@ class _MockCell:
 
 @pytest.fixture
 def diagonal_board():
-    board = DiagonalSudokuBoard.__new__(DiagonalSudokuBoard)
-    board.rules = DiagonalSudokuRules()
-    board.puzzle = [[None for _ in range(9)] for _ in range(9)]
-    board.user_inputs = [[None for _ in range(9)] for _ in range(9)]
-    board.solution = [[None for _ in range(9)] for _ in range(9)]
-    board.notes = [[set() for _ in range(9)] for _ in range(9)]
-    return board
+    with patch(
+        "src.base.generator_base.GeneratorBase.generate",
+        return_value=(
+            [[None for _ in range(9)] for _ in range(9)],
+            [[None for _ in range(9)] for _ in range(9)],
+        ),
+    ):
+        return DiagonalSudokuBoard(0.5, "Medium", "diagonal")
 
 
 def _make_cells():

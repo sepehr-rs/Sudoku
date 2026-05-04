@@ -1,12 +1,11 @@
 import json
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
 
 
 from src.base.preferences_manager import PreferencesManager
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
-from src.variants.classic_sudoku.rules import ClassicSudokuRules
 from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
 from src.variants.diagonal_sudoku.rules import DiagonalSudokuRules
 
@@ -72,18 +71,18 @@ def _sample_notes():
     ]
 
 
-def _build_board(board_cls, rules, variant):
+def _build_board(board_cls, variant):
     solution = _sample_solution()
     puzzle = _sample_puzzle(solution)
     user_inputs = _sample_user_inputs(solution, puzzle)
     notes = _sample_notes()
 
-    board = board_cls.__new__(board_cls)
-    board.rules = rules
-    board.generator = MagicMock()
-    board.difficulty = 0.5
-    board.difficulty_label = "Medium"
-    board.variant = variant
+    with patch(
+        "src.base.generator_base.GeneratorBase.generate",
+        return_value=(puzzle, solution),
+    ):
+        board = board_cls(0.5, "Medium", variant)
+
     board.puzzle = puzzle
     board.solution = solution
     board.user_inputs = user_inputs
@@ -92,7 +91,7 @@ def _build_board(board_cls, rules, variant):
 
 
 def test_classic_save_load_roundtrip_preserves_board_state(tmp_path):
-    board = _build_board(ClassicSudokuBoard, ClassicSudokuRules(), "classic")
+    board = _build_board(ClassicSudokuBoard, "classic")
     save_path = tmp_path / "classic-save.json"
 
     board.save_to_file(str(save_path))
@@ -110,7 +109,7 @@ def test_classic_save_load_roundtrip_preserves_board_state(tmp_path):
 
 
 def test_diagonal_save_load_roundtrip_preserves_board_state(tmp_path):
-    board = _build_board(DiagonalSudokuBoard, DiagonalSudokuRules(), "diagonal")
+    board = _build_board(DiagonalSudokuBoard, "diagonal")
     save_path = tmp_path / "diagonal-save.json"
 
     board.save_to_file(str(save_path))
@@ -127,7 +126,7 @@ def test_diagonal_save_load_roundtrip_preserves_board_state(tmp_path):
 
 
 def test_save_serializes_notes_as_lists(tmp_path):
-    board = _build_board(ClassicSudokuBoard, ClassicSudokuRules(), "classic")
+    board = _build_board(ClassicSudokuBoard, "classic")
     save_path = tmp_path / "serialized-notes.json"
 
     board.save_to_file(str(save_path))
