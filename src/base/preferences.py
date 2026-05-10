@@ -31,8 +31,8 @@ class Preferences(ABC):
         "highlight_column": True,
         "show_remaining_valid_inputs": [
             "View the possible places left for each number",
-            False
-        ]
+            False,
+        ],
     }
 
     variant_defaults = {}
@@ -43,9 +43,9 @@ class Preferences(ABC):
         self.name = ""
 
     def general(self, key, default=False):
-        # TODO: prefs.general() may return 
+        # TODO: prefs.general() may return
         # a [value, tooltip] list instead of a
-        # plain value. Fix to return 
+        # plain value. Fix to return
         # consistently, then remove [1] indexing at call sites.
         return self.general_defaults.get(key, default)
 
