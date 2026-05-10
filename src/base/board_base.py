@@ -23,7 +23,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Self
 from gi.repository import GLib
 from .preferences_manager import PreferencesManager
-from collections import Counter
 
 
 def _get_save_path():
