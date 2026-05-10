@@ -177,5 +177,12 @@ class BoardBase(ABC):
                     continue
                 else:
                     remaining_valid_inputs[int(self.get_input(row,column))] -= 1
+
+        # Substitute remaining_valid_inputs from pre-set values in the puzzle
+        for row in range(0,9):
+            for column in range(0,9):
+                if not self.puzzle[row][column]:
+                    continue
+                remaining_valid_inputs[self.puzzle[row][column]] -= 1
         
         return remaining_valid_inputs
