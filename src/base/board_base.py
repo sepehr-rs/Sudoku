@@ -160,7 +160,6 @@ class BoardBase(ABC):
         """Return the set of notes for a cell."""
         return self.notes[row][col]
 
-
     def remove_note_from_related(self, row: int, col: int, value: str):
         """Remove `value` from notes of all cells in the same row, col, and block."""
         size = self.rules.size
