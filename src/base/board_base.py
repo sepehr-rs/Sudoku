@@ -23,6 +23,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Self
 from gi.repository import GLib
 from .preferences_manager import PreferencesManager
+from collections import Counter
 
 
 def _get_save_path():
@@ -97,7 +98,7 @@ class BoardBase(ABC):
             prefs.general_defaults,
         )
         self.variant = state.get("variant", "Unknown")
-        self.puzzle = state["puzzle"]
+        self.puzzle = state["puzzle"] # The default board shown to the user
         self.solution = state["solution"]
         self.user_inputs = state["user_inputs"]
         self.notes = [[set(n) for n in row] for row in state["notes"]]
@@ -139,7 +140,7 @@ class BoardBase(ABC):
     def get_correct_value(self, row, col):
         return self.solution[row][col]
 
-    def get_input(self, row, col):
+    def get_input(self, row, col) -> str:
         return self.user_inputs[row][col]
 
     def toggle_note(self, row: int, col: int, value: str):
@@ -159,3 +160,22 @@ class BoardBase(ABC):
     def get_notes(self, row: int, col: int) -> set:
         """Return the set of notes for a cell."""
         return self.notes[row][col]
+
+    def get_remaining_valid_inputs(self) -> dict:
+        if not self.puzzle or not self.user_inputs:
+            return {}
+        
+        # Count numbers in solution
+        remaining_valid_inputs = {i:9 for i in range(1,10)}
+
+        # Count numbers in the user input
+        for row in range(0,9):
+            for column in range(0,9):
+                if not self.get_input(row,column):
+                    continue
+                if not int(self.get_input(row,column)) == self.get_correct_value(row,column):
+                    continue
+                else:
+                    remaining_valid_inputs[int(self.get_input(row,column))] -= 1
+        
+        return remaining_valid_inputs
