@@ -43,6 +43,10 @@ class Preferences(ABC):
         self.name = ""
 
     def general(self, key, default=False):
+        # TODO: prefs.general() may return 
+        # a [value, tooltip] list instead of a
+        # plain value. Fix to return 
+        # consistently, then remove [1] indexing at call sites.
         return self.general_defaults.get(key, default)
 
     def variant(self, key, default=False):
