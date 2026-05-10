@@ -73,19 +73,6 @@
   </developer>
 
   <releases translate="no">
-      <release version="1.7.0" date="2026-05-10">
-        <description>
-          <p>What's new in 1.7.0:</p>
-          <ul>
-            <li>Pencil notes affected by a correct entry are now automatically removed</li>
-            <li>Each editable cell's popover now shows remaining valid inputs for that number</li>
-            <li>Preferences and Shortcuts dialogs updated to modern libadwaita style, thanks to Wartybix</li>
-            <li>Added Chinese translation, thanks to uaiqop</li>
-            <li>Fixed a game state saving bug, thanks to jammie-jelly</li>
-            <li>And many more improvements and fixes!</li>
-          </ul>
-        </description>
-      </release>
       <release version="1.6.1" date="2026-02-24">
         <description>
           <p>What's new in this update:</p>
