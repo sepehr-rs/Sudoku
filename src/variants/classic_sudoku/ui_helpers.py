@@ -117,7 +117,12 @@ class ClassicUIHelpers(UIHelpers):
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
         popover.set_child(grid)
         num_buttons = ClassicUIHelpers._add_number_buttons(
-            grid, on_number_selected, cell, popover, mouse_button,remaining_valid_inputs
+            grid,
+            on_number_selected,
+            cell,
+            popover,
+            mouse_button,
+            remaining_valid_inputs,
         )
         clear_button = ClassicUIHelpers._add_action_buttons(
             grid, cell, popover, on_clear_selected, pencil_mode, mouse_button
@@ -153,11 +158,7 @@ class ClassicUIHelpers(UIHelpers):
 
     @staticmethod
     def _add_number_buttons(
-        grid,
-        on_number_selected,
-        cell, popover,
-        mouse_button,
-        remaining_valid_inputs
+        grid, on_number_selected, cell, popover, mouse_button, remaining_valid_inputs
     ):
         """Create 1–9 number buttons inside the popover grid."""
         prefs = PreferencesManager.get_preferences()
@@ -172,23 +173,20 @@ class ClassicUIHelpers(UIHelpers):
             if show_remaining:
                 count = remaining_valid_inputs[i]
                 if count > 0:
-                    widget_to_attach = ClassicUIHelpers._generate_overlay_with_counter(button, count)
+                    widget_to_attach = ClassicUIHelpers._generate_overlay_with_counter(
+                        button, count
+                    )
                 else:
                     button.set_sensitive(False)
 
             grid.attach(widget_to_attach, (i - 1) % 3, (i - 1) // 3, 1, 1)
             num_buttons[str(i)] = button
-    
+
         return num_buttons
 
     @staticmethod
     def _add_action_buttons(
-        grid,
-        cell,
-        popover,
-        on_clear_selected,
-        pencil_mode,
-        mouse_button
+        grid, cell, popover, on_clear_selected, pencil_mode, mouse_button
     ):
         """Create Clear (and optionally Done) buttons."""
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)

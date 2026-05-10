@@ -98,7 +98,7 @@ class BoardBase(ABC):
             prefs.general_defaults,
         )
         self.variant = state.get("variant", "Unknown")
-        self.puzzle = state["puzzle"] # The default board shown to the user
+        self.puzzle = state["puzzle"]  # The default board shown to the user
         self.solution = state["solution"]
         self.user_inputs = state["user_inputs"]
         self.notes = [[set(n) for n in row] for row in state["notes"]]
@@ -164,25 +164,27 @@ class BoardBase(ABC):
     def get_remaining_valid_inputs(self) -> dict:
         if not self.puzzle or not self.user_inputs:
             return {}
-        
+
         # Count numbers in solution
-        remaining_valid_inputs = {i:9 for i in range(1,10)}
+        remaining_valid_inputs = {i: 9 for i in range(1, 10)}
 
         # Count numbers in the user input
-        for row in range(0,9):
-            for column in range(0,9):
-                if not self.get_input(row,column):
+        for row in range(0, 9):
+            for column in range(0, 9):
+                if not self.get_input(row, column):
                     continue
-                if not int(self.get_input(row,column)) == self.get_correct_value(row,column):
+                if not int(self.get_input(row, column)) == self.get_correct_value(
+                    row, column
+                ):
                     continue
                 else:
-                    remaining_valid_inputs[int(self.get_input(row,column))] -= 1
+                    remaining_valid_inputs[int(self.get_input(row, column))] -= 1
 
         # Substitute remaining_valid_inputs from pre-set values in the puzzle
-        for row in range(0,9):
-            for column in range(0,9):
+        for row in range(0, 9):
+            for column in range(0, 9):
                 if not self.puzzle[row][column]:
                     continue
                 remaining_valid_inputs[self.puzzle[row][column]] -= 1
-        
+
         return remaining_valid_inputs

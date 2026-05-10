@@ -372,7 +372,7 @@ class ClassicSudokuManager(ManagerBase):
             self.on_number_selected,
             self.on_clear_selected,
             popover=popover,
-            remaining_valid_inputs = self.board.get_remaining_valid_inputs(),
+            remaining_valid_inputs=self.board.get_remaining_valid_inputs(),
             pencil_mode=self.pencil_mode,
             key_map=self.key_map,
             remove_keys=self.remove_keys,
@@ -391,7 +391,7 @@ class ClassicSudokuManager(ManagerBase):
             coords = None
 
         alloc = cell.get_allocation()
-        
+
         if coords is None:
             return alloc.x, alloc.y, alloc.width, alloc.height
         else:
@@ -416,8 +416,6 @@ class ClassicSudokuManager(ManagerBase):
             popover.set_pointing_to(rect)
         except (AttributeError, TypeError):
             logging.debug("Failed to set popover pointing rect", exc_info=True)
-
-
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell: SudokuCell):
         board = self._require_board(
