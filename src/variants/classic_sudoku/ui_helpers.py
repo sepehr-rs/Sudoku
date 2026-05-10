@@ -43,20 +43,15 @@ class ClassicUIHelpers(UIHelpers):
         remove_keys = (Gdk.KEY_BackSpace, Gdk.KEY_Delete, Gdk.KEY_KP_Delete)
         return key_map, remove_keys
 
-    @staticmethod
-    def highlight_related_cells(cells, row: int, col: int, block_size: int):
-        """Highlight row, column, block, or same-value cells."""
-        ClassicUIHelpers.clear_highlights(cells, "highlight")
+    @classmethod
+    def highlight_related_cells(cls, cells, row: int, col: int, block_size: int):
+        cls.clear_highlights(cells, "highlight")
         prefs = PreferencesManager.get_preferences()
-
         selected_value = cells[row][col].get_value()
-
         if not selected_value:
-            ClassicUIHelpers._highlight_empty_cell_related(
-                cells, row, col, block_size, prefs
-            )
+            cls._highlight_empty_cell_related(cells, row, col, block_size, prefs)
         else:
-            ClassicUIHelpers._highlight_same_value(cells, selected_value, prefs)
+            cls._highlight_same_value(cells, selected_value, prefs)
 
     @staticmethod
     def _highlight_empty_cell_related(
