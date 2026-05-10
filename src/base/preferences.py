@@ -29,7 +29,7 @@ class Preferences(ABC):
         "prevent_conflicting_pencil_notes": False,
         "highlight_row": True,
         "highlight_column": True,
-        "show_remaining_valid_inputs": True,
+        "show_remaining_valid_inputs": False,
     }
 
     variant_defaults = {}
