@@ -149,8 +149,10 @@ class ClassicUIHelpers(UIHelpers):
         corner_label = Gtk.Label(label=count)
         corner_label.set_halign(Gtk.Align.END)
         corner_label.set_valign(Gtk.Align.START)
+        corner_label.set_margin_start(2)
+        corner_label.set_margin_end(3)
         corner_label.set_margin_top(2)
-        corner_label.set_margin_end(2)
+        corner_label.set_margin_bottom(2)
         corner_label.get_style_context().add_class("corner-label")
 
         overlay.add_overlay(corner_label)
