@@ -125,3 +125,8 @@
     font-size: 7px;
     padding: 0.2px;
 }
+
+.corner-label {
+    font-size: 13px;
+    opacity: 0.5;
+}

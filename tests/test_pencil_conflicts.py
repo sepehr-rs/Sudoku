@@ -1,18 +1,8 @@
 import pytest
-import sys
-from unittest.mock import MagicMock
-
-# Mock gi.repository before importing manager to avoid GTK dependency
-sys.modules["gi"] = MagicMock()
-sys.modules["gi.repository"] = MagicMock()
-sys.modules["gi.repository.Gtk"] = MagicMock()
-sys.modules["gi.repository.Gdk"] = MagicMock()
-sys.modules["gi.repository.GLib"] = MagicMock()
+from unittest.mock import MagicMock, patch
 
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
 from src.variants.diagonal_sudoku.board import DiagonalSudokuBoard
-from src.variants.classic_sudoku.rules import ClassicSudokuRules
-from src.variants.diagonal_sudoku.rules import DiagonalSudokuRules
 from src.variants.classic_sudoku.manager import ClassicSudokuManager
 from src.base.preferences_manager import PreferencesManager
 
@@ -56,6 +46,10 @@ class MockCell:
 class MockPreferences:
     def __init__(self, prevent_conflicts=True):
         self.prevent_conflicts = prevent_conflicts
+        self.variant_defaults = {}
+        self.general_defaults = {
+            "prevent_conflicting_pencil_notes": prevent_conflicts,
+        }
 
     def general(self, key, default=None):
         if key == "prevent_conflicting_pencil_notes":
@@ -66,26 +60,37 @@ class MockPreferences:
         return default
 
 
+@pytest.fixture(autouse=True)
+def _prefs_guard():
+    PreferencesManager.set_preferences(MockPreferences())
+    try:
+        yield
+    finally:
+        PreferencesManager.set_preferences(None)
+
+
 @pytest.fixture
 def classic_board():
-    board = ClassicSudokuBoard.__new__(ClassicSudokuBoard)
-    board.rules = ClassicSudokuRules()
-    board.puzzle = [[None for _ in range(9)] for _ in range(9)]
-    board.user_inputs = [[None for _ in range(9)] for _ in range(9)]
-    board.solution = [[None for _ in range(9)] for _ in range(9)]
-    board.notes = [[set() for _ in range(9)] for _ in range(9)]
-    return board
+    with patch(
+        "src.base.generator_base.GeneratorBase.generate",
+        return_value=(
+            [[None for _ in range(9)] for _ in range(9)],
+            [[None for _ in range(9)] for _ in range(9)],
+        ),
+    ):
+        return ClassicSudokuBoard(0.5, "Medium", "classic")
 
 
 @pytest.fixture
 def diagonal_board():
-    board = DiagonalSudokuBoard.__new__(DiagonalSudokuBoard)
-    board.rules = DiagonalSudokuRules()
-    board.puzzle = [[None for _ in range(9)] for _ in range(9)]
-    board.user_inputs = [[None for _ in range(9)] for _ in range(9)]
-    board.solution = [[None for _ in range(9)] for _ in range(9)]
-    board.notes = [[set() for _ in range(9)] for _ in range(9)]
-    return board
+    with patch(
+        "src.base.generator_base.GeneratorBase.generate",
+        return_value=(
+            [[None for _ in range(9)] for _ in range(9)],
+            [[None for _ in range(9)] for _ in range(9)],
+        ),
+    ):
+        return DiagonalSudokuBoard(0.5, "Medium", "diagonal")
 
 
 def test_row_conflict(classic_board):
@@ -116,6 +121,22 @@ def test_diagonal_conflict(diagonal_board):
     assert (0, 8) in conflicts
 
 
+def test_diagonal_conflict_uses_puzzle_clue(diagonal_board):
+    diagonal_board.puzzle[0][8] = "6"
+
+    conflicts = diagonal_board.has_conflict(8, 0, "6")
+
+    assert (0, 8) in conflicts
+
+
+def test_classic_conflict_does_not_treat_diagonal_as_related(classic_board):
+    classic_board.user_inputs[0][0] = "5"
+
+    conflicts = classic_board.has_conflict(4, 4, "5")
+
+    assert (0, 0) not in conflicts
+
+
 def test_no_conflict(classic_board):
     classic_board.user_inputs[0][0] = "5"
     conflicts = classic_board.has_conflict(1, 4, "5")
@@ -123,11 +144,10 @@ def test_no_conflict(classic_board):
 
 
 def test_pencil_pref_off(classic_board):
-    manager = ClassicSudokuManager.__new__(ClassicSudokuManager)
+    manager = ClassicSudokuManager(MagicMock())
     manager.board = classic_board
     manager.board.save_to_file = MagicMock()
     manager.pencil_mode = True
-    manager.conflict_cells = []
     manager.cell_inputs = [[MockCell(r, c) for c in range(9)] for r in range(9)]
 
     PreferencesManager.set_preferences(MockPreferences(prevent_conflicts=False))
@@ -144,11 +164,10 @@ def test_pencil_pref_off(classic_board):
 
 
 def test_pencil_pref_on_and_filled_guard(classic_board):
-    manager = ClassicSudokuManager.__new__(ClassicSudokuManager)
+    manager = ClassicSudokuManager(MagicMock())
     manager.board = classic_board
     manager.board.save_to_file = MagicMock()
     manager.pencil_mode = True
-    manager.conflict_cells = []
     manager.cell_inputs = [[MockCell(r, c) for c in range(9)] for r in range(9)]
 
     PreferencesManager.set_preferences(MockPreferences(prevent_conflicts=True))

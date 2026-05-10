@@ -6,11 +6,6 @@ Adw.ShortcutsDialog shortcuts_dialog {
     title: C_("shortcut window", "Game");
 
     Adw.ShortcutsItem {
-      title: C_("shortcut window", "Pencil Mode");
-      accelerator: "P";
-    }
-
-    Adw.ShortcutsItem {
       title: C_("shortcut window", "Move Between Cells");
       accelerator: "Up Down Left Right";
     }
@@ -19,12 +14,21 @@ Adw.ShortcutsDialog shortcuts_dialog {
       title: C_("shortcut window", "Jump Between Blocks");
       accelerator: "<Primary>Up Down Left Right";
     }
+  }
+
+  Adw.ShortcutsSection {
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Pencil Mode");
+      accelerator: "P";
+    }
 
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Place Pencil Mark");
       accelerator: "<Primary>1...9";
     }
+  }
 
+  Adw.ShortcutsSection {
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Open Number Pop-Up");
       accelerator: "Return";
