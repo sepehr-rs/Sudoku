@@ -29,6 +29,10 @@ class Preferences(ABC):
         "prevent_conflicting_pencil_notes": False,
         "highlight_row": True,
         "highlight_column": True,
+        "auto_remove_notes": [
+            "Automatically remove pencil notes after a correct entry",
+            False,
+        ],
     }
 
     variant_defaults = {}
