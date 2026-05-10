@@ -53,17 +53,17 @@ class DiagonalUIHelpers(ClassicUIHelpers):
                     conflict_cells.append(cell)
         return conflict_cells
 
-    @classmethod
+    @staticmethod
     def highlight_related_cells(
-        cls, cells, row, col, block_size: int, highlight_diagonal: bool = True
+        cells, row, col, block_size: int, highlight_diagonal: bool = True
     ):
         prefs = PreferencesManager.get_preferences()
-        super().highlight_related_cells(cells, row, col, block_size)  # ← uses MRO
+        ClassicUIHelpers.highlight_related_cells(cells, row, col, block_size)
         if highlight_diagonal and prefs.variant("highlight_diagonals"):
             size = len(cells)
             if row == col:
                 for i in range(size):
-                    cls.highlight_cell(cells, i, i, "highlight")
+                    ClassicUIHelpers.highlight_cell(cells, i, i, "highlight")
             if row + col == size - 1:
                 for i in range(size):
-                    cls.highlight_cell(cells, i, size - 1 - i, "highlight")
+                    ClassicUIHelpers.highlight_cell(cells, i, size - 1 - i, "highlight")

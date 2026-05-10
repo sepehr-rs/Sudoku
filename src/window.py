@@ -20,6 +20,7 @@
 from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
+from .screens.shortcuts_overlay import ShortcutsOverlay
 from .screens.finished_page import FinishedPage  # noqa: F401
 from .screens.loading_screen import LoadingScreen  # noqa: F401
 from .screens.preferences_dialog import PreferencesDialog
@@ -28,7 +29,6 @@ from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.manager import DiagonalSudokuManager
 from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
 from .base.preferences_manager import PreferencesManager
-from .base.board_base import _get_save_path
 import os
 import json
 
@@ -60,6 +60,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.is_game_page = False
         actions = {
             "show-primary-menu": self.on_show_primary_menu,
+            "show-shortcuts-overlay": self.on_show_shortcuts_overlay,
             "back-to-menu": self.on_back_to_menu,
             "pencil-toggled": self._on_pencil_toggled_action,
             "show-preferences": self.on_show_preferences,
@@ -86,7 +87,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
         self.continue_button.set_tooltip_text(_("Continue Game"))
         self.new_game_button.set_tooltip_text(_("New Game"))
-        self.continue_button.set_visible(os.path.exists(_get_save_path()))
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.home_button.set_visible(False)
 
     def _update_preferences_visibility(self, visible: bool):
@@ -142,7 +143,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         raise ValueError(f"Unknown Sudoku variant: {variant}")
 
     def get_manager_type(self, filename=None):
-        path = filename or _get_save_path()
+        path = filename or "saves/board.json"
         if not os.path.exists(path):
             return None
         with open(path, "r", encoding="utf-8") as f:
@@ -178,8 +179,12 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_primary_menu(self):
         self.primary_menu_button.popup()
 
+    def on_show_shortcuts_overlay(self, *_):
+        shortcuts_overlay = ShortcutsOverlay(transient_for=self)
+        shortcuts_overlay.present()
+
     def on_show_preferences(self, *_):
-        PreferencesDialog(self.manager.board.save_to_file).present(self)
+        PreferencesDialog(self, self.manager.board.save_to_file).present()
 
     def _on_window_pressed(self, gesture, n_press, x, y):
         if gesture.get_current_button() != 1:
@@ -270,7 +275,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.set_valign(Gtk.Align.FILL)
 
     def on_back_to_menu(self, *_):
-        self.continue_button.set_visible(os.path.exists(_get_save_path()))
+        self.continue_button.set_visible(os.path.exists("saves/board.json"))
         self.sudoku_window_title.set_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
@@ -322,7 +327,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _build_primary_menu(self, show_preferences=True):
         menu, section = Gio.Menu(), Gio.Menu()
-        section.append(_("Keyboard Shortcuts"), "app.shortcuts")
+        section.append(_("Keyboard Shortcuts"), "win.show-shortcuts-overlay")
         if show_preferences:
             section.append(_("Preferences"), "win.show-preferences")
         for label, action in [
