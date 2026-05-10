@@ -105,6 +105,7 @@ class ClassicUIHelpers(UIHelpers):
         on_number_selected,
         on_clear_selected,
         popover,
+        remaining_valid_inputs,
         pencil_mode=False,
         key_map=None,
         remove_keys=None,
@@ -116,7 +117,12 @@ class ClassicUIHelpers(UIHelpers):
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
         popover.set_child(grid)
         num_buttons = ClassicUIHelpers._add_number_buttons(
-            grid, on_number_selected, cell, popover, mouse_button
+            grid,
+            on_number_selected,
+            cell,
+            popover,
+            mouse_button,
+            remaining_valid_inputs,
         )
         clear_button = ClassicUIHelpers._add_action_buttons(
             grid, cell, popover, on_clear_selected, pencil_mode, mouse_button
@@ -136,15 +142,48 @@ class ClassicUIHelpers(UIHelpers):
         return popover
 
     @staticmethod
-    def _add_number_buttons(grid, on_number_selected, cell, popover, mouse_button):
+    def _generate_overlay_with_counter(button, count):
+        overlay = Gtk.Overlay()
+        overlay.set_child(button)
+
+        corner_label = Gtk.Label(label=count)
+        corner_label.set_halign(Gtk.Align.END)
+        corner_label.set_valign(Gtk.Align.START)
+        corner_label.set_margin_start(2)
+        corner_label.set_margin_end(3)
+        corner_label.set_margin_top(2)
+        corner_label.set_margin_bottom(2)
+        corner_label.get_style_context().add_class("corner-label")
+
+        overlay.add_overlay(corner_label)
+        return overlay
+
+    @staticmethod
+    def _add_number_buttons(
+        grid, on_number_selected, cell, popover, mouse_button, remaining_valid_inputs
+    ):
         """Create 1–9 number buttons inside the popover grid."""
+        prefs = PreferencesManager.get_preferences()
+        show_remaining = prefs.general("show_remaining_valid_inputs")[1]
         num_buttons = {}
         for i in range(1, 10):
-            b = ClassicUIHelpers.create_number_button(
+            button = ClassicUIHelpers.create_number_button(
                 str(i), on_number_selected, cell, popover, mouse_button
             )
-            grid.attach(b, (i - 1) % 3, (i - 1) // 3, 1, 1)
-            num_buttons[str(i)] = b
+
+            widget_to_attach = button
+            if show_remaining:
+                count = remaining_valid_inputs[i]
+                if count > 0:
+                    widget_to_attach = ClassicUIHelpers._generate_overlay_with_counter(
+                        button, count
+                    )
+                else:
+                    button.set_sensitive(False)
+
+            grid.attach(widget_to_attach, (i - 1) % 3, (i - 1) // 3, 1, 1)
+            num_buttons[str(i)] = button
+
         return num_buttons
 
     @staticmethod

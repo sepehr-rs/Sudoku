@@ -361,39 +361,18 @@ class ClassicSudokuManager(ManagerBase):
         if popover is None or self.parent_grid is None:
             return None
 
-        try:
-            coords = cell.translate_coordinates(self.parent_grid, 0, 0)
-        except (AttributeError, TypeError):
-            coords = None
-        if coords is None:
-            alloc = cell.get_allocation()
-            x, y = alloc.x, alloc.y
-            w, h = alloc.width, alloc.height
-        else:
-            x, y = coords
-            alloc = cell.get_allocation()
-            w, h = alloc.width, alloc.height
+        x, y, w, h = self._get_cell_geometry(cell)
 
-        try:
-            rect = Gdk.Rectangle()
-            rect.x = int(x)
-            rect.y = int(y)
-            rect.width = int(w)
-            rect.height = int(h)
-        except TypeError:
-            rect = Gdk.Rectangle(int(x), int(y), int(w), int(h))
+        rect = self._create_rectangle(x, y, w, h)
 
-        try:
-            popover.set_pointing_to(rect)
-        except (AttributeError, TypeError):
-            logging.debug("Failed to set popover pointing rect", exc_info=True)
-
+        self._set_popover_position(popover, rect)
         popover = ClassicUIHelpers.show_number_popover(
             cell,
             mouse_button,
             self.on_number_selected,
             self.on_clear_selected,
             popover=popover,
+            remaining_valid_inputs=self.board.get_remaining_valid_inputs(),
             pencil_mode=self.pencil_mode,
             key_map=self.key_map,
             remove_keys=self.remove_keys,
@@ -403,6 +382,40 @@ class ClassicSudokuManager(ManagerBase):
         self._restore_focus_on_popover_close = True
         self._active_popover = popover
         return popover
+
+    def _get_cell_geometry(self, cell: SudokuCell):
+        """Get cell position and dimensions relative to parent grid."""
+        try:
+            coords = cell.translate_coordinates(self.parent_grid, 0, 0)
+        except (AttributeError, TypeError):
+            coords = None
+
+        alloc = cell.get_allocation()
+
+        if coords is None:
+            return alloc.x, alloc.y, alloc.width, alloc.height
+        else:
+            x, y = coords
+            return x, y, alloc.width, alloc.height
+
+    def _create_rectangle(self, x, y, w, h):
+        """Create a Gdk.Rectangle with the given dimensions."""
+        try:
+            rect = Gdk.Rectangle()
+            rect.x = int(x)
+            rect.y = int(y)
+            rect.width = int(w)
+            rect.height = int(h)
+        except TypeError:
+            rect = Gdk.Rectangle(int(x), int(y), int(w), int(h))
+        return rect
+
+    def _set_popover_position(self, popover, rect):
+        """Set the popover's pointing rectangle."""
+        try:
+            popover.set_pointing_to(rect)
+        except (AttributeError, TypeError):
+            logging.debug("Failed to set popover pointing rect", exc_info=True)
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell: SudokuCell):
         board = self._require_board(
