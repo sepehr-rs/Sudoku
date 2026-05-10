@@ -244,51 +244,6 @@ class ClassicSudokuManager(ManagerBase):
     def get_ui_helpers(self):
         return ClassicUIHelpers
 
-    def _fill_cell(self, cell: SudokuCell, number: str, ctrl_is_pressed=False):
-        board = self._require_board("Illegal state: cannot fill cell without a board")
-        ClassicUIHelpers.clear_conflicts(self.conflict_cells)
-
-        if not cell.is_editable():
-            return
-
-        r, c = cell.row, cell.col
-
-        if self.pencil_mode or ctrl_is_pressed:
-            if cell.get_value():
-                return
-
-            prefs = PreferencesManager.get_preferences()
-            if prefs is None:
-                pref_enabled = True
-            else:
-                pref_value = prefs.general(
-                    "prevent_conflicting_pencil_notes",
-                    default=True,
-                )
-                pref_enabled = pref_value
-
-            if pref_enabled and board.has_conflict(r, c, number):
-                new_conflicts = ClassicUIHelpers.highlight_conflicts(
-                    self.cell_inputs, r, c, number, board.rules.block_size
-                )
-                self.conflict_cells.extend(new_conflicts)
-                cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
-                return
-
-            board.toggle_note(r, c, number)
-            cell.update_notes(board.get_notes(r, c))
-            board.save_to_file()
-            return
-
-        cell.set_value(number)
-        board.set_input(r, c, number)
-        board.save_to_file()
-
-        self.on_cell_filled(cell, number)
-
-        if board.is_solved():
-            self._show_puzzle_finished_dialog()
-
     def _clear_cell(self, cell: SudokuCell, clear_all=False):
         board = self._require_board("Illegal state: cannot clear cell without a board")
         r, c = cell.row, cell.col
@@ -361,39 +316,18 @@ class ClassicSudokuManager(ManagerBase):
         if popover is None or self.parent_grid is None:
             return None
 
-        try:
-            coords = cell.translate_coordinates(self.parent_grid, 0, 0)
-        except (AttributeError, TypeError):
-            coords = None
-        if coords is None:
-            alloc = cell.get_allocation()
-            x, y = alloc.x, alloc.y
-            w, h = alloc.width, alloc.height
-        else:
-            x, y = coords
-            alloc = cell.get_allocation()
-            w, h = alloc.width, alloc.height
+        x, y, w, h = self._get_cell_geometry(cell)
 
-        try:
-            rect = Gdk.Rectangle()
-            rect.x = int(x)
-            rect.y = int(y)
-            rect.width = int(w)
-            rect.height = int(h)
-        except TypeError:
-            rect = Gdk.Rectangle(int(x), int(y), int(w), int(h))
+        rect = self._create_rectangle(x, y, w, h)
 
-        try:
-            popover.set_pointing_to(rect)
-        except (AttributeError, TypeError):
-            logging.debug("Failed to set popover pointing rect", exc_info=True)
-
+        self._set_popover_position(popover, rect)
         popover = ClassicUIHelpers.show_number_popover(
             cell,
             mouse_button,
             self.on_number_selected,
             self.on_clear_selected,
             popover=popover,
+            remaining_valid_inputs=self.board.get_remaining_valid_inputs(),
             pencil_mode=self.pencil_mode,
             key_map=self.key_map,
             remove_keys=self.remove_keys,
@@ -403,6 +337,40 @@ class ClassicSudokuManager(ManagerBase):
         self._restore_focus_on_popover_close = True
         self._active_popover = popover
         return popover
+
+    def _get_cell_geometry(self, cell: SudokuCell):
+        """Get cell position and dimensions relative to parent grid."""
+        try:
+            coords = cell.translate_coordinates(self.parent_grid, 0, 0)
+        except (AttributeError, TypeError):
+            coords = None
+
+        alloc = cell.get_allocation()
+
+        if coords is None:
+            return alloc.x, alloc.y, alloc.width, alloc.height
+        else:
+            x, y = coords
+            return x, y, alloc.width, alloc.height
+
+    def _create_rectangle(self, x, y, w, h):
+        """Create a Gdk.Rectangle with the given dimensions."""
+        try:
+            rect = Gdk.Rectangle()
+            rect.x = int(x)
+            rect.y = int(y)
+            rect.width = int(w)
+            rect.height = int(h)
+        except TypeError:
+            rect = Gdk.Rectangle(int(x), int(y), int(w), int(h))
+        return rect
+
+    def _set_popover_position(self, popover, rect):
+        """Set the popover's pointing rectangle."""
+        try:
+            popover.set_pointing_to(rect)
+        except (AttributeError, TypeError):
+            logging.debug("Failed to set popover pointing rect", exc_info=True)
 
     def on_cell_clicked(self, gesture, n_press, x, y, cell: SudokuCell):
         board = self._require_board(
@@ -524,12 +492,6 @@ class ClassicSudokuManager(ManagerBase):
         self._restore_focus_on_popover_close = False
         popover.popdown()
 
-    def on_pencil_toggled(self, button: Gtk.ToggleButton):
-        self.pencil_mode = button.get_active()
-        logging.info(
-            "Pencil Mode is now ON" if self.pencil_mode else "Pencil Mode is now OFF"
-        )
-
     def _show_puzzle_finished_dialog(self):
         self._popdown_active_popover()
         self._active_popover = None
@@ -546,14 +508,12 @@ class ClassicSudokuManager(ManagerBase):
         self.window.stack.set_visible_child(self.window.finished_page)
 
     def on_cell_filled(self, cell, number: str):
-        """Called when a cell is filled with a number."""
         board = self._require_board("Illegal state: no board for on_cell_filled")
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
             raise RuntimeError("Illegal state: preferences unavailable")
         casual_mode = prefs.general("casual_mode")[1]
         correct_value = board.get_correct_value(cell.row, cell.col)
-        # TODO: Add auto check for the board when casual_mdoe is turned off
         self._clear_feedback(cell)
         if casual_mode:
             if str(number) == str(correct_value):
@@ -562,9 +522,8 @@ class ClassicSudokuManager(ManagerBase):
                 self._handle_wrong_input(cell, number)
             return
 
-        # non-casual mode: always check conflicts
-        new_conflicts = ClassicUIHelpers.highlight_conflicts(
-            self.cell_inputs, cell.row, cell.col, number, 3
+        new_conflicts = self.ui_helpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, board.rules.block_size
         )
         if new_conflicts:
             self._handle_wrong_input(cell, number, new_conflicts)
@@ -582,6 +541,14 @@ class ClassicSudokuManager(ManagerBase):
         cell.highlight("correct")
         cell.set_tooltip_text("Correct")
         cell.start_feedback_timeout(lambda: self._clear_correct_feedback(cell))
+        prefs = PreferencesManager.get_preferences()
+        auto_remove = prefs.general("auto_remove_notes", default=True)[1]
+        if auto_remove:
+            affected = self.board.remove_note_from_related(
+                cell.row, cell.col, cell.get_value()
+            )
+            for r, c in affected:
+                self.cell_inputs[r][c].update_notes(self.board.get_notes(r, c))
 
     def _clear_correct_feedback(self, cell):
         """Remove correct highlight and tooltip."""
@@ -590,18 +557,16 @@ class ClassicSudokuManager(ManagerBase):
         return False
 
     def _handle_wrong_input(self, cell, number: str, conflicts=None):
-        """Handle behavior when the user enters a wrong number."""
+        board = self._require_board("Illegal state: no board for _handle_wrong_input")
         cell.highlight("wrong")
         cell.set_tooltip_text("Wrong")
-
-        conflicts = conflicts or ClassicUIHelpers.highlight_conflicts(
-            self.cell_inputs, cell.row, cell.col, number, 3
+        conflicts = conflicts or self.ui_helpers.highlight_conflicts(
+            self.cell_inputs, cell.row, cell.col, number, board.rules.block_size
         )
         self.conflict_cells.extend(conflicts)
-
         cell.start_feedback_timeout(self._clear_conflicts)
 
     def _clear_conflicts(self):
         """Clear conflicts highlight after timeout."""
-        ClassicUIHelpers.clear_conflicts(self.conflict_cells)
+        self.ui_helpers.clear_conflicts(self.conflict_cells)
         return False
