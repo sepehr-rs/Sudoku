@@ -160,6 +160,38 @@ class BoardBase(ABC):
         """Return the set of notes for a cell."""
         return self.notes[row][col]
 
+    def remove_note_from_related(self, row: int, col: int, value: str):
+        """Remove `value` from notes of all cells in the same row, col, and block."""
+        size = self.rules.size
+        block_size = self.rules.block_size
+        affected = set()
+        diagonals = True if self.variant == "diagonal" else False
+
+        # row and column
+        for i in range(size):
+            affected.add((row, i))
+            affected.add((i, col))
+
+        # block
+        br, bc = (row // block_size) * block_size, (col // block_size) * block_size
+        for r in range(br, br + block_size):
+            for c in range(bc, bc + block_size):
+                affected.add((r, c))
+
+        # diagonals (diagonal variant)
+        if diagonals:
+            if row == col:
+                for i in range(size):
+                    affected.add((i, i))
+            if row + col == size - 1:
+                for i in range(size):
+                    affected.add((i, size - 1 - i))
+
+        for r, c in affected:
+            self.notes[r][c].discard(value)
+
+        return affected
+
     def get_remaining_valid_inputs(self) -> dict:
         if not self.puzzle or not self.user_inputs:
             return {}
