@@ -151,6 +151,9 @@ build.ninja
 .ninja_log
 .ninja_deps
 
+# Meson runtime prefix
+.runtime-prefix/
+
 # Flatpak
 .flatpak-builder/
 
