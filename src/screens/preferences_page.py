@@ -21,18 +21,12 @@ from gi.repository import Gtk, Adw
 
 
 class VariantPreferencesPage(Adw.PreferencesGroup):
-    # TODO: Consider changing the preferences types for variants to list too.
-    # TODO: This would provide easier use for descriptions and subtitles.
     def __init__(self, variant_preferences, name, auto_save_function):
-        super().__init__(
-            title=name,
-        )
-        # TODO: Fix variant preferences being none on startup
+        super().__init__(title=name)
         self.variant_preferences = variant_preferences
         self.controls = {}
         self.auto_save_function = auto_save_function
 
-        # Build toggles dynamically
         for key, default in self.variant_preferences.items():
             row = Adw.ActionRow(title=key.replace("_", " ").title())
 
@@ -41,14 +35,13 @@ class VariantPreferencesPage(Adw.PreferencesGroup):
             switch.connect("notify::active", self.on_toggle_changed, key)
 
             row.add_suffix(switch)
-            row.set_activatable_widget(switch)  # lets row click toggle the switch
+            row.set_activatable_widget(switch)
 
             self.add(row)
             self.controls[key] = switch
 
     def on_toggle_changed(self, switch, gparam, key):
         self.variant_preferences[key] = switch.get_active()
-        # self.get_toplevel().variant_preferences[key] = switch.get_active()
         self.auto_save_function()
 
 
@@ -60,33 +53,65 @@ class GeneralPreferencesPage(Adw.PreferencesGroup):
         self.auto_save_function = auto_save_function
 
         for key, value in self.general_preferences.items():
-            title = key.replace("_", " ").title()
+            if "enabled" in value and "count" in value:
+                self._add_counted_toggle_row(key, value)
+            else:
+                self._add_bool_row(key, value)
 
-            subtitle = None
-            active = value
+    def _add_bool_row(self, key, value):
+        title = key.replace("_", " ").title()
+        tooltip = value.get("tooltip", "")
+        active = value.get("value", False)
 
-            if isinstance(value, list):
-                subtitle = value[0]
-                active = value[1]
+        row = Adw.ActionRow(title=title)
+        if tooltip:
+            row.set_subtitle(tooltip)
 
-            row = Adw.ActionRow(title=title)
-            if subtitle:
-                row.set_subtitle(subtitle)
+        switch = Gtk.Switch(valign=Gtk.Align.CENTER)
+        switch.set_active(active)
+        switch.connect("notify::active", self._on_bool_changed, key)
 
-            switch = Gtk.Switch(valign=Gtk.Align.CENTER)
-            switch.set_active(active)
-            switch.connect("notify::active", self.on_toggle_changed, key)
+        row.add_suffix(switch)
+        row.set_activatable_widget(switch)
 
-            row.add_suffix(switch)
-            row.set_activatable_widget(switch)
+        self.add(row)
+        self.controls[key] = switch
 
-            self.add(row)
-            self.controls[key] = switch
+    def _add_counted_toggle_row(self, key, value):
+        title = key.replace("_", " ").title()
+        tooltip = value.get("tooltip", "")
 
-    def on_toggle_changed(self, switch, gparam, key):
-        value = self.general_preferences[key]
-        if isinstance(value, list):
-            value[1] = switch.get_active()
-        else:
-            self.general_preferences[key] = switch.get_active()
+        toggle_row = Adw.ActionRow(title=title)
+        if tooltip:
+            toggle_row.set_subtitle(tooltip)
+
+        switch = Gtk.Switch(valign=Gtk.Align.CENTER)
+        switch.set_active(value["enabled"])
+
+        toggle_row.add_suffix(switch)
+        toggle_row.set_activatable_widget(switch)
+        self.add(toggle_row)
+
+        spin_row = Adw.SpinRow.new_with_range(1, 20, 1)
+        spin_row.set_title("Mistake limit")
+        spin_row.set_value(value["count"])
+        spin_row.set_sensitive(value["enabled"])
+        self.add(spin_row)
+
+        switch.connect("notify::active", self._on_counted_toggle_changed, key, spin_row)
+        spin_row.connect("notify::value", self._on_count_changed, key)
+
+        self.controls[key] = (switch, spin_row)
+
+    def _on_bool_changed(self, switch, gparam, key):
+        self.general_preferences[key]["value"] = switch.get_active()
+        self.auto_save_function()
+
+    def _on_counted_toggle_changed(self, switch, gparam, key, spin_row):
+        self.general_preferences[key]["enabled"] = switch.get_active()
+        spin_row.set_sensitive(switch.get_active())
+        self.auto_save_function()
+
+    def _on_count_changed(self, spin_row, gparam, key):
+        self.general_preferences[key]["count"] = int(spin_row.get_value())
         self.auto_save_function()

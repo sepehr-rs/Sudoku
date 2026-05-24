@@ -32,6 +32,7 @@ from .sudoku_cell import SudokuCell
 class ClassicSudokuManager(ManagerBase):
     def __init__(self, window):
         super().__init__(window, ClassicSudokuBoard)
+        self.window = window
         self.key_map, self.remove_keys = ClassicUIHelpers.setup_key_mappings()
         self.ui_helpers = ClassicUIHelpers
         self.parent_grid = None
@@ -492,7 +493,7 @@ class ClassicSudokuManager(ManagerBase):
         self._restore_focus_on_popover_close = False
         popover.popdown()
 
-    def _show_puzzle_finished_dialog(self):
+    def _show_puzzle_finished_dialog(self, page=None):
         self._popdown_active_popover()
         self._active_popover = None
         self._cell_popover = None
@@ -505,14 +506,15 @@ class ClassicSudokuManager(ManagerBase):
                         cell.clear_feedback_timeout()
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
-        self.window.stack.set_visible_child(self.window.finished_page)
+        target_page = page if page is not None else self.window.finished_page
+        self.window.stack.set_visible_child(target_page)
 
     def on_cell_filled(self, cell, number: str):
         board = self._require_board("Illegal state: no board for on_cell_filled")
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
             raise RuntimeError("Illegal state: preferences unavailable")
-        casual_mode = prefs.general("casual_mode")[1]
+        casual_mode = prefs.general("casual_mode")
         correct_value = board.get_correct_value(cell.row, cell.col)
         self._clear_feedback(cell)
         if casual_mode:
@@ -542,7 +544,7 @@ class ClassicSudokuManager(ManagerBase):
         cell.set_tooltip_text("Correct")
         cell.start_feedback_timeout(lambda: self._clear_correct_feedback(cell))
         prefs = PreferencesManager.get_preferences()
-        auto_remove = prefs.general("auto_remove_notes", default=True)[1]
+        auto_remove = prefs.general("auto_remove_notes", default=True)
         if auto_remove:
             affected = self.board.remove_note_from_related(
                 cell.row, cell.col, cell.get_value()
@@ -556,10 +558,27 @@ class ClassicSudokuManager(ManagerBase):
         cell.set_tooltip_text("")
         return False
 
+    def check_if_mistakes_exceed_limit(self):
+        prefs = PreferencesManager.get_preferences()
+        if self.board.mistakes > prefs.general("mistake_limit")["count"]:
+            self._show_puzzle_finished_dialog(self.window.game_over_page)
+
     def _handle_wrong_input(self, cell, number: str, conflicts=None):
         board = self._require_board("Illegal state: no board for _handle_wrong_input")
         cell.highlight("wrong")
         cell.set_tooltip_text("Wrong")
+        prefs = PreferencesManager.get_preferences()
+        mistake_limit = prefs.general("mistake_limit")
+        base = f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
+        if mistake_limit["enabled"]:
+            self.board.mistakes += 1
+            suffix = f" • Mistakes: {self.board.mistakes}"
+            self.check_if_mistakes_exceed_limit()
+        else:
+            suffix = ""
+
+        self.window.update_sudoku_window_subtitle(base + suffix)
+
         conflicts = conflicts or self.ui_helpers.highlight_conflicts(
             self.cell_inputs, cell.row, cell.col, number, board.rules.block_size
         )

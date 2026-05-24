@@ -6,7 +6,8 @@ services_sources = [
     'loading_screen.py',
     'preferences_dialog.py',
     'preferences_page.py',
-    'game_setup_dialog.py'
+    'game_setup_dialog.py',
+    'game_over_page.py'
 ]
 
 install_data(services_sources, install_dir: modulesubdir)

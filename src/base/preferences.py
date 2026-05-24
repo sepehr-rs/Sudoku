@@ -22,21 +22,35 @@ from abc import ABC
 
 class Preferences(ABC):
     general_defaults = {
-        "casual_mode": [
-            "Highlight when input does not match the correct solution",
-            True,
-        ],
-        "prevent_conflicting_pencil_notes": False,
-        "highlight_row": True,
-        "highlight_column": True,
-        "auto_remove_notes": [
-            "Automatically remove pencil notes after a correct entry",
-            False,
-        ],
-        "show_remaining_valid_inputs": [
-            "View the possible places left for each number",
-            False,
-        ],
+        "casual_mode": {
+            "value": True,
+            "tooltip": "Highlight when input does not match the correct solution",
+        },
+        "prevent_conflicting_pencil_notes": {
+            "value": False,
+            "tooltip": "",
+        },
+        "highlight_row": {
+            "value": True,
+            "tooltip": "",
+        },
+        "highlight_column": {
+            "value": True,
+            "tooltip": "",
+        },
+        "auto_remove_notes": {
+            "value": False,
+            "tooltip": "Automatically remove pencil notes after a correct entry",
+        },
+        "show_remaining_valid_inputs": {
+            "value": False,
+            "tooltip": "View the possible places left for each number",
+        },
+        "mistake_limit": {
+            "enabled": False,
+            "count": 3,
+            "tooltip": "End the game or warn after a set number of mistakes",
+        },
     }
 
     variant_defaults = {}
@@ -47,11 +61,39 @@ class Preferences(ABC):
         self.name = ""
 
     def general(self, key, default=False):
-        # TODO: prefs.general() may return
-        # a [value, tooltip] list instead of a
-        # plain value. Fix to return
-        # consistently, then remove [1] indexing at call sites.
-        return self.general_defaults.get(key, default)
+        entry = self.general_defaults.get(key)
+        if entry is None:
+            return default
+        # counted toggle
+        if "enabled" in entry:
+            return entry
+        return entry.get("value", default)
 
     def variant(self, key, default=False):
         return self.variant_defaults.get(key, default)
+
+
+def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
+    """Convert old-format general preferences to the current dict format."""
+    migrated = {}
+    for key, value in saved.items():
+        if isinstance(value, dict):
+            # Already new format (both simple {"value":...} and counted {"enabled":...})
+            migrated[key] = value
+        elif isinstance(value, list) and len(value) == 2:
+            # Old format: [tooltip, bool]
+            tooltip, val = value
+            migrated[key] = {"value": val, "tooltip": tooltip}
+        elif isinstance(value, bool):
+            # Old format: plain boolean, pull tooltip from defaults if available
+            default_entry = defaults.get(key, {})
+            tooltip = (
+                default_entry.get("tooltip", "")
+                if isinstance(default_entry, dict)
+                else ""
+            )
+            migrated[key] = {"value": value, "tooltip": tooltip}
+        else:
+            # Unknown format, fall back to default
+            migrated[key] = defaults.get(key, {"value": value, "tooltip": ""})
+    return migrated

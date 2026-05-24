@@ -21,27 +21,20 @@ from gi.repository import Gtk, Adw
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/finished-page.ui")
-class FinishedPage(Gtk.Box):
-    __gtype_name__ = "FinishedPage"
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/game-over-page.ui")
+class GameOverPage(Gtk.Box):
+    __gtype_name__ = "GameOverPage"
 
-    dark_picture = (
-        "/io/github/sepehr_rs/Sudoku/illustrations/"
-        "puzzle-complete-celebration-dark.svg"
-    )
-    light_picture = (
-        "/io/github/sepehr_rs/Sudoku/illustrations/"
-        "puzzle-complete-celebration-light.svg"
-    )
+    # TODO: Take a look at the dark/light pictures for both states later.
+    picture = "/io/github/sepehr_rs/Sudoku/illustrations/" "puzzle-game-over.svg"
     finished_label = Gtk.Template.Child()
     picture_contain = Gtk.Template.Child()
 
-    VICTORY_MESSAGE = _("Puzzle Complete!")
+    GAMEOVER_MESSAGE = _("Game Over!")
 
     def __init__(self):
         super().__init__()
         self._style_manager = Adw.StyleManager.get_default()
-        self._style_manager.connect("notify::dark", self._update_picture)
         self.connect("map", self._on_map)
 
     def _on_map(self, widget):
@@ -49,11 +42,8 @@ class FinishedPage(Gtk.Box):
         self._update_picture()
 
     def _set_message(self):
-        message = self.VICTORY_MESSAGE
+        message = self.GAMEOVER_MESSAGE
         self.finished_label.set_label(message)
 
     def _update_picture(self, *args):
-        if self._style_manager.get_dark():
-            self.picture_contain.set_resource(self.dark_picture)
-        else:
-            self.picture_contain.set_resource(self.light_picture)
+        self.picture_contain.set_resource(self.picture)
