@@ -45,10 +45,10 @@ class FinishedPage(Gtk.Box):
         self.connect("map", self._on_map)
 
     def _on_map(self, widget):
-        self._set_random_message()
+        self._set_message()
         self._update_picture()
 
-    def _set_random_message(self):
+    def _set_message(self):
         message = self.VICTORY_MESSAGE
         self.finished_label.set_label(message)
 

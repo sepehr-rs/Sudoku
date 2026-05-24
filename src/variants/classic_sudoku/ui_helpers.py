@@ -159,7 +159,7 @@ class ClassicUIHelpers(UIHelpers):
     ):
         """Create 1–9 number buttons inside the popover grid."""
         prefs = PreferencesManager.get_preferences()
-        show_remaining = prefs.general("show_remaining_valid_inputs")[1]
+        show_remaining = prefs.general("show_remaining_valid_inputs")
         num_buttons = {}
         for i in range(1, 10):
             button = ClassicUIHelpers.create_number_button(

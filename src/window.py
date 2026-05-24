@@ -21,6 +21,7 @@ from gi.repository import Adw, Gtk, Gio
 from gettext import gettext as _
 from .screens.game_setup_dialog import GameSetupDialog
 from .screens.finished_page import FinishedPage  # noqa: F401
+from .screens.game_over_page import GameOverPage  # noqa: F401
 from .screens.loading_screen import LoadingScreen  # noqa: F401
 from .screens.preferences_dialog import PreferencesDialog
 from .variants.classic_sudoku.manager import ClassicSudokuManager
@@ -33,7 +34,7 @@ import os
 import json
 
 # Keep template widget types imported for GTK template registration
-_TEMPLATE_WIDGET_TYPES = (FinishedPage, LoadingScreen)
+_TEMPLATE_WIDGET_TYPES = (FinishedPage, LoadingScreen, GameOverPage)
 
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
@@ -45,6 +46,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     new_game_button = Gtk.Template.Child()
     main_menu_box = Gtk.Template.Child()  # Main screen
     finished_page = Gtk.Template.Child()
+    game_over_page = Gtk.Template.Child()
     loading_screen = Gtk.Template.Child()
     grid_container = Gtk.Template.Child()
     pencil_toggle_button = Gtk.Template.Child()
@@ -101,20 +103,29 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
 
+    def update_sudoku_window_subtitle(self, subtitle):
+        self.sudoku_window_title.set_subtitle(subtitle)
+
     def on_stack_page_changed(self, stack, _):
         """Update UI elements based on the current visible page."""
         visible = stack.get_visible_child()
 
         # Reset pencil mode for non-game pages
-        if visible in (self.main_menu_box, self.loading_screen, self.finished_page):
+        if visible in (
+            self.main_menu_box,
+            self.loading_screen,
+            self.finished_page,
+            self.game_over_page,
+        ):
             self._force_disable_pencil_mode()
-            self.sudoku_window_title.set_subtitle("")
+            self.update_sudoku_window_subtitle("")
 
         # Define state for each page type
         is_game_page = visible not in (
             self.main_menu_box,
             self.loading_screen,
             self.finished_page,
+            self.game_over_page,
         )
         is_menu_or_loading = visible in (self.main_menu_box, self.loading_screen)
 
@@ -171,7 +182,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         }
         label = label_map.get(difficulty, str(difficulty))
 
-        self.sudoku_window_title.set_subtitle(f"{variant_name.capitalize()} • {label}")
+        self.update_sudoku_window_subtitle(f"{variant_name.capitalize()} • " f"{label}")
         self._setup_ui()
         self.manager.start_game(difficulty, label, variant_name)
 
@@ -271,7 +282,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists(_get_save_path()))
-        self.sudoku_window_title.set_subtitle("")
+        self.update_sudoku_window_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
         PreferencesManager.set_preferences(None)
@@ -292,6 +303,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         non_game_pages = {
             self.main_menu_box,
             self.finished_page,
+            self.game_over_page,
             self.loading_screen,
         }
 
@@ -303,15 +315,16 @@ class SudokuWindow(Adw.ApplicationWindow):
         ):
             return
 
+        prefs = PreferencesManager.get_preferences()
+        mistake_counter_on = prefs.general("mistake_limit")["enabled"]
+
+        base = f"{self.manager.board.variant.capitalize()} • {self.manager.board.difficulty_label}"
+
         if self.pencil_toggle_button.get_active():
-            self.sudoku_window_title.set_subtitle(
-                _("Pencil Mode • Note possible numbers")
-            )
+            self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
         else:
-            self.sudoku_window_title.set_subtitle(
-                f"{self.manager.board.variant.capitalize()} • "
-                f"{self.manager.board.difficulty_label}"
-            )
+            suffix = f" • Mistakes: {self.manager.board.mistakes}" if mistake_counter_on else ""
+            self.update_sudoku_window_subtitle(base + suffix)
 
     def _force_disable_pencil_mode(self):
         if self.pencil_toggle_button.get_active():
