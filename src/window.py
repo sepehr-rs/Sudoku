@@ -318,7 +318,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         prefs = PreferencesManager.get_preferences()
         mistake_counter_on = prefs.general("mistake_limit")["enabled"]
 
-        base = f"{self.manager.board.variant.capitalize()} • {self.manager.board.difficulty_label}"
+        base = f"{self.manager.board.variant.capitalize()} • "
+        f"{self.manager.board.difficulty_label}"
 
         if self.pencil_toggle_button.get_active():
             self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
