@@ -323,7 +323,11 @@ class SudokuWindow(Adw.ApplicationWindow):
         if self.pencil_toggle_button.get_active():
             self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
         else:
-            suffix = f" • Mistakes: {self.manager.board.mistakes}" if mistake_counter_on else ""
+            suffix = (
+                f" • Mistakes: {self.manager.board.mistakes}"
+                if mistake_counter_on
+                else ""
+            )
             self.update_sudoku_window_subtitle(base + suffix)
 
     def _force_disable_pencil_mode(self):
