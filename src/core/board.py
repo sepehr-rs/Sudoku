@@ -5,6 +5,7 @@
 from abc import ABC, abstractmethod
 from gi.repository import GLib
 
+
 class BoardBase(ABC):
     """
     Manages the Sudoku board
@@ -94,29 +95,3 @@ class BoardBase(ABC):
             True if `value` is already present in any region, False otherwise.
         """
         pass
-
-    def _cancel_feedback_timeout(self):
-        """Cancel the active feedback timeout, if any."""
-        if self._feedback_source_id is not None:
-            GLib.source_remove(self._feedback_source_id)
-            self._feedback_source_id = None
-
-    def start_feedback_timeout(self, callback, delay=3000):
-        """Start a feedback timeout, replacing any existing one.
-        
-        Args:
-            callback: Called when the timeout fires.
-            delay: Delay in milliseconds (default 3000).
-        """
-        self._cancel_feedback_timeout()
-
-        def wrapped():
-            self._feedback_source_id = None
-            callback()
-            return False
-
-        self._feedback_source_id = GLib.timeout_add(delay, wrapped)
-
-    def clear_feedback_timeout(self):
-        """Cancel the active feedback timeout and reset state."""
-        self._cancel_feedback_timeout()
