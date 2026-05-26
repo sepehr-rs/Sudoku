@@ -1,13 +1,15 @@
 # src/core/board.py
-# Copyright 2025 sepehr-rs
+# Copyright 2026 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from abc import ABC, abstractmethod
+from gi.repository import GLib
 
 class BoardBase(ABC):
     """
     Manages the Sudoku board
     """
+
     def __init__(
         self,
         generator: Any,
@@ -32,7 +34,7 @@ class BoardBase(ABC):
     @abstractmethod
     def is_solved(self) -> bool:
         pass
-    
+
     def get_remaining_valid_inputs(self) -> dict:
         """
         Return how many times each value (1–9) can still be correctly placed.
@@ -73,7 +75,9 @@ class BoardBase(ABC):
         return remaining_valid_inputs
 
     @abstractmethod
-    def is_conflicting(self, value: int, row: set[int], col: set[int], **regions: set[int]) -> bool:
+    def is_conflicting(
+        self, value: int, row: set[int], col: set[int], **regions: set[int]
+    ) -> bool:
         """
         Check whether `value` conflicts with any of the given regions.
 
@@ -90,3 +94,29 @@ class BoardBase(ABC):
             True if `value` is already present in any region, False otherwise.
         """
         pass
+
+    def _cancel_feedback_timeout(self):
+        """Cancel the active feedback timeout, if any."""
+        if self._feedback_source_id is not None:
+            GLib.source_remove(self._feedback_source_id)
+            self._feedback_source_id = None
+
+    def start_feedback_timeout(self, callback, delay=3000):
+        """Start a feedback timeout, replacing any existing one.
+        
+        Args:
+            callback: Called when the timeout fires.
+            delay: Delay in milliseconds (default 3000).
+        """
+        self._cancel_feedback_timeout()
+
+        def wrapped():
+            self._feedback_source_id = None
+            callback()
+            return False
+
+        self._feedback_source_id = GLib.timeout_add(delay, wrapped)
+
+    def clear_feedback_timeout(self):
+        """Cancel the active feedback timeout and reset state."""
+        self._cancel_feedback_timeout()
