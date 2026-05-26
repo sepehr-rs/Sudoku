@@ -9,4 +9,5 @@ from dataclasses import dataclass
 class SudokuConstants:
     block_size: int = 3
 
+
 SUDOKU_CONSTANTS = SudokuConstants()

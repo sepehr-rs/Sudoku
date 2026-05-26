@@ -8,7 +8,8 @@ from gi.repository import Gtk, GLib
 def schedule_feedback_clear(
     widget: Gtk.Widget,
     css_class: str,
-    delay_ms: int,previous_source_id: int | None = None,
+    delay_ms: int,
+    previous_source_id: int | None = None,
 ) -> int:
     """Applies a CSS class to a widget and schedules its removal.
 

@@ -2,58 +2,55 @@
 # Copyright 2026 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GLib  # pyright: ignore[reportAttributeAccessIssue]
-from ..core import SUDOKU_CONSTANTS
 from __future__ import annotations
 
+from gi.repository import Gtk, GLib  # pyright: ignore[reportAttributeAccessIssue]
+from ..core import SUDOKU_CONSTANTS
+
+
 class SudokuCellNotesManagement:
-    """
-    Handles SudokuCell pencil notes and their UI
-    """
+    """Handles SudokuCell pencil notes and their UI."""
 
     def __init__(self, cell: SudokuCell):
         self.cell = cell
-        self.notes_grid = self.create_notes_grid()
-        self.note_labels = {}
+        self.notes_grid = self._create_notes_grid()
+        self.note_labels: dict[str, Gtk.Label] = {}
 
-    def create_notes_label(self, compact_mode, number):
-        note_label = Gtk.Label(label=str(number))
-        note_label.get_style_context().add_class("note-cell-label")
-        size = max(8, 12 if not compact_mode else 8)
-        note_label.set_size_request(size, size)
-        note_label.set_halign(Gtk.Align.CENTER)
-        note_label.set_valign(Gtk.Align.CENTER)
-        
-        return note_label
-
-    def create_notes_grid(self):
+    def _create_notes_grid(self) -> Gtk.Grid:
         """Create and return a homogeneous GTK grid for pencil notes."""
-        grid = Gtk.Grid(
+        return Gtk.Grid(
             row_spacing=0,
             column_spacing=0,
             column_homogeneous=True,
             row_homogeneous=True,
-            halign=Gtk.Align.CENTER,
-            valign=Gtk.Align.CENTER,
+            halign=Gtk.Align.FILL,
+            valign=Gtk.Align.FILL,
         )
-        return grid
 
-    def update_notes(
-        self,
-        notes: set[str],
-        compact_mode: bool,
-        main_label:str,
-    ):
+    def _create_note_label(self, number: str) -> Gtk.Label:
+        compact = self.cell.ui.compact_mode
+        size = 8 if compact else 12
+        label = Gtk.Label(label=number)
+        label.get_style_context().add_class("note-cell-label")
+        label.set_size_request(size, size)
+        label.set_halign(Gtk.Align.FILL)
+        label.set_valign(Gtk.Align.FILL)
+        return label
+
+    def update_notes(self, notes: set[str]):
         """Update the notes display."""
-        # Clear old labels
         for child in list(self.notes_grid):
             self.notes_grid.remove(child)
         self.note_labels.clear()
-        if not notes or main_label.get_text():
+
+        main_text = (
+            self.cell.ui.main_label.get_text() if self.cell.ui.main_label else ""
+        )
+        if not notes or main_text:
             return
-        sorted_notes = sorted(notes, key=int)
-        for n in sorted_notes:
-            note_label = self.create_notes_label(compact_mode, n)
+
+        for n in sorted(notes, key=int):
+            note_label = self._create_note_label(n)
             self.note_labels[n] = note_label
             index = int(n) - 1
             row = index // SUDOKU_CONSTANTS.block_size
@@ -64,26 +61,15 @@ class SudokuCellNotesManagement:
 
 
 class SudokuCellUIManagement:
-    """
-    Handles SudokuCell instances' UI behavior.
-    """
+    """Handles SudokuCell UI behavior, layout, and feedback."""
 
     def __init__(self, cell: SudokuCell):
         self.cell = cell
-        self.notes_manager = SudokuCellNotesManagement(cell)
         self.compact_mode = False
-        self.main_label = None
+        self.main_label: Gtk.Label | None = None
+        self.notes_manager = SudokuCellNotesManagement(cell)
 
-    def create_overlay(self, main_label, notes_grid):
-        """Stack notes_grid on top of main_label inside a fill-aligned overlay."""
-        overlay = Gtk.Overlay()
-        overlay.set_child(main_label)
-        overlay.add_overlay(notes_grid)
-        overlay.set_halign(Gtk.Align.FILL)
-        overlay.set_valign(Gtk.Align.FILL)
-        return overlay
-
-    def create_main_label(self):
+    def _create_main_label(self) -> Gtk.Label:
         """Create and return a centered, expanding GTK label for the cell value."""
         return Gtk.Label(
             xalign=0.5,
@@ -94,23 +80,22 @@ class SudokuCellUIManagement:
             vexpand=True,
         )
 
-    def update_display(self):
-        """Update the display state."""
-        if self.main_label.get_text():
-            for label in self.notes_manager.note_labels.values():
-                label.set_text("")
-
-    def set_value(self, value: str):
-        """Set the main value of the cell."""
-        self.main_label.set_text(value)
-        self.update_display()
+    def _create_overlay(
+        self, main_label: Gtk.Label, notes_grid: Gtk.Grid
+    ) -> Gtk.Overlay:
+        """Stack notes_grid on top of main_label inside a fill-aligned overlay."""
+        overlay = Gtk.Overlay()
+        overlay.set_child(main_label)
+        overlay.add_overlay(notes_grid)
+        overlay.set_halign(Gtk.Align.FILL)
+        overlay.set_valign(Gtk.Align.FILL)
+        return overlay
 
     def setup_ui_and_state(self):
         """Initialize the cell's label, notes grid, overlay, and GTK widget state."""
-        self.main_label = self.create_main_label()
-        notes_grid = self.notes_manager.notes_grid
+        self.main_label = self._create_main_label()
+        overlay = self._create_overlay(self.main_label, self.notes_manager.notes_grid)
 
-        overlay = self.create_overlay(self.main_label, notes_grid)
         self.cell.set_child(overlay)
         self.cell.set_focus_on_click(False)
         self.cell.set_can_focus(True)
@@ -123,70 +108,96 @@ class SudokuCellUIManagement:
             self.set_value("")
             self.cell.get_style_context().add_class("entry-cell")
 
+    def update_display(self):
+        """Update the display based on the current main value.
+
+        Shows the main label and hides the notes grid when a value is present,
+        and shows the notes grid when no value is set.
+        """
+        has_value = bool(self.main_label and self.main_label.get_text())
+        self.notes_manager.notes_grid.set_visible(not has_value)
+
+    def set_value(self, value: str):
+        """Set the main value label and refresh display."""
+        self.main_label.set_text(value)
         self.update_display()
 
-    def handle_compact(self, compact: bool):
-        """
-        Handles compact mode for Sudoku cells
-        """
+    def get_value(self) -> str:
+        """Return the current main value."""
+        return self.main_label.get_text() if self.main_label else ""
+
+    def set_compact(self, compact: bool):
+        """Switch compact mode, avoiding redundant redraws."""
+        if self.compact_mode == compact:
+            return
         self.compact_mode = compact
         size = 10 if compact else 40
         self.cell.set_size_request(size, size)
         current_notes = set(self.notes_manager.note_labels.keys())
-        self.notes_manager.update_notes(current_notes, compact, self.main_label)
+        self.notes_manager.update_notes(current_notes)
 
     def highlight(self, class_name: str):
-        """Add a highlight class to the cell."""
+        """Add a CSS highlight class to the cell widget."""
         self.cell.get_style_context().add_class(class_name)
 
     def remove_highlight(self, class_name: str):
-        """Remove a highlight class from the cell."""
+        """Remove a CSS highlight class from the cell widget."""
         self.cell.get_style_context().remove_class(class_name)
 
     def clear(self):
-        """Clear the main value and all notes."""
+        """Clear the main value, all notes, and any highlights."""
         self.set_value("")
-        self.notes_manager.update_notes(set(), self.compact_mode, self.main_label)
+        self.notes_manager.update_notes(set())
+        # here we only remove the wrong css class because if a cell is correct
+        # and gets the correct highlighting, it is no longer editable and therefore
+        # cannot be cleared.
         self.remove_highlight("wrong")
-
-    def _cancel_feedback_timeout(self):
-        """Cancel the active feedback timeout, if any."""
-        if self._feedback_source_id is not None:
-            GLib.source_remove(self._feedback_source_id)
-            self._feedback_source_id = None
-
-    def start_feedback_timeout(self, callback, delay=3000):
-        """Start a feedback timeout, replacing any existing one.
-
-        Args:
-            callback: Called when the timeout fires.
-            delay: Delay in milliseconds (default 3000).
-        """
-        self._cancel_feedback_timeout()
-
-        def wrapped():
-            self._feedback_source_id = None
-            callback()
-            return False
-
-        self._feedback_source_id = GLib.timeout_add(delay, wrapped)
-
-    def clear_feedback_timeout(self):
-        """Cancel the active feedback timeout and reset state."""
-        self._cancel_feedback_timeout()
 
 
 class SudokuCell(Gtk.Button):
     """
     Represents a single cell in a Sudoku grid.
-    Handles the cell's value, pencil notes, and associated widget behavior.
+    Handles value, pencil notes, editability, and widget behavior.
     """
 
-    def __init__(self, row: int, column: int, value: int, editable: bool):
+    def __init__(self, row: int, column: int, value: int | None, editable: bool):
         super().__init__()
         self.row = row
         self.column = column
-        self.editable = editable
+        self._editable = editable
         self.value = value
         self.ui = SudokuCellUIManagement(self)
         self.ui.setup_ui_and_state()
+
+    def set_editable(self, editable: bool):
+        self._editable = editable
+
+    def is_editable(self) -> bool:
+        return self._editable
+
+    def do_clicked(self, *args):
+        """Block click propagation for non-editable cells."""
+        if self._editable:
+            super().do_clicked(*args)
+
+    def set_value(self, value: str):
+        self.value = int(value) if value else None
+        self.ui.set_value(value)
+
+    def get_value(self) -> str:
+        return self.ui.get_value()
+
+    def update_notes(self, notes: set[str]):
+        self.ui.notes_manager.update_notes(notes)
+
+    def set_compact(self, compact: bool):
+        self.ui.set_compact(compact)
+
+    def highlight(self, class_name: str):
+        self.ui.highlight(class_name)
+
+    def remove_highlight(self, class_name: str):
+        self.ui.remove_highlight(class_name)
+
+    def clear(self):
+        self.ui.clear()
