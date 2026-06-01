@@ -23,6 +23,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Self
 from gi.repository import GLib
 from .preferences_manager import PreferencesManager
+from .preferences import _migrate_general_preferences
 
 
 def _get_save_path():
@@ -49,7 +50,7 @@ class BoardBase(ABC):
         self.difficulty = difficulty
         self.difficulty_label = difficulty_label
         self.variant = variant
-
+        self.mistakes = 0
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
             raise RuntimeError("Preferences not initialized")
@@ -84,7 +85,7 @@ class BoardBase(ABC):
         self.generator = generator
         self.difficulty = state["difficulty"]
         self.difficulty_label = state.get("difficulty_label", "Unknown")
-
+        self.mistakes = state.get("mistakes", 0)
         prefs = PreferencesManager.get_preferences()
         if prefs is None:
             raise RuntimeError("Preferences not initialized")
@@ -92,9 +93,9 @@ class BoardBase(ABC):
             "variant_preferences",
             prefs.variant_defaults,
         )
-        self.general_preferences = state.get(
-            "general_preferences",
-            prefs.general_defaults,
+        raw_general = state.get("general_preferences", prefs.general_defaults)
+        self.general_preferences = _migrate_general_preferences(
+            raw_general, prefs.general_defaults
         )
         self.variant = state.get("variant", "Unknown")
         self.puzzle = state["puzzle"]  # The default board shown to the user
@@ -125,6 +126,8 @@ class BoardBase(ABC):
             "puzzle": self.puzzle,
             "solution": self.solution,
             "user_inputs": self.user_inputs,
+            # TODO: The +1 here is a patch that needs to be fixed later.
+            "mistakes": self.mistakes + 1,
             "notes": [[list(n) for n in row] for row in self.notes],
         }
         with open(path, "w", encoding="utf-8") as f:

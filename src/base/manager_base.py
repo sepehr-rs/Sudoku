@@ -36,9 +36,6 @@ class ManagerBase:
     def load_saved_game(self):
         self.board = self.board_cls.load_from_file()
         if self.board:
-            self.window.sudoku_window_title.set_subtitle(
-                f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
-            )
             self.build_grid()
             self._restore_game_state()
             self.window.stack.set_visible_child(self.window.game_scrolled_window)
@@ -145,7 +142,7 @@ class ManagerBase:
         """
         pass
 
-    def _show_puzzle_finished_dialog(self):
+    def _show_puzzle_finished_dialog(self, page=None):
         pass
 
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
