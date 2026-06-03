@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from gi.repository import Gtk, GLib  # pyright: ignore[reportAttributeAccessIssue]
+from gi.repository import Gtk  # pyright: ignore[reportAttributeAccessIssue]
 from ..core import SUDOKU_CONSTANTS
 
 
@@ -53,8 +53,8 @@ class SudokuCellNotesManagement:
             note_label = self._create_note_label(n)
             self.note_labels[n] = note_label
             index = int(n) - 1
-            row = index // SUDOKU_CONSTANTS.block_size
-            col = index % SUDOKU_CONSTANTS.block_size
+            row = index // self.cell.block_size
+            col = index % self.cell.block_size
             self.notes_grid.attach(note_label, col, row, 1, 1)
 
         self.notes_grid.show()
@@ -102,10 +102,8 @@ class SudokuCellUIManagement:
         self.cell.get_style_context().add_class("sudoku-cell-button")
 
         if self.cell.value is not None:
-            self.set_value(str(self.cell.value))
             self.cell.get_style_context().add_class("clue-cell")
         else:
-            self.set_value("")
             self.cell.get_style_context().add_class("entry-cell")
 
     def update_display(self):
@@ -114,17 +112,13 @@ class SudokuCellUIManagement:
         Shows the main label and hides the notes grid when a value is present,
         and shows the notes grid when no value is set.
         """
-        has_value = bool(self.main_label and self.main_label.get_text())
+        has_value = self.cell.value is not None
         self.notes_manager.notes_grid.set_visible(not has_value)
 
-    def set_value(self, value: str):
+    def set_value(self, value: int | None):
         """Set the main value label and refresh display."""
-        self.main_label.set_text(value)
+        self.main_label.set_text(str(value) if value is not None else "")
         self.update_display()
-
-    def get_value(self) -> str:
-        """Return the current main value."""
-        return self.main_label.get_text() if self.main_label else ""
 
     def set_compact(self, compact: bool):
         """Switch compact mode, avoiding redundant redraws."""
@@ -146,7 +140,7 @@ class SudokuCellUIManagement:
 
     def clear(self):
         """Clear the main value, all notes, and any highlights."""
-        self.set_value("")
+        self.set_value(None)
         self.notes_manager.update_notes(set())
         # here we only remove the wrong css class because if a cell is correct
         # and gets the correct highlighting, it is no longer editable and therefore
@@ -160,14 +154,21 @@ class SudokuCell(Gtk.Button):
     Handles value, pencil notes, editability, and widget behavior.
     """
 
-    def __init__(self, row: int, column: int, value: int | None, editable: bool):
+    def __init__(
+        self,
+        value: int | None,
+        correct_value: int | None,
+        editable: bool,
+        block_size: int = 3,
+    ):
         super().__init__()
-        self.row = row
-        self.column = column
         self._editable = editable
         self.value = value
+        self.correct_value = correct_value
+        self.block_size = block_size
         self.ui = SudokuCellUIManagement(self)
         self.ui.setup_ui_and_state()
+        self.set_value(value)
 
     def set_editable(self, editable: bool):
         self._editable = editable
@@ -180,12 +181,12 @@ class SudokuCell(Gtk.Button):
         if self._editable:
             super().do_clicked(*args)
 
-    def set_value(self, value: str):
-        self.value = int(value) if value else None
+    def set_value(self, value: int | None):
+        self.value = value
         self.ui.set_value(value)
 
-    def get_value(self) -> str:
-        return self.ui.get_value()
+    def get_value(self) -> int | None:
+        return self.value
 
     def update_notes(self, notes: set[str]):
         self.ui.notes_manager.update_notes(notes)
