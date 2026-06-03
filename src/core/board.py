@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from gi.repository import GLib
 
 
-class BoardBase(ABC):
+class BoardCore(ABC):
     """
     Manages the Sudoku board
     """
