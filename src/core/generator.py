@@ -5,10 +5,13 @@
 from abc import ABC, abstractmethod
 import multiprocessing as mp
 
+
 class GeneratorCore(ABC):
     """Abstract puzzle generator with optional multiprocessing."""
 
-    def generate(self, difficulty: float, timeout: int = 5) -> tuple[list[list[int]], list[list[int]]]:
+    def generate(
+        self, difficulty: float, timeout: int = 5
+    ) -> tuple[list[list[int]], list[list[int]]]:
         """Run the variant's `_generate_impl` in a subprocess with timeout."""
         queue = mp.Queue()
         process = mp.Process(target=self._generate_worker, args=(queue, difficulty))
@@ -35,6 +38,8 @@ class GeneratorCore(ABC):
             queue.put((e, None))
 
     @abstractmethod
-    def _generate_impl(self, difficulty: float) -> tuple[list[list[int]], list[list[int]]]:
+    def _generate_impl(
+        self, difficulty: float
+    ) -> tuple[list[list[int]], list[list[int]]]:
         """Must be implemented by variants. Return (puzzle, solution) as 2D lists."""
         pass
