@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from gi.repository import Gtk  # pyright: ignore[reportAttributeAccessIssue]
-from ..core import SUDOKU_CONSTANTS
 
 
 class SudokuCellNotesManagement:

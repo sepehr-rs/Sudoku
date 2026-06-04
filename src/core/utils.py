@@ -5,9 +5,9 @@
 from gi.repository import Gtk, GLib
 
 
-def _remove():
-    widget.get_style_context().remove_class(css_class)
-    return False
+# def _remove():
+#     widget.get_style_context().remove_class(css_class)
+#     return False
 
 
 def schedule_feedback_clear(
