@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 import multiprocessing as mp
 
 
-class GeneratorCore(ABC):
+class CoreSudokuGenerator(ABC):
     """Abstract puzzle generator with optional multiprocessing."""
 
     def generate(

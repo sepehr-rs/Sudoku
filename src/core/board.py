@@ -6,10 +6,10 @@ from abc import ABC
 from typing import Any
 from ..shared import sudoku_cell
 from .persistence import load_game, save_game
-from .preferences import PreferencesManager
+from .preferences import CorePreferencesManager
 
 
-class BoardCore(ABC):
+class CoreSudokuBoard(ABC):
     """
     Manages the Sudoku board
     """

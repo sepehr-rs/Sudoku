@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk, GLib
-
+from .persistence import get_variant
 
 # def _remove():
 #     widget.get_style_context().remove_class(css_class)
@@ -36,6 +36,14 @@ def schedule_feedback_clear(
 
     widget.get_style_context().add_class(css_class)
     return GLib.timeout_add(delay_ms, _remove)
+
+
+def get_controller_and_prefs(self, variant):
+    if variant in ("classic", "Unknown"):
+        return ClassicController(self), ClassicSudokuPreferences()
+    if variant == "diagonal":
+        return DiagonalController(self), DiagonalSudokuPreferences()
+    raise ValueError(f"Unknown Sudoku variant: {variant}")
 
 
 # TODO: Rework these:

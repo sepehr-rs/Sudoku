@@ -5,7 +5,7 @@
 from abc import ABC
 
 
-class Preferences(ABC):
+class CoreSudokuPreferences(ABC):
     general_defaults = {
         "casual_mode": {
             "value": True,
@@ -84,13 +84,13 @@ def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
     return migrated
 
 
-class PreferencesManager:
-    _current_preferences: Preferences | None = None
+class CoreSudokuPreferencesManager:
+    _current_preferences: CoreSudokuPreferences | None = None
 
     @classmethod
-    def set_preferences(cls, prefs: Preferences) -> None:
+    def set_preferences(cls, prefs: CoreSudokuPreferences) -> None:
         cls._current_preferences = prefs
 
     @classmethod
-    def get_preferences(cls) -> Preferences | None:
+    def get_preferences(cls) -> CoreSudokuPreferences | None:
         return cls._current_preferences
