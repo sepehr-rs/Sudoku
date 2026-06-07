@@ -1,0 +1,290 @@
+# window.py
+# Copyright 2025 sepehr-rs
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+from gi.repository import Adw, Gtk, Gio
+
+from .core.persistence import get_variant
+from .core.preferences import PreferencesManager
+
+from .shared.utils import get_controller_and_prefs
+
+from .variants.classic_sudoku.controller import ClassicController
+from .variants.diagonal_sudoku.controller import DiagonalController
+from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
+from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
+
+@Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
+class SudokuWindow(Adw.ApplicationWindow):
+    __gtype_name__ = "SudokuWindow"
+
+    stack = Gtk.Template.Child()
+    continue_button = Gtk.Template.Child()
+    new_game_button = Gtk.Template.Child()
+    main_menu_box = Gtk.Template.Child()  # Main screen
+    finished_page = Gtk.Template.Child()
+    game_over_page = Gtk.Template.Child()
+    loading_screen = Gtk.Template.Child()
+    grid_container = Gtk.Template.Child()
+    pencil_toggle_button = Gtk.Template.Child()
+    primary_menu_button = Gtk.Template.Child()  # Hamburger menu
+    sudoku_window_title = Gtk.Template.Child()
+    home_button = Gtk.Template.Child()  # back arrow
+    bp_bin = Gtk.Template.Child()
+    game_scrolled_window = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        self.controller = None
+        self.is_game_page = False
+
+        actions = {
+            "show-primary-menu": self.on_show_primary_menu,
+            "back-to-menu": self.on_back_to_menu,
+            "pencil-toggled": self._on_pencil_toggled_action,
+            "show-preferences": self.on_show_preferences,
+        }
+        for name, callback in actions.items():
+            act = Gio.SimpleAction.new(name, None)
+            act.connect("activate", callback)
+            self.add_action(act)
+
+        self._setup_stack_observer()
+        self._setup_breakpoints()
+        self._connect_buttons()
+        self._build_primary_menu(show_preferences=False)
+
+        gesture = Gtk.GestureClick.new()
+        gesture.set_button(0)
+        gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        gesture.connect("pressed", self._on_window_pressed)
+        self.add_controller(gesture)
+
+    def on_show_primary_menu(self):
+        self.primary_menu_button.popup()
+
+    def on_back_to_menu(self, *_):
+        self.continue_button.set_visible(os.path.exists(_get_save_path()))
+        self.update_sudoku_window_subtitle("")
+        self.stack.set_visible_child(self.main_menu_box)
+        self.pencil_toggle_button.set_visible(False)
+        PreferencesManager.set_preferences(None)
+        self._update_preferences_visibility(False)
+
+    def update_sudoku_window_subtitle(self, subtitle):
+        self.sudoku_window_title.set_subtitle(subtitle)
+
+    def _on_pencil_toggled_action(self, *_):
+        if not self.is_game_page:
+            return
+        self.pencil_toggle_button.set_active(not self.pencil_toggle_button.get_active())
+        self._change_subtitle_for_pencil_mode()
+
+    def on_show_preferences(self, *_):
+        PreferencesDialog(self.manager.board.save_to_file).present(self)
+
+    def _setup_stack_observer(self):
+        self.stack.connect("notify::visible-child", self.on_stack_page_changed)
+        self.on_stack_page_changed(self.stack, None)
+
+    def on_stack_page_changed(self, stack, _):
+        """Update UI elements based on the current visible page."""
+        visible = stack.get_visible_child()
+
+        # Reset pencil mode for non-game pages
+        if visible in (
+            self.main_menu_box,
+            self.loading_screen,
+            self.finished_page,
+            self.game_over_page,
+        ):
+            self._force_disable_pencil_mode()
+            self.update_sudoku_window_subtitle("")
+
+        # Define state for each page type
+        is_game_page = visible not in (
+            self.main_menu_box,
+            self.loading_screen,
+            self.finished_page,
+            self.game_over_page,
+        )
+        is_menu_or_loading = visible in (self.main_menu_box, self.loading_screen)
+
+        # Update UI in a declarative way
+        self._update_preferences_visibility(is_game_page)
+        self.lookup_action("show-preferences").set_enabled(is_game_page)
+        self.pencil_toggle_button.set_visible(is_game_page)
+        self.lookup_action("show-primary-menu").set_enabled(is_game_page)
+        self.lookup_action("back-to-menu").set_enabled(not is_menu_or_loading)
+        self.home_button.set_visible(not is_menu_or_loading)
+        self.primary_menu_button.set_visible(is_game_page)
+
+        # Update subtitle for game pages
+        if is_game_page:
+            self.is_game_page = True
+            self._change_subtitle_for_pencil_mode()
+        else:
+            self.is_game_page = False
+
+    def _setup_breakpoints(self):
+        def bp(cond, apply_cb, unapply_cb):
+            bp = Adw.Breakpoint.new(Adw.BreakpointCondition.parse(cond))
+            bp.connect("apply", lambda *_: apply_cb(True))
+            bp.connect("unapply", lambda *_: unapply_cb(False))
+            self.add_breakpoint(bp)
+
+        bp(
+            "min-width: 800px and min-height: 800px",
+            lambda large: self._apply_large(large),
+            lambda large: self._apply_large(large),
+        )
+        bp(
+            "max-width: 650px or max-height:700px",
+            lambda c: self._apply_compact(c, "compact"),
+            lambda c: self._apply_compact(c, "compact"),
+        )
+        bp(
+            "max-width: 550px or max-height:550px",
+            lambda c: self._apply_compact(c, "small"),
+            lambda c: self._apply_compact(c, "small"),
+        )
+    
+    def _connect_buttons(self):
+        self.continue_button.connect("clicked", self.on_continue_clicked)
+        self.new_game_button.connect("clicked", self.on_new_game_clicked)
+        self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
+        self.continue_button.set_tooltip_text(_("Continue Saved Game"))
+        self.new_game_button.set_tooltip_text(_("Start a New Game"))
+        self.continue_button.set_visible(os.path.exists(_get_save_path()))
+        self.home_button.set_visible(False)
+
+    def on_continue_clicked(self, _):
+        variant = get_variant()
+        self.manager, prefs = get_controller_and_prefs(self, variant)
+        PreferencesManager.set_preferences(prefs)
+        self.controller.load_saved_game() # TODO: Implement this
+        self._setup_ui()
+
+    def _setup_ui(self):
+        self.pencil_toggle_button.set_active(False)
+        self.lookup_action("show-preferences").set_enabled(True)
+        self._update_preferences_visibility(True)
+
+    def on_new_game_clicked(self, _):
+        GameSetupDialog(on_select=self.on_game_setup_selected).present(self)
+
+    def on_game_setup_selected(self, varianft_name, difficulty):
+        self.manager, prefs = get_controller_and_prefs(self, variant)
+        PreferencesManager.set_preferences(prefs)
+
+        label_map = {
+            0.2: _("Easy"),
+            0.5: _("Medium"),
+            0.7: _("Hard"),
+            0.9: _("Extreme"),
+        }
+        label = label_map.get(difficulty, str(difficulty))
+
+        self.update_sudoku_window_subtitle(f"{variant_name.capitalize()} • " f"{label}")
+        self._setup_ui()
+        self.manager.start_game(difficulty, label, variant_name)
+
+    def _on_pencil_toggled_button(self, button):
+        if self.manager:
+            self._change_subtitle_for_pencil_mode()
+            self.manager.on_pencil_toggled(button)
+
+    def _change_subtitle_for_pencil_mode(self):
+        non_game_pages = {
+            self.main_menu_box,
+            self.finished_page,
+            self.game_over_page,
+            self.loading_screen,
+        }
+
+        visible = self.stack.get_visible_child()
+        if (
+            not self.sudoku_window_title
+            or not self.manager
+            or visible in non_game_pages
+        ):
+            return
+
+        prefs = PreferencesManager.get_preferences()
+        mistake_counter_on = prefs.general("mistake_limit")["enabled"]
+
+        base = f"{self.manager.board.variant.capitalize()} • "
+        f"{self.manager.board.difficulty_label}"
+
+        if self.pencil_toggle_button.get_active():
+            self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
+        else:
+            suffix = (
+                f" • Mistakes: {self.manager.board.mistakes}"
+                if mistake_counter_on
+                else ""
+            )
+            self.update_sudoku_window_subtitle(base + suffix)
+
+
+    def _build_primary_menu(self, show_preferences=True):
+        menu, section = Gio.Menu(), Gio.Menu()
+        section.append(_("Keyboard Shortcuts"), "app.shortcuts")
+        if show_preferences:
+            section.append(_("Preferences"), "win.show-preferences")
+        for label, action in [
+            (_("How To Play"), "app.how_to_play"),
+            (_("About Sudoku"), "app.about"),
+        ]:
+            section.append(label, action)
+        menu.append_section(None, section)
+        self.primary_menu_button.set_menu_model(menu)
+
+    def _on_window_pressed(self, gesture, n_press, x, y):
+        if gesture.get_current_button() != 1:
+            return
+        if not self.controller:
+            return
+        frame = self.grid_container.get_first_child()
+        if not frame:
+            return
+        grid = frame.get_child()
+        translated = grid.translate_coordinates(self, 0, 0)
+        if translated is None:
+            return
+        gx, gy = translated
+        alloc = grid.get_allocation()
+        if not (gx <= x < gx + alloc.width and gy <= y < gy + alloc.height):
+            self.controller.on_grid_unfocus()
+
+    def _apply_large(self, large):
+        if large:
+            self.bp_bin.add_css_class("large")
+        else:
+            self.bp_bin.remove_css_class("large")
+
+    def _apply_compact(self, compact, mode):
+        target = self.bp_bin or self
+        css_class = f"{mode}-mode"
+        if compact:
+            target.add_css_class(css_class)
+        else:
+            target.remove_css_class(css_class)
+
+        if self.controller:
+            self.controller.apply_compact_mode(compact, mode)
+
+
+    def _apply_compact(self, compact, mode):
+        target = self.bp_bin or self
+        css_class = f"{mode}-mode"
+        if compact:
+            target.add_css_class(css_class)
+        else:
+            target.remove_css_class(css_class)
+
+        if not self.controller or not self.controller.parent_grid:
+            return
+
+        self.controller.apply_compact_mode(compact, mode)

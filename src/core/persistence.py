@@ -15,6 +15,14 @@ def _get_save_path():
     os.makedirs(save_dir, exist_ok=True)
     return os.path.join(save_dir, "board.json")
 
+def get_variant():
+    path =  _get_save_path()
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("variant", "Unknown")
+
 
 def load_game(cls, generator, block_size: int):
     filename = _get_save_path()
