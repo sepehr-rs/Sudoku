@@ -15,8 +15,9 @@ def _get_save_path():
     os.makedirs(save_dir, exist_ok=True)
     return os.path.join(save_dir, "board.json")
 
+
 def get_variant():
-    path =  _get_save_path()
+    path = _get_save_path()
     if not os.path.exists(path):
         return None
     with open(path, "r", encoding="utf-8") as f:

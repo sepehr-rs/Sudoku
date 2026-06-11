@@ -6,7 +6,7 @@ from abc import ABC
 from typing import Any
 from ..shared import sudoku_cell
 from .persistence import load_game, save_game
-from .preferences import CorePreferencesManager
+from .preferences import PreferencesManager
 
 
 class CoreSudokuBoard(ABC):

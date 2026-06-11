@@ -8,9 +8,12 @@ from gi.repository import Gtk
 if TYPE_CHECKING:
     from ..core.board import CoreSudokuBoard
 
+
 class GridManager:
-    def __init__(self, board_size:int, block_size:int, window, board:CoreSudokuBoard):
-        self.board_size = board_size # row * column
+    def __init__(
+        self, board_size: int, block_size: int, window, board: CoreSudokuBoard
+    ):
+        self.board_size = board_size  # row * column
         self.block_size = block_size
         self.window = window
         self.board = board
@@ -32,8 +35,8 @@ class GridManager:
 
         for row in self.board.sudoku_cells:
             for cell in row:
-                cell.clear_feedback_timeout() # TODO: IMPLEMENT THIS
-        
+                cell.clear_feedback_timeout()  # TODO: IMPLEMENT THIS
+
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
 

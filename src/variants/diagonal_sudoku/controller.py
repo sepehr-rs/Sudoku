@@ -4,6 +4,7 @@
 
 from ...variants.classic_sudoku.controller import ClassicSudokuController
 
+
 class DiagonalSudokuController(ClassicSudokuController):
     def __init__(self, window, board_cls, generator, block_size):
         super().__init__(window, board_cls, generator, block_size)

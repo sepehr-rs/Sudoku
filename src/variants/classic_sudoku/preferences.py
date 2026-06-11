@@ -4,6 +4,7 @@
 
 from ...core.preferences import CoreSudokuPreferences
 
+
 class ClassicSudokuPreferences(CoreSudokuPreferences):
     variant_defaults = {
         "highlight_block": True,

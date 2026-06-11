@@ -4,6 +4,7 @@
 
 from ..classic_sudoku.preferences import ClassicSudokuPreferences
 
+
 class DiagonalSudokuPreferences(ClassicSudokuPreferences):
     def __init__(self):
         super().__init__()

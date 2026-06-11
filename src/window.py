@@ -2,17 +2,18 @@
 # Copyright 2025 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import os
+
 from gi.repository import Adw, Gtk, Gio
 
 from .core.persistence import get_variant, _get_save_path
 from .core.preferences import PreferencesManager
 
-from .shared.utils import get_controller_and_prefs
-
-from .variants.classic_sudoku.controller import ClassicController
-from .variants.diagonal_sudoku.controller import DiagonalController
+from .variants.classic_sudoku.controller import ClassicSudokuController
+from .variants.diagonal_sudoku.controller import DiagonalSudokuController
 from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
+
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
@@ -35,7 +36,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         self.controller = None
         self.is_game_page = False
 
@@ -131,9 +132,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def _setup_breakpoints(self):
         def add_breakpoint(condition: str, mode: str):
-            bp = Adw.Breakpoint.new(
-                Adw.BreakpointCondition.parse(condition)
-            )
+            bp = Adw.Breakpoint.new(Adw.BreakpointCondition.parse(condition))
 
             bp.connect(
                 "apply",
@@ -160,7 +159,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             "max-width: 550px or max-height:550px",
             "small",
         )
-    
+
     def _connect_buttons(self):
         self.continue_button.connect("clicked", self.on_continue_clicked)
         self.new_game_button.connect("clicked", self.on_new_game_clicked)
@@ -170,11 +169,18 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.continue_button.set_visible(os.path.exists(_get_save_path()))
         self.home_button.set_visible(False)
 
+    def get_controller_and_prefs(self, variant):
+        if variant in ("classic", "Unknown"):
+            return ClassicSudokuController(self), ClassicSudokuPreferences()
+        if variant == "diagonal":
+            return DiagonalSudokuController(self), DiagonalSudokuPreferences()
+        raise ValueError(f"Unknown Sudoku variant: {variant}")
+
     def on_continue_clicked(self, _):
         variant = get_variant()
-        self.controller, prefs = get_controller_and_prefs(self, variant)
+        self.controller, prefs = self.get_controller_and_prefs(self, variant)
         PreferencesManager.set_preferences(prefs)
-        self.controller.load_saved_game() # TODO: Implement this
+        self.controller.load_saved_game()  # TODO: Implement this
         self._setup_ui()
 
     def _setup_ui(self):
@@ -186,7 +192,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         GameSetupDialog(on_select=self.on_game_setup_selected).present(self)
 
     def on_game_setup_selected(self, variant_name, difficulty):
-        self.controller, prefs = get_controller_and_prefs(self, variant_name)
+        self.controller, prefs = self.get_controller_and_prefs(self, variant_name)
         PreferencesManager.set_preferences(prefs)
 
         label_map = {
@@ -225,7 +231,8 @@ class SudokuWindow(Adw.ApplicationWindow):
         prefs = PreferencesManager.get_preferences()
         mistake_counter_on = prefs.general("mistake_limit")["enabled"]
 
-        base = f"{self.controller.board.variant.capitalize()} • {self.controller.board.difficulty_label}"
+        base = f"{self.controller.board.variant.capitalize()} •"
+        "{self.controller.board.difficulty_label}"
 
         if self.pencil_toggle_button.get_active():
             self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
@@ -236,7 +243,6 @@ class SudokuWindow(Adw.ApplicationWindow):
                 else ""
             )
             self.update_sudoku_window_subtitle(base + suffix)
-
 
     def _build_primary_menu(self, show_preferences=True):
         menu, section = Gio.Menu(), Gio.Menu()

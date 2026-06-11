@@ -84,7 +84,7 @@ def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
     return migrated
 
 
-class CoreSudokuPreferencesManager:
+class PreferencesManager:
     _current_preferences: CoreSudokuPreferences | None = None
 
     @classmethod

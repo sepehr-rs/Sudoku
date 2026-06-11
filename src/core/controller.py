@@ -4,7 +4,7 @@
 
 import threading
 import logging
-from gi.repository import GLib
+from gi.repository import GLib, Gtk
 from ..shared.grid_manager import GridManager
 
 
@@ -15,7 +15,9 @@ class CoreSudokuController:
         self.generator = generator
         self.board_size = board_size
         self.block_size = block_size
-        self.grid_manager = GridManager(self.board_size, self.block_size) # TODO: recheck this
+        self.grid_manager = GridManager(
+            self.board_size, self.block_size
+        )  # TODO: recheck this
 
     def load_saved_game(self):
         self.board = self.board_cls.load(self.generator, self.block_size)
@@ -67,7 +69,7 @@ class CoreSudokuController:
         self._restore_game_state()
         self.window.stack.set_visible_child(self.window.game_scrolled_window)
 
-    def apply_compact_mode(compact, mode, parent_grid):
+    def apply_compact_mode(self, compact, mode, parent_grid):
         parent_spacing, block_spacing = (8, 2) if compact else (10, 4)
         parent_grid.set_row_spacing(parent_spacing)
         parent_grid.set_column_spacing(parent_spacing)

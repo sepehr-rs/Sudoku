@@ -16,7 +16,6 @@ class PopoverManager:
         self._last_popover_cell = None
         self._restore_focus_on_popover_close = False
 
-
     def get_or_create_popover(self) -> Gtk.Popover:
         if self._cell_popover is not None:
             return self._cell_popover
@@ -68,19 +67,18 @@ class PopoverManager:
         except AttributeError:
             logging.debug("Popover popdown skipped (attribute missing)", exc_info=True)
 
-
     def show_popover(self, cell, remaining_valid_inputs, button):
         """Defer popover display to the next GTK idle cycle.
 
         This avoids showing the popover mid-gesture, before GTK has
         finished processing the click event.
         """
+
         def _deferred():
             self._show_popover(cell, remaining_valid_inputs, mouse_button=button)
             return False
 
         GLib.idle_add(_deferred)
-
 
     def _show_popover(self, cell, remaining_valid_inputs, mouse_button=None):
         # Clearing the flag before _popdown_active_popover ensures
@@ -130,11 +128,13 @@ class PopoverManager:
         clear_button = self._add_action_buttons(grid, cell, popover, mouse_button)
 
         key_map, remove_keys = (
-            ClassicUIHelpers.setup_key_mappings()  # FIXME: Use input handler
+            setup_key_mappings()  # FIXME: Use input handler
             if key_map is None or remove_keys is None
             else (key_map, remove_keys)
         )
-        self._attach_key_controller(grid, num_buttons, clear_button, key_map, remove_keys)
+        self._attach_key_controller(
+            grid, num_buttons, clear_button, key_map, remove_keys
+        )
 
         grid.set_focus_on_click(True)
         grid.grab_focus()
@@ -207,7 +207,9 @@ class PopoverManager:
         overlay.add_overlay(corner_label)
         return overlay
 
-    def _add_number_buttons(self, grid, cell, popover, mouse_button, remaining_valid_inputs):
+    def _add_number_buttons(
+        self, grid, cell, popover, mouse_button, remaining_valid_inputs
+    ):
         prefs = PreferencesManager.get_preferences()
         show_remaining = prefs.general("show_remaining_valid_inputs")
         num_buttons = {}
