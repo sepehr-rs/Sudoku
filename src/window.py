@@ -4,7 +4,7 @@
 
 from gi.repository import Adw, Gtk, Gio
 
-from .core.persistence import get_variant
+from .core.persistence import get_variant, _get_save_path
 from .core.preferences import PreferencesManager
 
 from .shared.utils import get_controller_and_prefs
@@ -82,7 +82,9 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._change_subtitle_for_pencil_mode()
 
     def on_show_preferences(self, *_):
-        PreferencesDialog(self.manager.board.save_to_file).present(self)
+        if not self.manager:
+            return
+        PreferencesDialog(self.controller.board.save).present(self)
 
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
@@ -128,26 +130,35 @@ class SudokuWindow(Adw.ApplicationWindow):
             self.is_game_page = False
 
     def _setup_breakpoints(self):
-        def bp(cond, apply_cb, unapply_cb):
-            bp = Adw.Breakpoint.new(Adw.BreakpointCondition.parse(cond))
-            bp.connect("apply", lambda *_: apply_cb(True))
-            bp.connect("unapply", lambda *_: unapply_cb(False))
+        def add_breakpoint(condition: str, mode: str):
+            bp = Adw.Breakpoint.new(
+                Adw.BreakpointCondition.parse(condition)
+            )
+
+            bp.connect(
+                "apply",
+                lambda *_: self._set_mode(True, mode),
+            )
+            bp.connect(
+                "unapply",
+                lambda *_: self._set_mode(False, mode),
+            )
+
             self.add_breakpoint(bp)
 
-        bp(
+        add_breakpoint(
             "min-width: 800px and min-height: 800px",
-            lambda large: self._apply_large(large),
-            lambda large: self._apply_large(large),
+            "large",
         )
-        bp(
+
+        add_breakpoint(
             "max-width: 650px or max-height:700px",
-            lambda c: self._apply_compact(c, "compact"),
-            lambda c: self._apply_compact(c, "compact"),
+            "compact",
         )
-        bp(
+
+        add_breakpoint(
             "max-width: 550px or max-height:550px",
-            lambda c: self._apply_compact(c, "small"),
-            lambda c: self._apply_compact(c, "small"),
+            "small",
         )
     
     def _connect_buttons(self):
@@ -161,7 +172,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_continue_clicked(self, _):
         variant = get_variant()
-        self.manager, prefs = get_controller_and_prefs(self, variant)
+        self.controller, prefs = get_controller_and_prefs(self, variant)
         PreferencesManager.set_preferences(prefs)
         self.controller.load_saved_game() # TODO: Implement this
         self._setup_ui()
@@ -174,8 +185,8 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_new_game_clicked(self, _):
         GameSetupDialog(on_select=self.on_game_setup_selected).present(self)
 
-    def on_game_setup_selected(self, varianft_name, difficulty):
-        self.manager, prefs = get_controller_and_prefs(self, variant)
+    def on_game_setup_selected(self, variant_name, difficulty):
+        self.controller, prefs = get_controller_and_prefs(self, variant_name)
         PreferencesManager.set_preferences(prefs)
 
         label_map = {
@@ -188,12 +199,12 @@ class SudokuWindow(Adw.ApplicationWindow):
 
         self.update_sudoku_window_subtitle(f"{variant_name.capitalize()} • " f"{label}")
         self._setup_ui()
-        self.manager.start_game(difficulty, label, variant_name)
+        self.controller.start_game(difficulty, label, variant_name)
 
     def _on_pencil_toggled_button(self, button):
-        if self.manager:
+        if self.controller:
             self._change_subtitle_for_pencil_mode()
-            self.manager.on_pencil_toggled(button)
+            self.controller.on_pencil_toggled(button)
 
     def _change_subtitle_for_pencil_mode(self):
         non_game_pages = {
@@ -206,7 +217,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         visible = self.stack.get_visible_child()
         if (
             not self.sudoku_window_title
-            or not self.manager
+            or not self.controller
             or visible in non_game_pages
         ):
             return
@@ -214,14 +225,13 @@ class SudokuWindow(Adw.ApplicationWindow):
         prefs = PreferencesManager.get_preferences()
         mistake_counter_on = prefs.general("mistake_limit")["enabled"]
 
-        base = f"{self.manager.board.variant.capitalize()} • "
-        f"{self.manager.board.difficulty_label}"
+        base = f"{self.controller.board.variant.capitalize()} • {self.controller.board.difficulty_label}"
 
         if self.pencil_toggle_button.get_active():
             self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
         else:
             suffix = (
-                f" • Mistakes: {self.manager.board.mistakes}"
+                f" • Mistakes: {self.controller.board.mistakes}"
                 if mistake_counter_on
                 else ""
             )
@@ -258,33 +268,21 @@ class SudokuWindow(Adw.ApplicationWindow):
         if not (gx <= x < gx + alloc.width and gy <= y < gy + alloc.height):
             self.controller.on_grid_unfocus()
 
-    def _apply_large(self, large):
-        if large:
-            self.bp_bin.add_css_class("large")
-        else:
-            self.bp_bin.remove_css_class("large")
-
-    def _apply_compact(self, compact, mode):
+    def _apply_mode(self, enabled: bool, mode: str):
         target = self.bp_bin or self
-        css_class = f"{mode}-mode"
-        if compact:
+
+        css_class_map = {
+            "large": "large",
+            "compact": "compact-mode",
+            "small": "small-mode",
+        }
+
+        css_class = css_class_map[mode]
+
+        if enabled:
             target.add_css_class(css_class)
         else:
             target.remove_css_class(css_class)
 
-        if self.controller:
-            self.controller.apply_compact_mode(compact, mode)
-
-
-    def _apply_compact(self, compact, mode):
-        target = self.bp_bin or self
-        css_class = f"{mode}-mode"
-        if compact:
-            target.add_css_class(css_class)
-        else:
-            target.remove_css_class(css_class)
-
-        if not self.controller or not self.controller.parent_grid:
-            return
-
-        self.controller.apply_compact_mode(compact, mode)
+        if mode in {"compact", "small"} and self.controller:
+            self.controller.apply_compact_mode(enabled, mode)
