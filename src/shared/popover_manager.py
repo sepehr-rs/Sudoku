@@ -8,9 +8,10 @@ from ..core.preferences import PreferencesManager
 
 
 class PopoverManager:
-    def __init__(self, parent_grid, pencil_mode: bool):
+    def __init__(self, parent_grid, pencil_mode: bool, input_handler):
         self.parent_grid = parent_grid
         self.pencil_mode = pencil_mode
+        self._input_handler = input_handler
         self._active_popover = None
         self._cell_popover = None
         self._last_popover_cell = None
@@ -29,6 +30,12 @@ class PopoverManager:
         popover.connect("closed", self._on_popover_closed)
         self._cell_popover = popover
         return popover
+
+    def invalidate(self):
+        """Discard the current popover — call when the grid is rebuilt."""
+        self._popdown_active_popover()
+        self._cell_popover = None
+        self._active_popover = None
 
     def _on_popover_closed(self, _popover):
         """Signal handler — fires after GTK has already closed the popover."""
@@ -95,9 +102,6 @@ class PopoverManager:
             cell,
             mouse_button,
             remaining_valid_inputs=remaining_valid_inputs,
-            # FIXME: key_map and remove_keys should come from the input handler
-            key_map=self.key_map,
-            remove_keys=self.remove_keys,
         )
 
         self._last_popover_cell = cell
@@ -114,11 +118,8 @@ class PopoverManager:
         cell,
         mouse_button,
         remaining_valid_inputs,
-        key_map=None,
-        remove_keys=None,
     ):
         popover = self.get_or_create_popover()
-
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
         popover.set_child(grid)
 
@@ -127,14 +128,10 @@ class PopoverManager:
         )
         clear_button = self._add_action_buttons(grid, cell, popover, mouse_button)
 
-        key_map, remove_keys = (
-            setup_key_mappings()  # FIXME: Use input handler
-            if key_map is None or remove_keys is None
-            else (key_map, remove_keys)
+        controller = self._input_handler.make_popover_key_controller(
+            num_buttons, clear_button
         )
-        self._attach_key_controller(
-            grid, num_buttons, clear_button, key_map, remove_keys
-        )
+        grid.add_controller(controller)
 
         grid.set_focus_on_click(True)
         grid.grab_focus()

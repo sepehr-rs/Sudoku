@@ -29,13 +29,11 @@ class GridManager:
         self.window.grid_container.queue_allocate()
 
     def _clear_previous_grid(self):
-        # TODO: From popover manager, run _popdown_active_popover
-        # TODO: From popover manager, set _active_popover
-        # and _cell_popover to None. Do that before using GridManager
+        self._popover_manager.invalidate()
 
         for row in self.board.sudoku_cells:
             for cell in row:
-                cell.clear_feedback_timeout()  # TODO: IMPLEMENT THIS
+                cell.clear_feedback_timeout()  # TODO: implement
 
         while child := self.window.grid_container.get_first_child():
             self.window.grid_container.remove(child)
