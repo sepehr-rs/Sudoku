@@ -2,16 +2,12 @@
 # Copyright 2025 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import TYPE_CHECKING
 from gi.repository import Gtk
-
-if TYPE_CHECKING:
-    from ..core.board import CoreSudokuBoard
 
 
 class GridManager:
     def __init__(
-        self, board_size: int, block_size: int, window, board: CoreSudokuBoard
+        self, board_size: int, block_size: int, window, board
     ):
         self.board_size = board_size  # row * column
         self.block_size = block_size

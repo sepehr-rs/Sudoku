@@ -16,11 +16,11 @@ class InputHandler:
     def __init__(
         self,
         *,
-        on_move,        # (row, col, dr, dc) -> None
-        on_fill,        # (row, col, value, ctrl) -> None
-        on_clear,       # (row, col, clear_all) -> None
-        on_show_popover, # (row, col) -> None
-        get_board_size, # () -> int
+        on_move,  # (row, col, dr, dc) -> None
+        on_fill,  # (row, col, value, ctrl) -> None
+        on_clear,  # (row, col, clear_all) -> None
+        on_show_popover,  # (row, col) -> None
+        get_board_size,  # () -> int
         get_direction,  # () -> Gtk.TextDirection
     ):
         self._on_move = on_move
@@ -54,6 +54,7 @@ class InputHandler:
 
     def make_popover_key_controller(self, num_buttons, clear_button):
         """Create a key controller for the number-selection popover grid."""
+
         def on_key_pressed(controller, keyval, keycode, state):
             if keyval in self.key_map:
                 num = self.key_map[keyval]
@@ -83,10 +84,10 @@ class InputHandler:
     def _handle_arrow_keys(self, keyval, ctrl, row, col):
         is_rtl = self._get_direction() == Gtk.TextDirection.RTL
         directions = {
-            Gdk.KEY_Up:    (-1,  0),
-            Gdk.KEY_Down:  ( 1,  0),
-            Gdk.KEY_Left:  ( 0,  1 if is_rtl else -1),
-            Gdk.KEY_Right: ( 0, -1 if is_rtl else  1),
+            Gdk.KEY_Up: (-1, 0),
+            Gdk.KEY_Down: (1, 0),
+            Gdk.KEY_Left: (0, 1 if is_rtl else -1),
+            Gdk.KEY_Right: (0, -1 if is_rtl else 1),
         }
         if keyval not in directions:
             return False

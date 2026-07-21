@@ -8,7 +8,8 @@ from gi.repository import Adw, Gtk, Gio
 
 from .core.persistence import get_variant, _get_save_path
 from .core.preferences import PreferencesManager
-
+from .screens.game_setup_dialog import GameSetupDialog
+from .screens.preferences_dialog import PreferencesDialog
 from .variants.classic_sudoku.controller import ClassicSudokuController
 from .variants.diagonal_sudoku.controller import DiagonalSudokuController
 from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
@@ -83,7 +84,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._change_subtitle_for_pencil_mode()
 
     def on_show_preferences(self, *_):
-        if not self.manager:
+        if not self.controller:
             return
         PreferencesDialog(self.controller.board.save).present(self)
 
@@ -178,7 +179,7 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_continue_clicked(self, _):
         variant = get_variant()
-        self.controller, prefs = self.get_controller_and_prefs(self, variant)
+        self.controller, prefs = self.get_controller_and_prefs(variant)
         PreferencesManager.set_preferences(prefs)
         self.controller.load_saved_game()  # TODO: Implement this
         self._setup_ui()
@@ -192,7 +193,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         GameSetupDialog(on_select=self.on_game_setup_selected).present(self)
 
     def on_game_setup_selected(self, variant_name, difficulty):
-        self.controller, prefs = self.get_controller_and_prefs(self, variant_name)
+        self.controller, prefs = self.get_controller_and_prefs(variant_name)
         PreferencesManager.set_preferences(prefs)
 
         label_map = {
@@ -231,8 +232,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         prefs = PreferencesManager.get_preferences()
         mistake_counter_on = prefs.general("mistake_limit")["enabled"]
 
-        base = f"{self.controller.board.variant.capitalize()} •"
-        "{self.controller.board.difficulty_label}"
+        base = f"{self.controller.board.variant.capitalize()} • {self.controller.board.difficulty_label}"
 
         if self.pencil_toggle_button.get_active():
             self.update_sudoku_window_subtitle(_("Pencil Mode • Note possible numbers"))
