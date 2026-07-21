@@ -14,7 +14,10 @@ from .variants.classic_sudoku.controller import ClassicSudokuController
 from .variants.diagonal_sudoku.controller import DiagonalSudokuController
 from .variants.classic_sudoku.preferences import ClassicSudokuPreferences
 from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
-
+from .screens.finished_page import FinishedPage  # noqa: F401
+from .screens.game_over_page import GameOverPage  # noqa: F401
+from .screens.loading_screen import LoadingScreen  # noqa: F401
+_TEMPLATE_WIDGET_TYPES = (FinishedPage, LoadingScreen, GameOverPage)
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
@@ -66,6 +69,9 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_primary_menu(self):
         self.primary_menu_button.popup()
 
+    def _update_preferences_visibility(self, visible: bool):
+        self._build_primary_menu(show_preferences=visible)
+
     def on_back_to_menu(self, *_):
         self.continue_button.set_visible(os.path.exists(_get_save_path()))
         self.update_sudoku_window_subtitle("")
@@ -91,6 +97,12 @@ class SudokuWindow(Adw.ApplicationWindow):
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
         self.on_stack_page_changed(self.stack, None)
+
+    def _force_disable_pencil_mode(self):
+        if self.pencil_toggle_button.get_active():
+            self.pencil_toggle_button.set_active(False)
+        if self.controller:
+            self.controller.pencil_mode = False
 
     def on_stack_page_changed(self, stack, _):
         """Update UI elements based on the current visible page."""
