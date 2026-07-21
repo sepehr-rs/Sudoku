@@ -1,21 +1,31 @@
-# popover_manager.py
+# shared/popover_manager.py
 # Copyright 2025 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 from gi.repository import Gtk, GLib, Gdk
+from gettext import gettext as _
 from ..core.preferences import PreferencesManager
 
 
 class PopoverManager:
-    def __init__(self, parent_grid, pencil_mode: bool, input_handler):
-        self.parent_grid = parent_grid
-        self.pencil_mode = pencil_mode
+    """Manages the number-selection popover for Sudoku cells."""
+
+    def __init__(self, input_handler):
         self._input_handler = input_handler
+        self.parent_grid = None
+        self.pencil_mode = False
         self._active_popover = None
         self._cell_popover = None
         self._last_popover_cell = None
         self._restore_focus_on_popover_close = False
+
+    def set_parent_grid(self, parent_grid):
+        self.parent_grid = parent_grid
+        self._cell_popover = None
+
+    def set_pencil_mode(self, pencil_mode):
+        self.pencil_mode = pencil_mode
 
     def get_or_create_popover(self) -> Gtk.Popover:
         if self._cell_popover is not None:
@@ -32,17 +42,13 @@ class PopoverManager:
         return popover
 
     def invalidate(self):
-        """Discard the current popover — call when the grid is rebuilt."""
         self._popdown_active_popover()
         self._cell_popover = None
         self._active_popover = None
 
     def _on_popover_closed(self, _popover):
-        """Signal handler — fires after GTK has already closed the popover."""
         cell = self._last_popover_cell
         restore_focus = self._restore_focus_on_popover_close
-
-        # Reset state unconditionally before any early return.
         self._active_popover = None
         self._restore_focus_on_popover_close = False
         self._last_popover_cell = None
@@ -57,30 +63,17 @@ class PopoverManager:
         GLib.idle_add(_restore)
 
     def _popdown_active_popover(self):
-        """Proactively dismiss the current popover (if any).
-
-        Setting _restore_focus_on_popover_close to False first tells
-        _on_popover_closed not to restore focus when we're the ones
-        initiating the dismissal.
-        """
         popover = self._active_popover
         if popover is None:
             return
-
         self._restore_focus_on_popover_close = False
         try:
             if popover.get_visible():
                 popover.popdown()
         except AttributeError:
-            logging.debug("Popover popdown skipped (attribute missing)", exc_info=True)
+            logging.debug("Popover popdown skipped", exc_info=True)
 
     def show_popover(self, cell, remaining_valid_inputs, button):
-        """Defer popover display to the next GTK idle cycle.
-
-        This avoids showing the popover mid-gesture, before GTK has
-        finished processing the click event.
-        """
-
         def _deferred():
             self._show_popover(cell, remaining_valid_inputs, mouse_button=button)
             return False
@@ -88,8 +81,6 @@ class PopoverManager:
         GLib.idle_add(_deferred)
 
     def _show_popover(self, cell, remaining_valid_inputs, mouse_button=None):
-        # Clearing the flag before _popdown_active_popover ensures
-        # _on_popover_closed won't restore focus for the *old* popover.
         self._restore_focus_on_popover_close = False
         self._popdown_active_popover()
 
@@ -99,9 +90,7 @@ class PopoverManager:
         popover = self.get_or_create_popover()
         self._point_popover_at_cell(popover, cell)
         self._build_and_show_popover_contents(
-            cell,
-            mouse_button,
-            remaining_valid_inputs=remaining_valid_inputs,
+            cell, mouse_button, remaining_valid_inputs=remaining_valid_inputs
         )
 
         self._last_popover_cell = cell
@@ -114,10 +103,7 @@ class PopoverManager:
         self._set_popover_position(popover, rect)
 
     def _build_and_show_popover_contents(
-        self,
-        cell,
-        mouse_button,
-        remaining_valid_inputs,
+        self, cell, mouse_button, remaining_valid_inputs
     ):
         popover = self.get_or_create_popover()
         grid = Gtk.Grid(row_spacing=5, column_spacing=5)
@@ -144,10 +130,8 @@ class PopoverManager:
             coords = None
 
         alloc = cell.get_allocation()
-
         if coords is None:
             return alloc.x, alloc.y, alloc.width, alloc.height
-
         x, y = coords
         return x, y, alloc.width, alloc.height
 
@@ -167,21 +151,28 @@ class PopoverManager:
             logging.debug("Failed to set popover pointing rect", exc_info=True)
 
     def on_number_selected(self, num_button: Gtk.Button, cell, popover, mouse_button):
-        # FIXME: Delegate to input handler:
-        # number = num_button.get_label()
-        # self._fill_cell(cell, number, ctrl_is_pressed=(mouse_button == 3))
+        number = num_button.get_label()
+        self._input_handler._on_fill(
+            cell.row if hasattr(cell, "row") else 0,
+            cell.col if hasattr(cell, "col") else 0,
+            number,
+            ctrl_is_pressed=(mouse_button == 3),
+        )
         if not self.pencil_mode and mouse_button != 3:
             self._restore_focus_on_popover_close = False
             popover.popdown()
 
     def on_clear_selected(self, _button, cell, popover):
-        cell.clear()
+        self._input_handler._on_clear(
+            cell.row if hasattr(cell, "row") else 0,
+            cell.col if hasattr(cell, "col") else 0,
+            clear_all=True,
+        )
         self._restore_focus_on_popover_close = False
         popover.popdown()
 
     @staticmethod
     def create_number_button(label: str, callback, *args) -> Gtk.Button:
-        """Create a consistently-styled number button."""
         button = Gtk.Button(label=label)
         button.set_size_request(40, 40)
         button.connect("clicked", callback, *args)
@@ -191,7 +182,6 @@ class PopoverManager:
     def _make_counter_overlay(button, count) -> Gtk.Overlay:
         overlay = Gtk.Overlay()
         overlay.set_child(button)
-
         corner_label = Gtk.Label(label=count)
         corner_label.set_halign(Gtk.Align.END)
         corner_label.set_valign(Gtk.Align.START)
@@ -200,7 +190,6 @@ class PopoverManager:
         corner_label.set_margin_top(2)
         corner_label.set_margin_bottom(2)
         corner_label.get_style_context().add_class("corner-label")
-
         overlay.add_overlay(corner_label)
         return overlay
 

@@ -16,10 +16,11 @@ class InputHandler:
     def __init__(
         self,
         *,
-        on_move,  # (row, col, dr, dc) -> None
+        on_move,  # (from_r, from_c, to_r, to_c) -> None
         on_fill,  # (row, col, value, ctrl) -> None
         on_clear,  # (row, col, clear_all) -> None
-        on_show_popover,  # (row, col) -> None
+        on_show_popover,  # (row, col, button) -> None
+        on_cell_click,  # (row, col, button) -> None
         get_board_size,  # () -> int
         get_direction,  # () -> Gtk.TextDirection
     ):
@@ -27,6 +28,7 @@ class InputHandler:
         self._on_fill = on_fill
         self._on_clear = on_clear
         self._on_show_popover = on_show_popover
+        self._on_cell_click = on_cell_click
         self._get_board_size = get_board_size
         self._get_direction = get_direction
 
@@ -134,6 +136,15 @@ class InputHandler:
             return False
         self._on_clear(row, col, clear_all=(keyval == Gdk.KEY_Delete))
         return True
+
+    def on_cell_clicked(self, gesture, n_press, x, y, row, col):
+        button = self.gesture_get_button(gesture)
+        if button not in (1, 3):
+            return
+        state = self.gesture_get_state(gesture)
+        if self.should_ignore_click(button, state):
+            return
+        self._on_cell_click(row, col, button, n_press)
 
     @staticmethod
     def gesture_get_button(gesture):

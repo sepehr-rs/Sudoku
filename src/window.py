@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
+from gettext import gettext as _
 
 from gi.repository import Adw, Gtk, Gio
 
@@ -17,7 +18,9 @@ from .variants.diagonal_sudoku.preferences import DiagonalSudokuPreferences
 from .screens.finished_page import FinishedPage  # noqa: F401
 from .screens.game_over_page import GameOverPage  # noqa: F401
 from .screens.loading_screen import LoadingScreen  # noqa: F401
+
 _TEMPLATE_WIDGET_TYPES = (FinishedPage, LoadingScreen, GameOverPage)
+
 
 @Gtk.Template(resource_path="/io/github/sepehr_rs/Sudoku/blueprints/window.ui")
 class SudokuWindow(Adw.ApplicationWindow):
@@ -66,7 +69,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         gesture.connect("pressed", self._on_window_pressed)
         self.add_controller(gesture)
 
-    def on_show_primary_menu(self):
+    def on_show_primary_menu(self, *_):
         self.primary_menu_button.popup()
 
     def _update_preferences_visibility(self, visible: bool):
@@ -149,11 +152,11 @@ class SudokuWindow(Adw.ApplicationWindow):
 
             bp.connect(
                 "apply",
-                lambda *_: self._set_mode(True, mode),
+                lambda *_: self._apply_mode(True, mode),
             )
             bp.connect(
                 "unapply",
-                lambda *_: self._set_mode(False, mode),
+                lambda *_: self._apply_mode(False, mode),
             )
 
             self.add_breakpoint(bp)
@@ -193,7 +196,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         variant = get_variant()
         self.controller, prefs = self.get_controller_and_prefs(variant)
         PreferencesManager.set_preferences(prefs)
-        self.controller.load_saved_game()  # TODO: Implement this
+        self.controller.load_saved_game()
         self._setup_ui()
 
     def _setup_ui(self):
@@ -281,7 +284,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         translated = grid.translate_coordinates(self, 0, 0)
         if translated is None:
             return
-        gx, gy = translated
+        gx, gy = translated[:2]
         alloc = grid.get_allocation()
         if not (gx <= x < gx + alloc.width and gy <= y < gy + alloc.height):
             self.controller.on_grid_unfocus()

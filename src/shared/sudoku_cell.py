@@ -165,6 +165,7 @@ class SudokuCell(Gtk.Button):
         self.value = value
         self.correct_value = correct_value
         self.block_size = block_size
+        self._feedback_source_id = None
         self.ui = SudokuCellUIManagement(self)
         self.ui.setup_ui_and_state()
         self.set_value(value)
@@ -201,3 +202,19 @@ class SudokuCell(Gtk.Button):
 
     def clear(self):
         self.ui.clear()
+
+    def start_feedback_timeout(self, callback, delay: int = 4000):
+        if self._feedback_source_id is not None:
+            from gi.repository import GLib
+
+            GLib.source_remove(self._feedback_source_id)
+        from gi.repository import GLib
+
+        self._feedback_source_id = GLib.timeout_add(delay, callback)
+
+    def clear_feedback_timeout(self):
+        if self._feedback_source_id is not None:
+            from gi.repository import GLib
+
+            GLib.source_remove(self._feedback_source_id)
+            self._feedback_source_id = None

@@ -1,4 +1,4 @@
-# persistence.py
+# core/persistence.py
 # Copyright 2025 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -9,7 +9,6 @@ import json
 
 
 def _get_save_path():
-    """Get the save file path following XDG spec."""
     data_dir = GLib.get_user_data_dir()
     save_dir = os.path.join(data_dir, "sudokugame")
     os.makedirs(save_dir, exist_ok=True)
@@ -37,7 +36,7 @@ def load_game(cls, generator, block_size: int):
     if prefs is None:
         raise RuntimeError("Preferences are not initialized. [id=0]")
 
-    return cls(
+    board = cls(
         generator=generator,
         puzzle=state["puzzle"],
         solution=state["solution"],
@@ -52,6 +51,22 @@ def load_game(cls, generator, block_size: int):
         ),
     )
 
+    board.mistakes = state.get("mistakes", 0)
+
+    saved_inputs = state.get("user_inputs")
+    if saved_inputs:
+        for r in range(len(saved_inputs)):
+            for c in range(len(saved_inputs[r])):
+                board.user_inputs[r][c] = saved_inputs[r][c]
+
+    saved_notes = state.get("notes")
+    if saved_notes:
+        for r in range(len(saved_notes)):
+            for c in range(len(saved_notes[r])):
+                board.notes[r][c] = set(saved_notes[r][c])
+
+    return board
+
 
 def save_game(board):
     filename = _get_save_path()
@@ -64,6 +79,8 @@ def save_game(board):
         "variant": board.variant,
         "puzzle": board.puzzle,
         "solution": board.solution,
+        "user_inputs": board.user_inputs,
+        "notes": [[list(n) for n in row] for row in board.notes],
     }
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(state, f)

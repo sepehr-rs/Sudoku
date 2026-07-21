@@ -3,8 +3,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from ...core.controller import CoreSudokuController
+from .board import ClassicSudokuBoard
+from .generator import ClassicSudokuGenerator
 
 
 class ClassicSudokuController(CoreSudokuController):
-    def __init__(self, window, board_cls, generator, block_size):
-        super().__init__(window, board_cls, generator, block_size)
+    def __init__(self, window):
+        super().__init__(
+            window,
+            board_cls=ClassicSudokuBoard,
+            generator=ClassicSudokuGenerator(),
+            board_size=9,
+            block_size=3,
+        )
