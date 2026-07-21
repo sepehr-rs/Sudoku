@@ -161,6 +161,7 @@ class SudokuCell(Gtk.Button):
         block_size: int = 3,
     ):
         super().__init__()
+        self.connect("clicked", self._on_clicked)
         self._editable = editable
         self.value = value
         self.correct_value = correct_value
@@ -176,10 +177,9 @@ class SudokuCell(Gtk.Button):
     def is_editable(self) -> bool:
         return self._editable
 
-    def do_clicked(self, *args):
-        """Block click propagation for non-editable cells."""
-        if self._editable:
-            super().do_clicked(*args)
+    def _on_clicked(self, *args):
+        if not self._editable:
+            self.stop_emission_by_name("clicked")
 
     def set_value(self, value: int | None):
         self.value = value
