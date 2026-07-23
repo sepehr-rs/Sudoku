@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import json
-import os
-import tempfile
 from unittest.mock import patch
 
 import pytest
@@ -59,6 +57,13 @@ def prefs():
 
 
 @pytest.fixture
+def diagonal_prefs():
+    p = DiagonalSudokuPreferences()
+    PreferencesManager.set_preferences(p)
+    return p
+
+
+@pytest.fixture
 def classic_board(prefs):
     board = make_board_state(ClassicSudokuBoard, puzzle=PUZZLE, solution=SOLUTION)
     board.set_input(1, 0, 4)
@@ -69,11 +74,13 @@ def classic_board(prefs):
 
 
 @pytest.fixture
-def diagonal_board(prefs):
+def diagonal_board(diagonal_prefs):
     board = make_board_state(DiagonalSudokuBoard, puzzle=PUZZLE, solution=SOLUTION)
     board.set_input(1, 0, 4)
     board.toggle_note(2, 2, "9")
     board.mistakes = 1
+    board.variant_preferences = diagonal_prefs.variant_defaults.copy()
+    board.general_preferences = diagonal_prefs.general_defaults.copy()
     return board
 
 
@@ -126,6 +133,17 @@ class TestDiagonalRoundtrip:
         )
 
         assert loaded.notes[2][2] == {"9"}
+
+    def test_variant_preferences_roundtrip(self, diagonal_board, save_path):
+        save_game(diagonal_board)
+        loaded = load_game(
+            DiagonalSudokuBoard,
+            generator=ClassicSudokuGenerator(),
+            block_size=3,
+        )
+
+        assert loaded is not None
+        assert loaded.variant_preferences.get("highlight_diagonals") is True
 
 
 class TestSerializationFormat:

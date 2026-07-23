@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from src.core.preferences import (
-    CoreSudokuPreferences,
     PreferencesManager,
     _migrate_general_preferences,
 )
@@ -43,6 +42,27 @@ class TestCoreSudokuPreferences:
         prefs = DiagonalSudokuPreferences()
         assert prefs.variant("highlight_diagonals") is True
         assert prefs.variant("highlight_block") is True
+
+    def test_diagonal_preferences_name(self):
+        prefs = DiagonalSudokuPreferences()
+        assert prefs.name == "Diagonal Sudoku"
+
+    def test_diagonal_inherits_general_defaults(self):
+        prefs = DiagonalSudokuPreferences()
+        assert prefs.general("highlight_row") is True
+        assert prefs.general("highlight_column") is True
+
+    def test_diagonal_instances_are_independent(self):
+        a = DiagonalSudokuPreferences()
+        b = DiagonalSudokuPreferences()
+        a.variant_defaults["custom"] = True
+        assert "custom" not in b.variant_defaults
+
+    def test_diagonal_vs_classic_variant_defaults(self):
+        classic = ClassicSudokuPreferences()
+        diagonal = DiagonalSudokuPreferences()
+        assert classic.variant("highlight_diagonals") is False
+        assert diagonal.variant("highlight_diagonals") is True
 
     def test_preferences_instances_are_independent(self):
         a = ClassicSudokuPreferences()

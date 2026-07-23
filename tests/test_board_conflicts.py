@@ -70,9 +70,7 @@ class TestClassicConflict:
     def test_conflict_with_puzzle_clue(self):
         puzzle = [row[:] for row in EMPTY]
         puzzle[0][3] = 7
-        board = make_board_state(
-            ClassicSudokuBoard, puzzle=puzzle, solution=SOLUTION
-        )
+        board = make_board_state(ClassicSudokuBoard, puzzle=puzzle, solution=SOLUTION)
         conflicts = board.has_conflict(0, 7, 7)
         assert (0, 3) in conflicts
 
