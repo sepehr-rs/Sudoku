@@ -46,8 +46,14 @@ def load_game(cls, generator, block_size: int):
         block_size=block_size,
         variant_preferences=state.get("variant_preferences", prefs.variant_defaults),
         general_preferences=_migrate_general_preferences(
-            state.get("general_preferences", prefs.general_defaults),
-            prefs.general_defaults,
+            state.get("general_preferences", {
+                **prefs.general_toggles,
+                **prefs.general_counted,
+            }),
+            {
+                **prefs.general_toggles,
+                **prefs.general_counted,
+            },
         ),
     )
 

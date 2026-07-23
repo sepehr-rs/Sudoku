@@ -25,8 +25,8 @@ class InputHandler:
         get_direction,  # () -> Gtk.TextDirection
     ):
         self._on_move = on_move
-        self._on_fill = on_fill
-        self._on_clear = on_clear
+        self.handle_fill = on_fill
+        self.handle_clear = on_clear
         self._on_show_popover = on_show_popover
         self._on_cell_click = on_cell_click
         self._get_board_size = get_board_size
@@ -109,7 +109,7 @@ class InputHandler:
         num = self.key_map.get(keyval)
         if not num:
             return False
-        self._on_fill(row, col, num, ctrl)
+        self.handle_fill(row, col, num, ctrl)
         return True
 
     def _handle_unicode_digit(self, keyval, ctrl, row, col):
@@ -119,7 +119,7 @@ class InputHandler:
         try:
             digit = unicodedata.digit(chr(uni))
             if 1 <= digit <= 9:
-                self._on_fill(row, col, str(digit), ctrl)
+                self.handle_fill(row, col, str(digit), ctrl)
                 return True
         except (ValueError, TypeError):
             pass
@@ -134,7 +134,7 @@ class InputHandler:
     def _handle_remove_keys(self, keyval, row, col):
         if keyval not in self.remove_keys:
             return False
-        self._on_clear(row, col, clear_all=(keyval == Gdk.KEY_Delete))
+        self.handle_clear(row, col, clear_all=(keyval == Gdk.KEY_Delete))
         return True
 
     def on_cell_clicked(self, gesture, n_press, x, y, row, col):

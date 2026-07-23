@@ -152,7 +152,7 @@ class PopoverManager:
 
     def on_number_selected(self, num_button: Gtk.Button, cell, popover, mouse_button):
         number = num_button.get_label()
-        self._input_handler._on_fill(
+        self._input_handler.handle_fill(
             cell.row if hasattr(cell, "row") else 0,
             cell.col if hasattr(cell, "col") else 0,
             number,
@@ -162,7 +162,7 @@ class PopoverManager:
             popover.popdown()
 
     def on_clear_selected(self, _button, cell, popover):
-        self._input_handler._on_clear(
+        self._input_handler.handle_clear(
             cell.row if hasattr(cell, "row") else 0,
             cell.col if hasattr(cell, "col") else 0,
             clear_all=True,

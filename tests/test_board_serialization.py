@@ -80,7 +80,10 @@ def diagonal_board(diagonal_prefs):
     board.toggle_note(2, 2, "9")
     board.mistakes = 1
     board.variant_preferences = diagonal_prefs.variant_defaults.copy()
-    board.general_preferences = diagonal_prefs.general_defaults.copy()
+    board.general_preferences = {
+        **diagonal_prefs.general_toggles,
+        **diagonal_prefs.general_counted,
+    }
     return board
 
 

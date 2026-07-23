@@ -12,7 +12,10 @@ class PreferencesDialog(Adw.PreferencesDialog):
         page = Adw.PreferencesPage()
 
         general_group = GeneralPreferencesPage(
-            preferences.general_defaults, "General", auto_save_function
+            preferences.general_toggles,
+            preferences.general_counted,
+            "General",
+            auto_save_function,
         )
         variant_group = VariantPreferencesPage(
             preferences.variant_defaults, preferences.name, auto_save_function

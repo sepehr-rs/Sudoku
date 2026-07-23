@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from src.core.preferences import (
+    CoreSudokuPreferences,
     PreferencesManager,
     _migrate_general_preferences,
 )
@@ -23,13 +24,6 @@ class TestCoreSudokuPreferences:
         prefs = ClassicSudokuPreferences()
         assert prefs.general("nonexistent_key", default=42) == 42
 
-    def test_general_returns_full_entry_for_counted_toggle(self):
-        prefs = ClassicSudokuPreferences()
-        entry = prefs.general("mistake_limit")
-        assert isinstance(entry, dict)
-        assert "enabled" in entry
-        assert "count" in entry
-
     def test_variant_returns_value_for_known_key(self):
         prefs = ClassicSudokuPreferences()
         assert prefs.variant("highlight_block") is True
@@ -38,37 +32,60 @@ class TestCoreSudokuPreferences:
         prefs = ClassicSudokuPreferences()
         assert prefs.variant("nonexistent_key") is False
 
-    def test_diagonal_preferences_include_highlight_diagonals(self):
-        prefs = DiagonalSudokuPreferences()
-        assert prefs.variant("highlight_diagonals") is True
-        assert prefs.variant("highlight_block") is True
-
-    def test_diagonal_preferences_name(self):
-        prefs = DiagonalSudokuPreferences()
-        assert prefs.name == "Diagonal Sudoku"
-
-    def test_diagonal_inherits_general_defaults(self):
-        prefs = DiagonalSudokuPreferences()
-        assert prefs.general("highlight_row") is True
-        assert prefs.general("highlight_column") is True
-
-    def test_diagonal_instances_are_independent(self):
-        a = DiagonalSudokuPreferences()
-        b = DiagonalSudokuPreferences()
-        a.variant_defaults["custom"] = True
-        assert "custom" not in b.variant_defaults
-
-    def test_diagonal_vs_classic_variant_defaults(self):
-        classic = ClassicSudokuPreferences()
-        diagonal = DiagonalSudokuPreferences()
-        assert classic.variant("highlight_diagonals") is False
-        assert diagonal.variant("highlight_diagonals") is True
-
     def test_preferences_instances_are_independent(self):
         a = ClassicSudokuPreferences()
         b = ClassicSudokuPreferences()
         a.variant_defaults["custom"] = True
         assert "custom" not in b.variant_defaults
+
+
+class TestGeneralCounted:
+    def test_general_counted_entry_returns_dict(self):
+        prefs = ClassicSudokuPreferences()
+        entry = prefs.general_counted_entry("mistake_limit")
+        assert isinstance(entry, dict)
+        assert "enabled" in entry
+        assert "count" in entry
+
+    def test_general_counted_entry_returns_default_for_unknown(self):
+        prefs = ClassicSudokuPreferences()
+        assert prefs.general_counted_entry("nonexistent") is None
+
+    def test_general_counted_entry_returns_custom_default(self):
+        prefs = ClassicSudokuPreferences()
+        assert prefs.general_counted_entry("nonexistent", default={}) == {}
+
+    def test_general_does_not_return_counted_entry(self):
+        prefs = ClassicSudokuPreferences()
+        assert prefs.general("mistake_limit") is False
+
+
+class TestDiagonalPreferences:
+    def test_highlight_diagonals(self):
+        prefs = DiagonalSudokuPreferences()
+        assert prefs.variant("highlight_diagonals") is True
+        assert prefs.variant("highlight_block") is True
+
+    def test_name(self):
+        prefs = DiagonalSudokuPreferences()
+        assert prefs.name == "Diagonal Sudoku"
+
+    def test_inherits_general_toggles(self):
+        prefs = DiagonalSudokuPreferences()
+        assert prefs.general("highlight_row") is True
+        assert prefs.general("highlight_column") is True
+
+    def test_instances_are_independent(self):
+        a = DiagonalSudokuPreferences()
+        b = DiagonalSudokuPreferences()
+        a.variant_defaults["custom"] = True
+        assert "custom" not in b.variant_defaults
+
+    def test_vs_classic_variant_defaults(self):
+        classic = ClassicSudokuPreferences()
+        diagonal = DiagonalSudokuPreferences()
+        assert classic.variant("highlight_diagonals") is False
+        assert diagonal.variant("highlight_diagonals") is True
 
 
 class TestMigrateGeneralPreferences:

@@ -6,7 +6,7 @@ from abc import ABC
 
 
 class CoreSudokuPreferences(ABC):
-    general_defaults = {
+    general_toggles = {
         "casual_mode": {
             "value": True,
             "tooltip": "Highlight when input does not match the correct solution",
@@ -31,6 +31,9 @@ class CoreSudokuPreferences(ABC):
             "value": False,
             "tooltip": "View the possible places left for each number",
         },
+    }
+
+    general_counted = {
         "mistake_limit": {
             "enabled": False,
             "count": 3,
@@ -41,18 +44,19 @@ class CoreSudokuPreferences(ABC):
     variant_defaults = {}
 
     def __init__(self):
-        self.general_defaults = self.general_defaults.copy()
+        self.general_toggles = self.general_toggles.copy()
+        self.general_counted = self.general_counted.copy()
         self.variant_defaults = self.variant_defaults.copy()
         self.name = ""
 
     def general(self, key, default=False):
-        entry = self.general_defaults.get(key)
-        if entry is None:
-            return default
-        # counted toggle
-        if "enabled" in entry:
-            return entry
-        return entry.get("value", default)
+        entry = self.general_toggles.get(key)
+        if entry is not None:
+            return entry.get("value", default)
+        return default
+
+    def general_counted_entry(self, key, default=None):
+        return self.general_counted.get(key, default)
 
     def variant(self, key, default=False):
         return self.variant_defaults.get(key, default)
@@ -63,14 +67,11 @@ def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
     migrated = {}
     for key, value in saved.items():
         if isinstance(value, dict):
-            # Already new format (both simple {"value":...} and counted {"enabled":...})
             migrated[key] = value
         elif isinstance(value, list) and len(value) == 2:
-            # Old format: [tooltip, bool]
             tooltip, val = value
             migrated[key] = {"value": val, "tooltip": tooltip}
         elif isinstance(value, bool):
-            # Old format: plain boolean, pull tooltip from defaults if available
             default_entry = defaults.get(key, {})
             tooltip = (
                 default_entry.get("tooltip", "")
@@ -79,7 +80,6 @@ def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
             )
             migrated[key] = {"value": value, "tooltip": tooltip}
         else:
-            # Unknown format, fall back to default
             migrated[key] = defaults.get(key, {"value": value, "tooltip": ""})
     return migrated
 

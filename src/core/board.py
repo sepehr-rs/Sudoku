@@ -38,7 +38,10 @@ class CoreSudokuBoard(ABC):
                 "Preferences are not initialized. Please report as a bug. [id=1]"
             )
         self.variant_preferences = variant_preferences or prefs.variant_defaults
-        self.general_preferences = general_preferences or prefs.general_defaults
+        self.general_preferences = general_preferences or {
+            **prefs.general_toggles,
+            **prefs.general_counted,
+        }
 
         self.size = len(puzzle)
         self.user_inputs: list[list[int | None]] = [

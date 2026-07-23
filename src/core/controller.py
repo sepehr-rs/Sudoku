@@ -289,7 +289,7 @@ class CoreSudokuController:
         cell.set_tooltip_text("Wrong")
 
         prefs = PreferencesManager.get_preferences()
-        mistake_limit = prefs.general("mistake_limit") if prefs else None
+        mistake_limit = prefs.general_counted_entry("mistake_limit") if prefs else None
         if mistake_limit and mistake_limit.get("enabled"):
             self.board.mistakes += 1
             self.check_mistakes_limit()
@@ -308,14 +308,15 @@ class CoreSudokuController:
 
     def check_mistakes_limit(self):
         prefs = PreferencesManager.get_preferences()
-        limit = prefs.general("mistake_limit") if prefs else None
+        limit = prefs.general_counted_entry("mistake_limit") if prefs else None
         if limit and self.board.mistakes > limit.get("count", 3):
             self._show_puzzle_finished_dialog(self.window.game_over_page)
 
     def _update_subtitle(self):
         base = f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
         prefs = PreferencesManager.get_preferences()
-        show_mistakes = prefs.general("mistake_limit")["enabled"] if prefs else False
+        entry = prefs.general_counted_entry("mistake_limit") if prefs else None
+        show_mistakes = entry["enabled"] if entry else False
         suffix = f" • Mistakes: {self.board.mistakes}" if show_mistakes else ""
         self.window.update_sudoku_window_subtitle(base + suffix)
 

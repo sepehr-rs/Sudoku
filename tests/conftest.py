@@ -79,7 +79,7 @@ def make_board_state(board_cls, *, puzzle, solution, block_size=3):
 @pytest.fixture(autouse=True)
 def _prefs_guard():
     PreferencesManager.set_preferences(
-        type("_P", (), {"general_defaults": {}, "variant_defaults": {}})()
+        type("_P", (), {"general_toggles": {}, "general_counted": {}, "variant_defaults": {}})()
     )
     yield
     PreferencesManager.set_preferences(None)

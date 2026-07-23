@@ -41,13 +41,36 @@ class TestKeyMappings:
         assert Gdk.KEY_KP_Delete in remove_keys
 
 
+class TestPublicAPI:
+    def test_handle_fill_is_public(self):
+        h = _make_handler()
+        assert hasattr(h, "handle_fill")
+        assert callable(h.handle_fill)
+
+    def test_handle_clear_is_public(self):
+        h = _make_handler()
+        assert hasattr(h, "handle_clear")
+        assert callable(h.handle_clear)
+
+    def test_handle_fill_delegates_to_callback(self):
+        on_fill = MagicMock()
+        h = _make_handler(on_fill=on_fill)
+        h.handle_fill(2, 3, "5", False)
+        on_fill.assert_called_once_with(2, 3, "5", False)
+
+    def test_handle_clear_delegates_to_callback(self):
+        on_clear = MagicMock()
+        h = _make_handler(on_clear=on_clear)
+        h.handle_clear(2, 3, clear_all=True)
+        on_clear.assert_called_once_with(2, 3, clear_all=True)
+
+
 class TestArrowNavigation:
     @patch.object(Gdk.ModifierType, "CONTROL_MASK", 4)
     def test_arrow_down(self):
-        h, on_move = _make_handler(), None
-        h._on_move = on_move = MagicMock()
-        h2 = _make_handler(on_move=on_move)
-        h2.on_key_pressed(None, Gdk.KEY_Down, 0, 0, 3, 3)
+        on_move = MagicMock()
+        h = _make_handler(on_move=on_move)
+        h.on_key_pressed(None, Gdk.KEY_Down, 0, 0, 3, 3)
         on_move.assert_called_once_with(3, 3, 4, 3)
 
     @patch.object(Gdk.ModifierType, "CONTROL_MASK", 4)

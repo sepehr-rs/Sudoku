@@ -255,7 +255,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         prefs = PreferencesManager.get_preferences()
         if not prefs:
             return
-        mistake_counter_on = prefs.general("mistake_limit")["enabled"]
+        mistake_counter_on = prefs.general_counted_entry("mistake_limit")["enabled"]
 
         board = self.controller.board
         base = f"{board.variant.capitalize()} • {board.difficulty_label}"
