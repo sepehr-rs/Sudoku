@@ -7,7 +7,12 @@ from unittest.mock import patch
 
 import pytest
 
-from src.core.persistence import save_game, load_game
+from src.core.persistence import (
+    save_game,
+    load_game,
+    clear_save,
+    has_saved_game,
+)
 from src.core.preferences import PreferencesManager
 from src.variants.classic_sudoku.board import ClassicSudokuBoard
 from src.variants.classic_sudoku.generator import ClassicSudokuGenerator
@@ -186,3 +191,27 @@ class TestSerializationFormat:
         assert loaded.difficulty_label == "Unknown"
         assert loaded.variant == "Unknown"
         assert loaded.mistakes == 0
+
+
+class TestClearSave:
+    def test_clear_save_removes_file(self, classic_board, save_path):
+        save_game(classic_board)
+        assert save_path.exists()
+        clear_save()
+        assert not save_path.exists()
+
+    def test_clear_save_noop_when_no_file(self, save_path):
+        assert not save_path.exists()
+        clear_save()
+
+    def test_has_saved_game_true_after_save(self, classic_board, save_path):
+        save_game(classic_board)
+        assert has_saved_game() is True
+
+    def test_has_saved_game_false_after_clear(self, classic_board, save_path):
+        save_game(classic_board)
+        clear_save()
+        assert has_saved_game() is False
+
+    def test_has_saved_game_false_when_no_file(self, save_path):
+        assert has_saved_game() is False

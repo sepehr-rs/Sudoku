@@ -93,3 +93,13 @@ def save_game(board):
     }
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(state, f)
+
+
+def clear_save():
+    path = _get_save_path()
+    if os.path.exists(path):
+        os.remove(path)
+
+
+def has_saved_game():
+    return os.path.exists(_get_save_path())

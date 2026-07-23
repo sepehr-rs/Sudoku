@@ -292,7 +292,8 @@ class CoreSudokuController:
         mistake_limit = prefs.general_counted_entry("mistake_limit") if prefs else None
         if mistake_limit and mistake_limit.get("enabled"):
             self.board.mistakes += 1
-            self.check_mistakes_limit()
+            if self.check_mistakes_limit():
+                return
 
         self.board.save()
         self._update_subtitle()
@@ -306,11 +307,13 @@ class CoreSudokuController:
 
         cell.start_feedback_timeout(self._clear_conflicts, delay=4000)
 
-    def check_mistakes_limit(self):
+    def check_mistakes_limit(self) -> bool:
         prefs = PreferencesManager.get_preferences()
         limit = prefs.general_counted_entry("mistake_limit") if prefs else None
         if limit and self.board.mistakes > limit.get("count", 3):
             self._show_puzzle_finished_dialog(self.window.game_over_page)
+            return True
+        return False
 
     def _update_subtitle(self):
         base = f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
@@ -328,8 +331,11 @@ class CoreSudokuController:
     #  Game over / finished
 
     def _show_puzzle_finished_dialog(self, page=None):
+        from .persistence import clear_save
+
         self.popover_manager.invalidate()
         self.window.pencil_toggle_button.set_visible(False)
+        clear_save()
         if self.grid_manager.cells:
             for row in self.grid_manager.cells:
                 for cell in row:

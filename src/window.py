@@ -2,12 +2,11 @@
 # Copyright 2025 sepehr-rs
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 from gettext import gettext as _
 
 from gi.repository import Adw, Gtk, Gio
 
-from .core.persistence import get_variant, _get_save_path
+from .core.persistence import get_variant, has_saved_game
 from .core.preferences import PreferencesManager
 from .screens.game_setup_dialog import GameSetupDialog
 from .screens.preferences_dialog import PreferencesDialog
@@ -76,7 +75,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._build_primary_menu(show_preferences=visible)
 
     def on_back_to_menu(self, *_):
-        self.continue_button.set_visible(os.path.exists(_get_save_path()))
+        self.continue_button.set_visible(has_saved_game())
         self.update_sudoku_window_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
         self.pencil_toggle_button.set_visible(False)
@@ -187,7 +186,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.connect("toggled", self._on_pencil_toggled_button)
         self.continue_button.set_tooltip_text(_("Continue Saved Game"))
         self.new_game_button.set_tooltip_text(_("Start a New Game"))
-        self.continue_button.set_visible(os.path.exists(_get_save_path()))
+        self.continue_button.set_visible(has_saved_game())
         self.home_button.set_visible(False)
 
     def get_controller_and_prefs(self, variant):
