@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from src.core.preferences import (
-    CoreSudokuPreferences,
     PreferencesManager,
     _migrate_general_preferences,
 )
