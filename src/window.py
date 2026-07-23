@@ -199,6 +199,9 @@ class SudokuWindow(Adw.ApplicationWindow):
 
     def on_continue_clicked(self, _):
         variant = get_variant()
+        if not variant:
+            self.continue_button.set_visible(False)
+            return
         self.controller, prefs = self.get_controller_and_prefs(variant)
         PreferencesManager.set_preferences(prefs)
         self.controller.load_saved_game()
@@ -250,6 +253,8 @@ class SudokuWindow(Adw.ApplicationWindow):
             return
 
         prefs = PreferencesManager.get_preferences()
+        if not prefs:
+            return
         mistake_counter_on = prefs.general("mistake_limit")["enabled"]
 
         base = f"{self.controller.board.variant.capitalize()} • {self.controller.board.difficulty_label}"

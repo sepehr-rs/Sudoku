@@ -102,6 +102,8 @@ class CoreSudokuController:
                     correct = self.board.get_correct_value(r, c)
                     if value != correct:
                         cell.highlight("wrong")
+                    else:
+                        cell.set_editable(False)
                 if notes:
                     cell.update_notes(notes)
 
@@ -206,6 +208,8 @@ class CoreSudokuController:
                 cells[r][c].remove_highlight("highlight")
 
         prefs = PreferencesManager.get_preferences()
+        if not prefs:
+            return
         selected_value = cells[row][col].get_value()
 
         if selected_value is None:

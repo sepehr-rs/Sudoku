@@ -96,8 +96,7 @@ class SudokuCellUIManagement:
         overlay = self._create_overlay(self.main_label, self.notes_manager.notes_grid)
 
         self.cell.set_child(overlay)
-        self.cell.set_focus_on_click(False)
-        self.cell.set_can_focus(True)
+        self.cell.set_focusable(True)
         self.cell.get_style_context().add_class("sudoku-cell-button")
 
         if self.cell.value is not None:
@@ -136,15 +135,6 @@ class SudokuCellUIManagement:
     def remove_highlight(self, class_name: str):
         """Remove a CSS highlight class from the cell widget."""
         self.cell.get_style_context().remove_class(class_name)
-
-    def clear(self):
-        """Clear the main value, all notes, and any highlights."""
-        self.set_value(None)
-        self.notes_manager.update_notes(set())
-        # here we only remove the wrong css class because if a cell is correct
-        # and gets the correct highlighting, it is no longer editable and therefore
-        # cannot be cleared.
-        self.remove_highlight("wrong")
 
 
 class SudokuCell(Gtk.Button):

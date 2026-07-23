@@ -119,7 +119,7 @@ class PopoverManager:
         )
         grid.add_controller(controller)
 
-        grid.set_focus_on_click(True)
+        grid.set_focusable(True)
         grid.grab_focus()
         popover.popup()
 
@@ -158,7 +158,8 @@ class PopoverManager:
             number,
             ctrl_is_pressed=(mouse_button == 3),
         )
-        popover.popdown()
+        if not self.pencil_mode and mouse_button != 3:
+            popover.popdown()
 
     def on_clear_selected(self, _button, cell, popover):
         self._input_handler._on_clear(
