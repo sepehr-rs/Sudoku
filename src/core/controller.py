@@ -265,7 +265,7 @@ class CoreSudokuController:
     def _handle_correct_input(self, cell):
         cell.set_editable(False)
         cell.highlight("correct")
-        cell.set_tooltip_text("Correct")
+        cell.set_tooltip_text("Correct Entry")
 
         def _clear():
             clear_cell_feedback(cell, "correct")
@@ -286,7 +286,7 @@ class CoreSudokuController:
 
     def _handle_wrong_input(self, cell, number, conflicts=None):
         cell.highlight("wrong")
-        cell.set_tooltip_text("Wrong")
+        cell.set_tooltip_text("Wrong Entry")
 
         prefs = PreferencesManager.get_preferences()
         mistake_limit = prefs.general_counted_entry("mistake_limit") if prefs else None
