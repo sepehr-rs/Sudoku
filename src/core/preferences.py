@@ -1,27 +1,12 @@
-# preferences.py
-#
+# core/preferences.py
 # Copyright 2025 sepehr-rs
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from abc import ABC
 
 
-class Preferences(ABC):
-    general_defaults = {
+class CoreSudokuPreferences(ABC):
+    general_toggles = {
         "casual_mode": {
             "value": True,
             "tooltip": "Highlight when input does not match the correct solution",
@@ -46,6 +31,9 @@ class Preferences(ABC):
             "value": False,
             "tooltip": "View the possible places left for each number",
         },
+    }
+
+    general_counted = {
         "mistake_limit": {
             "enabled": False,
             "count": 3,
@@ -56,18 +44,19 @@ class Preferences(ABC):
     variant_defaults = {}
 
     def __init__(self):
-        self.general_defaults = self.general_defaults.copy()
+        self.general_toggles = self.general_toggles.copy()
+        self.general_counted = self.general_counted.copy()
         self.variant_defaults = self.variant_defaults.copy()
         self.name = ""
 
     def general(self, key, default=False):
-        entry = self.general_defaults.get(key)
-        if entry is None:
-            return default
-        # counted toggle
-        if "enabled" in entry:
-            return entry
-        return entry.get("value", default)
+        entry = self.general_toggles.get(key)
+        if entry is not None:
+            return entry.get("value", default)
+        return default
+
+    def general_counted_entry(self, key, default=None):
+        return self.general_counted.get(key, default)
 
     def variant(self, key, default=False):
         return self.variant_defaults.get(key, default)
@@ -78,14 +67,11 @@ def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
     migrated = {}
     for key, value in saved.items():
         if isinstance(value, dict):
-            # Already new format (both simple {"value":...} and counted {"enabled":...})
             migrated[key] = value
         elif isinstance(value, list) and len(value) == 2:
-            # Old format: [tooltip, bool]
             tooltip, val = value
             migrated[key] = {"value": val, "tooltip": tooltip}
         elif isinstance(value, bool):
-            # Old format: plain boolean, pull tooltip from defaults if available
             default_entry = defaults.get(key, {})
             tooltip = (
                 default_entry.get("tooltip", "")
@@ -94,6 +80,17 @@ def _migrate_general_preferences(saved: dict, defaults: dict) -> dict:
             )
             migrated[key] = {"value": value, "tooltip": tooltip}
         else:
-            # Unknown format, fall back to default
             migrated[key] = defaults.get(key, {"value": value, "tooltip": ""})
     return migrated
+
+
+class PreferencesManager:
+    _current_preferences: CoreSudokuPreferences | None = None
+
+    @classmethod
+    def set_preferences(cls, prefs: CoreSudokuPreferences) -> None:
+        cls._current_preferences = prefs
+
+    @classmethod
+    def get_preferences(cls) -> CoreSudokuPreferences | None:
+        return cls._current_preferences

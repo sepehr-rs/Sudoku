@@ -38,22 +38,22 @@ class SudokuApplication(Adw.Application):
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
         self.version = version
+        self.log_handler = setup_logging()
         self._setup_actions()
         self._setup_accelerators()
-        self.log_handler = setup_logging()
 
     def _setup_actions(self):
         """Set up application actions."""
         self.create_action("quit", self._on_close_request, ["<primary>q", "<primary>w"])
         self.create_action("about", self.on_about_action)
         self.create_action("how_to_play", self.on_how_to_play, ["F1"])
+        self.create_action("shortcuts", self._on_shortcuts, ["<Ctrl>question"])
 
     def _setup_accelerators(self):
         """Set up keyboard accelerators for window actions."""
         self.set_accels_for_action("win.pencil-toggled", ["p"])
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
         self.set_accels_for_action("win.show-primary-menu", ["F10"])
-        self.set_accels_for_action("win.show-shortcuts-overlay", ["<Ctrl>question"])
         self.set_accels_for_action("win.show-preferences", ["<primary>comma"])
 
     def do_activate(self):
@@ -128,6 +128,13 @@ class SudokuApplication(Adw.Application):
     def on_how_to_play(self, action, param):
         """Show how to play dialog."""
         dialog = HowToPlayDialog()
+        dialog.present(self.props.active_window)
+
+    def _on_shortcuts(self, *_):
+        builder = Gtk.Builder.new_from_resource(
+            "/io/github/sepehr_rs/Sudoku/shortcuts-dialog.ui"
+        )
+        dialog = builder.get_object("shortcuts_dialog")
         dialog.present(self.props.active_window)
 
     def _on_close_request(self, *args):

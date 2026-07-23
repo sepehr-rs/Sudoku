@@ -1,0 +1,95 @@
+# core/persistence.py
+# Copyright 2025 sepehr-rs
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+from .preferences import PreferencesManager, _migrate_general_preferences
+from gi.repository import GLib
+import os
+import json
+
+
+def _get_save_path():
+    data_dir = GLib.get_user_data_dir()
+    save_dir = os.path.join(data_dir, "sudokugame")
+    os.makedirs(save_dir, exist_ok=True)
+    return os.path.join(save_dir, "board.json")
+
+
+def get_variant():
+    path = _get_save_path()
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("variant", "Unknown")
+
+
+def load_game(cls, generator, block_size: int):
+    filename = _get_save_path()
+    if not os.path.exists(filename):
+        return None
+
+    with open(filename, "r", encoding="utf-8") as f:
+        state = json.load(f)
+
+    prefs = PreferencesManager.get_preferences()
+    if prefs is None:
+        raise RuntimeError("Preferences are not initialized. [id=0]")
+
+    board = cls(
+        generator=generator,
+        puzzle=state["puzzle"],
+        solution=state["solution"],
+        difficulty=state.get("difficulty", 0.2),
+        difficulty_label=state.get("difficulty_label", "Unknown"),
+        variant=state.get("variant", "Unknown"),
+        block_size=block_size,
+        variant_preferences=state.get("variant_preferences", prefs.variant_defaults),
+        general_preferences=_migrate_general_preferences(
+            state.get(
+                "general_preferences",
+                {
+                    **prefs.general_toggles,
+                    **prefs.general_counted,
+                },
+            ),
+            {
+                **prefs.general_toggles,
+                **prefs.general_counted,
+            },
+        ),
+    )
+
+    board.mistakes = state.get("mistakes", 0)
+
+    saved_inputs = state.get("user_inputs")
+    if saved_inputs:
+        for r in range(len(saved_inputs)):
+            for c in range(len(saved_inputs[r])):
+                board.user_inputs[r][c] = saved_inputs[r][c]
+
+    saved_notes = state.get("notes")
+    if saved_notes:
+        for r in range(len(saved_notes)):
+            for c in range(len(saved_notes[r])):
+                board.notes[r][c] = set(saved_notes[r][c])
+
+    return board
+
+
+def save_game(board):
+    filename = _get_save_path()
+    state = {
+        "difficulty": board.difficulty,
+        "difficulty_label": board.difficulty_label,
+        "mistakes": board.mistakes,
+        "variant_preferences": board.variant_preferences,
+        "general_preferences": board.general_preferences,
+        "variant": board.variant,
+        "puzzle": board.puzzle,
+        "solution": board.solution,
+        "user_inputs": board.user_inputs,
+        "notes": [[list(n) for n in row] for row in board.notes],
+    }
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(state, f)

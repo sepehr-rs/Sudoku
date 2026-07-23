@@ -1,33 +1,67 @@
-"""Test for generator contract and type safety."""
+# tests/test_generator_contract.py
+# Copyright 2025 sepehr-rs
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch, MagicMock
 
 from src.variants.classic_sudoku.generator import ClassicSudokuGenerator
+from src.variants.diagonal_sudoku.generator import DiagonalSudokuGenerator
 
 
-class TestGeneratorContract:
-    """Tests for GeneratorBase contract."""
+def _make_fake_sudoku(puzzle, solution):
+    fake = MagicMock()
+    fake.board = puzzle
+    fake.solve.return_value.board = solution
+    return fake
 
-    def test_generate_impl_returns_tuple(self):
-        """Verify _generate_impl returns (puzzle, solution) tuple."""
-        generator = ClassicSudokuGenerator()
 
-        with patch(
-            "src.variants.classic_sudoku.generator.PuzzleGenerator"
-        ) as mock_puzzle:
-            mock_sudoku = MagicMock()
-            mock_sudoku.board = [[0] * 9 for _ in range(9)]
-            mock_sudoku.solve.return_value = mock_sudoku
-            mock_puzzle.make_puzzle.return_value = mock_sudoku
+class TestClassicGenerator:
+    @patch("src.variants.classic_sudoku.generator.PuzzleGenerator.make_puzzle")
+    def test_returns_tuple_of_two_9x9_lists(self, mock_make):
+        puzzle = [[(r * 9 + c) % 9 + 1 for c in range(9)] for r in range(9)]
+        solution = [[(r * 9 + c) % 9 + 1 for c in range(9)] for r in range(9)]
+        mock_make.return_value = _make_fake_sudoku(puzzle, solution)
 
-            puzzle, solution = generator._generate_impl(0.5)
+        gen = ClassicSudokuGenerator()
+        result_puzzle, result_solution = gen._generate_impl(0.5)
 
-            # Verify it returns a tuple of two elements
-            assert isinstance(puzzle, list)
-            assert isinstance(solution, list)
-            assert isinstance(puzzle[0], list)
-            assert isinstance(solution[0], list)
-            assert len(puzzle) == 9
-            assert len(solution) == 9
-            assert len(puzzle[0]) == 9
-            assert len(solution[0]) == 9
+        assert isinstance(result_puzzle, list)
+        assert isinstance(result_solution, list)
+        assert len(result_puzzle) == 9
+        assert all(len(row) == 9 for row in result_puzzle)
+        assert len(result_solution) == 9
+        assert all(len(row) == 9 for row in result_solution)
+
+    @patch("src.variants.classic_sudoku.generator.PuzzleGenerator.make_puzzle")
+    def test_passes_classic_sudoku_cls(self, mock_make):
+        mock_make.return_value = _make_fake_sudoku(
+            [[0] * 9 for _ in range(9)],
+            [[1] * 9 for _ in range(9)],
+        )
+        ClassicSudokuGenerator()._generate_impl(0.7)
+        _, kwargs = mock_make.call_args
+        assert kwargs["sudoku_cls"].__name__ == "ClassicSudoku"
+
+
+class TestDiagonalGenerator:
+    @patch("src.variants.diagonal_sudoku.generator.PuzzleGenerator.make_puzzle")
+    def test_returns_tuple_of_two_9x9_lists(self, mock_make):
+        puzzle = [[(r * 9 + c) % 9 + 1 for c in range(9)] for r in range(9)]
+        solution = [[(r * 9 + c) % 9 + 1 for c in range(9)] for r in range(9)]
+        mock_make.return_value = _make_fake_sudoku(puzzle, solution)
+
+        gen = DiagonalSudokuGenerator()
+        result_puzzle, result_solution = gen._generate_impl(0.5)
+
+        assert len(result_puzzle) == 9
+        assert len(result_solution) == 9
+
+    @patch("src.variants.diagonal_sudoku.generator.PuzzleGenerator.make_puzzle")
+    def test_passes_diagonal_sudoku_cls(self, mock_make):
+        mock_make.return_value = _make_fake_sudoku(
+            [[0] * 9 for _ in range(9)],
+            [[1] * 9 for _ in range(9)],
+        )
+        DiagonalSudokuGenerator()._generate_impl(0.7)
+        _, kwargs = mock_make.call_args
+        assert kwargs["sudoku_cls"].__name__ == "DiagonalSudoku"

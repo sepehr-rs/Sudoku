@@ -46,17 +46,18 @@ class VariantPreferencesPage(Adw.PreferencesGroup):
 
 
 class GeneralPreferencesPage(Adw.PreferencesGroup):
-    def __init__(self, general_preferences, name, auto_save_function):
+    def __init__(self, general_toggles, general_counted, name, auto_save_function):
         super().__init__(title=name)
-        self.general_preferences = general_preferences
+        self.general_toggles = general_toggles
+        self.general_counted = general_counted
         self.controls = {}
         self.auto_save_function = auto_save_function
 
-        for key, value in self.general_preferences.items():
-            if "enabled" in value and "count" in value:
-                self._add_counted_toggle_row(key, value)
-            else:
-                self._add_bool_row(key, value)
+        for key, value in self.general_toggles.items():
+            self._add_bool_row(key, value)
+
+        for key, value in self.general_counted.items():
+            self._add_counted_toggle_row(key, value)
 
     def _add_bool_row(self, key, value):
         title = key.replace("_", " ").title()
@@ -104,14 +105,14 @@ class GeneralPreferencesPage(Adw.PreferencesGroup):
         self.controls[key] = (switch, spin_row)
 
     def _on_bool_changed(self, switch, gparam, key):
-        self.general_preferences[key]["value"] = switch.get_active()
+        self.general_toggles[key]["value"] = switch.get_active()
         self.auto_save_function()
 
     def _on_counted_toggle_changed(self, switch, gparam, key, spin_row):
-        self.general_preferences[key]["enabled"] = switch.get_active()
+        self.general_counted[key]["enabled"] = switch.get_active()
         spin_row.set_sensitive(switch.get_active())
         self.auto_save_function()
 
     def _on_count_changed(self, spin_row, gparam, key):
-        self.general_preferences[key]["count"] = int(spin_row.get_value())
+        self.general_counted[key]["count"] = int(spin_row.get_value())
         self.auto_save_function()
