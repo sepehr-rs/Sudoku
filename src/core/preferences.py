@@ -31,6 +31,10 @@ class CoreSudokuPreferences(ABC):
             "value": False,
             "tooltip": "View the possible places left for each number",
         },
+        "show_popover": {
+            "value": True,
+            "tooltip": "Show popover when clicking on a cell",
+        },
     }
 
     general_counted = {
