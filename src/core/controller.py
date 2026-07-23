@@ -125,14 +125,15 @@ class CoreSudokuController:
                 else True
             )
 
-            if check_conflicts and self.board.has_conflict(row, col, int(value)):
-                ctx = cell.get_style_context()
-                ctx.add_class("wrong")
-                self.conflict_cells.append(cell)
-                cell.start_feedback_timeout(
-                    lambda: clear_cell_feedback(cell, "wrong"), delay=2000
-                )
-                return
+            if check_conflicts:
+                conflicts = self.board.has_conflict(row, col, int(value))
+                if conflicts:
+                    for cr, cc in conflicts:
+                        conflict_cell = self.grid_manager.cells[cr][cc]
+                        conflict_cell.highlight("conflict")
+                        self.conflict_cells.append(conflict_cell)
+                    cell.start_feedback_timeout(self._clear_conflicts, delay=2000)
+                    return
 
             self.board.toggle_note(row, col, value)
             cell.update_notes(self.board.get_notes(row, col))
@@ -156,7 +157,6 @@ class CoreSudokuController:
             self.board.clear_input(row, col)
             cell.clear()
             self.board.notes[row][col].clear()
-            cell.update_notes(set())
         elif self.pencil_mode:
             current_notes = self.board.get_notes(row, col)
             if current_notes:
@@ -167,9 +167,9 @@ class CoreSudokuController:
             self.board.clear_input(row, col)
             cell.clear()
             self.board.notes[row][col].clear()
-            cell.update_notes(set())
 
         self.board.save()
+        self._highlight_related(row, col)
 
     # ── Cell click / focus ──────────────────────────────────────────
 
@@ -283,18 +283,14 @@ class CoreSudokuController:
         self.board.save()
         self._update_subtitle()
 
+        if not conflicts:
+            conflicts = self.board.has_conflict(cell.row, cell.col, number)
         if conflicts:
             for r, c in conflicts:
                 self.grid_manager.cells[r][c].highlight("conflict")
                 self.conflict_cells.append(self.grid_manager.cells[r][c])
 
-        def _clear_conflicts():
-            for c in self.conflict_cells:
-                c.remove_highlight("conflict")
-            self.conflict_cells.clear()
-            return False
-
-        GLib.timeout_add(4000, _clear_conflicts)
+        cell.start_feedback_timeout(self._clear_conflicts, delay=4000)
 
     def check_mistakes_limit(self):
         prefs = PreferencesManager.get_preferences()

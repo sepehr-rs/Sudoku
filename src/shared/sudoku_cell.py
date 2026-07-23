@@ -201,20 +201,27 @@ class SudokuCell(Gtk.Button):
         self.ui.remove_highlight(class_name)
 
     def clear(self):
-        self.ui.clear()
+        self.set_value(None)
+        self.ui.notes_manager.update_notes(set())
+        self.remove_highlight("wrong")
 
     def start_feedback_timeout(self, callback, delay: int = 4000):
-        if self._feedback_source_id is not None:
-            from gi.repository import GLib
-
-            GLib.source_remove(self._feedback_source_id)
         from gi.repository import GLib
 
-        self._feedback_source_id = GLib.timeout_add(delay, callback)
+        self.clear_feedback_timeout()
+
+        def _wrapper():
+            self._feedback_source_id = None
+            return callback()
+
+        self._feedback_source_id = GLib.timeout_add(delay, _wrapper)
 
     def clear_feedback_timeout(self):
         if self._feedback_source_id is not None:
             from gi.repository import GLib
 
-            GLib.source_remove(self._feedback_source_id)
+            try:
+                GLib.source_remove(self._feedback_source_id)
+            except Exception:
+                pass
             self._feedback_source_id = None

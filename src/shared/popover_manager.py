@@ -158,9 +158,7 @@ class PopoverManager:
             number,
             ctrl_is_pressed=(mouse_button == 3),
         )
-        if not self.pencil_mode and mouse_button != 3:
-            self._restore_focus_on_popover_close = False
-            popover.popdown()
+        popover.popdown()
 
     def on_clear_selected(self, _button, cell, popover):
         self._input_handler._on_clear(
@@ -168,7 +166,6 @@ class PopoverManager:
             cell.col if hasattr(cell, "col") else 0,
             clear_all=True,
         )
-        self._restore_focus_on_popover_close = False
         popover.popdown()
 
     @staticmethod

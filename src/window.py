@@ -95,7 +95,12 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_show_preferences(self, *_):
         if not self.controller:
             return
-        PreferencesDialog(self.controller.board.save).present(self)
+
+        def _on_prefs_changed():
+            self.controller.board.save()
+            self.controller._update_subtitle()
+
+        PreferencesDialog(_on_prefs_changed).present(self)
 
     def _setup_stack_observer(self):
         self.stack.connect("notify::visible-child", self.on_stack_page_changed)
