@@ -43,7 +43,7 @@ class CoreSudokuController:
         self.grid_manager.build_grid()
         self.popover_manager.set_parent_grid(self.grid_manager.parent_grid)
 
-    # ── Game lifecycle ──────────────────────────────────────────────
+    #  Game lifecycle
 
     def start_game(self, difficulty: float, difficulty_label: str, variant: str):
         self.window.stack.set_visible_child(self.window.loading_screen)
@@ -107,7 +107,7 @@ class CoreSudokuController:
                 if notes:
                     cell.update_notes(notes)
 
-    # ── Cell input ──────────────────────────────────────────────────
+    #  Cell input
 
     def _fill_cell(self, row, col, value, ctrl_is_pressed=False):
         cell = self.grid_manager.cells[row][col]
@@ -173,7 +173,7 @@ class CoreSudokuController:
         self.board.save()
         self._highlight_related(row, col)
 
-    # ── Cell click / focus ──────────────────────────────────────────
+    #  Cell click / focus
 
     def _on_cell_click(self, row, col, button, n_press):
         cell = self.grid_manager.cells[row][col]
@@ -203,36 +203,46 @@ class CoreSudokuController:
 
     def _highlight_related(self, row, col):
         cells = self.grid_manager.cells
-        for r in range(self.board_size):
-            for c in range(self.board_size):
-                cells[r][c].remove_highlight("highlight")
+        self._clear_highlights(cells)
 
         prefs = PreferencesManager.get_preferences()
         if not prefs:
             return
+
         selected_value = cells[row][col].get_value()
-
         if selected_value is None:
-            if prefs.general("highlight_row"):
-                for i in range(self.board_size):
-                    cells[row][i].highlight("highlight")
-            if prefs.general("highlight_column"):
-                for i in range(self.board_size):
-                    cells[i][col].highlight("highlight")
-            if prefs.variant("highlight_block"):
-                bs = self.block_size
-                br, bc = (row // bs) * bs, (col // bs) * bs
-                for r in range(br, br + bs):
-                    for c in range(bc, bc + bs):
-                        cells[r][c].highlight("highlight")
+            self._highlight_neighborhood(cells, row, col, prefs)
         else:
-            if prefs.variant("highlight_related_cells"):
-                for r in range(self.board_size):
-                    for c in range(self.board_size):
-                        if cells[r][c].get_value() == selected_value:
-                            cells[r][c].highlight("highlight")
+            self._highlight_matching(cells, selected_value, prefs)
 
-    # ── Feedback ────────────────────────────────────────────────────
+    def _clear_highlights(self, cells):
+        for r in range(self.board_size):
+            for c in range(self.board_size):
+                cells[r][c].remove_highlight("highlight")
+
+    def _highlight_neighborhood(self, cells, row, col, prefs):
+        if prefs.general("highlight_row"):
+            for i in range(self.board_size):
+                cells[row][i].highlight("highlight")
+        if prefs.general("highlight_column"):
+            for i in range(self.board_size):
+                cells[i][col].highlight("highlight")
+        if prefs.variant("highlight_block"):
+            bs = self.block_size
+            br, bc = (row // bs) * bs, (col // bs) * bs
+            for r in range(br, br + bs):
+                for c in range(bc, bc + bs):
+                    cells[r][c].highlight("highlight")
+
+    def _highlight_matching(self, cells, value, prefs):
+        if not prefs.variant("highlight_related_cells"):
+            return
+        for r in range(self.board_size):
+            for c in range(self.board_size):
+                if cells[r][c].get_value() == value:
+                    cells[r][c].highlight("highlight")
+
+    #  Feedback
 
     def on_cell_filled(self, cell, number: int):
         prefs = PreferencesManager.get_preferences()
@@ -314,7 +324,7 @@ class CoreSudokuController:
             cell.remove_highlight("conflict")
         self.conflict_cells.clear()
 
-    # ── Game over / finished ────────────────────────────────────────
+    #  Game over / finished
 
     def _show_puzzle_finished_dialog(self, page=None):
         self.popover_manager.invalidate()
@@ -329,13 +339,13 @@ class CoreSudokuController:
         target = page if page is not None else self.window.finished_page
         self.window.stack.set_visible_child(target)
 
-    # ── Pencil mode ─────────────────────────────────────────────────
+    #  Pencil mode
 
     def on_pencil_toggled(self, button: Gtk.ToggleButton):
         self.pencil_mode = button.get_active()
         self.popover_manager.set_pencil_mode(self.pencil_mode)
 
-    # ── Unfocus ─────────────────────────────────────────────────────
+    #  Unfocus
 
     def on_grid_unfocus(self):
         if self.grid_manager.cells:
@@ -344,7 +354,7 @@ class CoreSudokuController:
                     cell.remove_highlight("highlight")
         self._clear_conflicts()
 
-    # ── Compact mode ────────────────────────────────────────────────
+    #  Compact mode
 
     def apply_compact_mode(self, compact, mode):
         parent_spacing, block_spacing = (8, 2) if compact else (10, 4)
