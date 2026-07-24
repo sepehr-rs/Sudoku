@@ -57,6 +57,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             "back-to-menu": self.on_back_to_menu,
             "pencil-toggled": self._on_pencil_toggled_action,
             "show-preferences": self.on_show_preferences,
+            "auto-pencil-marks": self.on_auto_pencil_marks,
         }
         for name, callback in actions.items():
             act = Gio.SimpleAction.new(name, None)
@@ -66,7 +67,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._setup_stack_observer()
         self._setup_breakpoints()
         self._connect_buttons()
-        self._build_primary_menu(show_preferences=False)
+        self._build_primary_menu(show_game_actions=False)
 
         gesture = Gtk.GestureClick.new()
         gesture.set_button(0)
@@ -78,7 +79,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.primary_menu_button.popup()
 
     def _update_preferences_visibility(self, visible: bool):
-        self._build_primary_menu(show_preferences=visible)
+        self._build_primary_menu(show_game_actions=visible)
 
     def on_back_to_menu(self, *_):
         save_preferences()
@@ -88,6 +89,10 @@ class SudokuWindow(Adw.ApplicationWindow):
         self.pencil_toggle_button.set_visible(False)
         PreferencesManager.set_preferences(None)
         self._update_preferences_visibility(False)
+
+    def on_auto_pencil_marks(self, *_):
+        if self.controller and self.controller.board:
+            self.controller.apply_auto_pencil_marks()
 
     def update_sudoku_window_subtitle(self, subtitle):
         self.sudoku_window_title.set_subtitle(subtitle)
@@ -145,6 +150,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         # Update UI in a declarative way
         self._update_preferences_visibility(is_game_page)
         self.lookup_action("show-preferences").set_enabled(is_game_page)
+        self.lookup_action("auto-pencil-marks").set_enabled(is_game_page)
         self.pencil_toggle_button.set_visible(is_game_page)
         self.lookup_action("show-primary-menu").set_enabled(is_game_page)
         self.lookup_action("back-to-menu").set_enabled(not is_menu_or_loading)
@@ -280,11 +286,12 @@ class SudokuWindow(Adw.ApplicationWindow):
             )
             self.update_sudoku_window_subtitle(base + suffix)
 
-    def _build_primary_menu(self, show_preferences=True):
+    def _build_primary_menu(self, show_game_actions=True):
         menu, section = Gio.Menu(), Gio.Menu()
         section.append(_("Keyboard Shortcuts"), "app.shortcuts")
-        if show_preferences:
+        if show_game_actions:
             section.append(_("Preferences"), "win.show-preferences")
+            section.append(_("Auto Pencil Marks"), "win.auto-pencil-marks")
         for label, action in [
             (_("How To Play"), "app.how_to_play"),
             (_("About Sudoku"), "app.about"),

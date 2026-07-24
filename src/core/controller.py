@@ -196,6 +196,18 @@ class CoreSudokuController:
                 cell, self.board.get_remaining_valid_inputs(), button
             )
 
+    def apply_auto_pencil_marks(self):
+        marks = self.board.get_auto_pencil_marks()
+        for (r, c), candidates in marks.items():
+            # Commented out for now
+            # # Don't overwrite notes the player already made
+            # existing = self.board.get_notes(r, c)
+            # if existing:
+            #     continue
+            self.board.notes[r][c] = candidates
+            self.grid_manager.cells[r][c].update_notes(candidates)
+        self.board.save()
+
     def _focus_cell(self, row, col):
         cell = self.grid_manager.cells[row][col]
         cell.grab_focus()

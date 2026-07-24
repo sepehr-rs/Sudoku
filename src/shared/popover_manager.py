@@ -85,7 +85,7 @@ class PopoverManager:
         self._popdown_active_popover()
 
         prefs = PreferencesManager.get_preferences()
-        show_popover = prefs.general("show_popover_on_click")
+        show_popover = prefs.general("show_popover")
 
         if self.parent_grid is None or not show_popover:
             return
