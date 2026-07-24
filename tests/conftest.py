@@ -65,7 +65,6 @@ def make_board_state(board_cls, *, puzzle, solution, block_size=3):
     board.difficulty_label = "Medium"
     board.variant = "classic"
     board.variant_preferences = {}
-    board.general_preferences = {}
     board.sudoku_cells = [
         [
             FakeCell(value=puzzle[r][c], editable=(puzzle[r][c] is None))

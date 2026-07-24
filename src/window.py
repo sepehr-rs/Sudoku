@@ -6,7 +6,13 @@ from gettext import gettext as _
 
 from gi.repository import Adw, Gtk, Gio
 
-from .core.persistence import get_variant, has_saved_game
+from .core.persistence import (
+    get_variant,
+    has_saved_game,
+    save_preferences,
+    apply_variant_preferences,
+    migrate_preferences_from_board,
+)
 from .core.preferences import PreferencesManager
 from .screens.game_setup_dialog import GameSetupDialog
 from .screens.preferences_dialog import PreferencesDialog
@@ -75,6 +81,7 @@ class SudokuWindow(Adw.ApplicationWindow):
         self._build_primary_menu(show_preferences=visible)
 
     def on_back_to_menu(self, *_):
+        save_preferences()
         self.continue_button.set_visible(has_saved_game())
         self.update_sudoku_window_subtitle("")
         self.stack.set_visible_child(self.main_menu_box)
@@ -96,6 +103,7 @@ class SudokuWindow(Adw.ApplicationWindow):
             return
 
         def _on_prefs_changed():
+            save_preferences()
             self.controller.board.save()
             self.controller._update_subtitle()
 
@@ -203,6 +211,8 @@ class SudokuWindow(Adw.ApplicationWindow):
             return
         self.controller, prefs = self.get_controller_and_prefs(variant)
         PreferencesManager.set_preferences(prefs)
+        apply_variant_preferences(variant)
+        migrate_preferences_from_board()
         self.controller.load_saved_game()
         self._setup_ui()
 
@@ -217,6 +227,7 @@ class SudokuWindow(Adw.ApplicationWindow):
     def on_game_setup_selected(self, variant_name, difficulty):
         self.controller, prefs = self.get_controller_and_prefs(variant_name)
         PreferencesManager.set_preferences(prefs)
+        apply_variant_preferences(variant_name)
 
         label_map = {
             0.2: _("Easy"),

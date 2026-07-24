@@ -52,6 +52,7 @@ class CoreSudokuPreferences(ABC):
         self.general_counted = self.general_counted.copy()
         self.variant_defaults = self.variant_defaults.copy()
         self.name = ""
+        self.variant_key = ""
 
     def general(self, key, default=False):
         entry = self.general_toggles.get(key)

@@ -14,3 +14,4 @@ class DiagonalSudokuPreferences(ClassicSudokuPreferences):
             }
         )
         self.name = "Diagonal Sudoku"
+        self.variant_key = "diagonal"
