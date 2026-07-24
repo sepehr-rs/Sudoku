@@ -240,11 +240,25 @@ class CoreSudokuController:
             for i in range(self.board_size):
                 cells[i][col].highlight("highlight")
         if prefs.variant("highlight_block"):
-            bs = self.block_size
-            br, bc = (row // bs) * bs, (col // bs) * bs
-            for r in range(br, br + bs):
-                for c in range(bc, bc + bs):
-                    cells[r][c].highlight("highlight")
+            self._highlight_block(cells, row, col)
+        if prefs.variant("highlight_diagonals"):
+            self._highlight_diagonals(cells, row, col)
+
+    def _highlight_block(self, cells, row, col):
+        bs = self.block_size
+        br, bc = (row // bs) * bs, (col // bs) * bs
+        for r in range(br, br + bs):
+            for c in range(bc, bc + bs):
+                cells[r][c].highlight("highlight")
+
+    def _highlight_diagonals(self, cells, row, col):
+        size = self.board_size
+        if row == col:
+            for i in range(size):
+                cells[i][i].highlight("highlight")
+        if row + col == size - 1:
+            for i in range(size):
+                cells[i][size - 1 - i].highlight("highlight")
 
     def _highlight_matching(self, cells, value, prefs):
         if not prefs.variant("highlight_related_cells"):
