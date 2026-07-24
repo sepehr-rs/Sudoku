@@ -84,7 +84,10 @@ class PopoverManager:
         self._restore_focus_on_popover_close = False
         self._popdown_active_popover()
 
-        if self.parent_grid is None:
+        prefs = PreferencesManager.get_preferences()
+        show_popover = prefs.general("show_popover")
+
+        if self.parent_grid is None or not show_popover:
             return
 
         popover = self.get_or_create_popover()

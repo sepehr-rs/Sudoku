@@ -18,7 +18,9 @@ class PreferencesDialog(Adw.PreferencesDialog):
             auto_save_function,
         )
         variant_group = VariantPreferencesPage(
-            preferences.variant_defaults, preferences.name, auto_save_function
+            preferences.variant_defaults,
+            preferences.name,
+            auto_save_function,
         )
 
         page.add(general_group)

@@ -196,6 +196,18 @@ class CoreSudokuController:
                 cell, self.board.get_remaining_valid_inputs(), button
             )
 
+    def apply_auto_pencil_marks(self):
+        marks = self.board.get_auto_pencil_marks()
+        for (r, c), candidates in marks.items():
+            # Commented out for now
+            # # Don't overwrite notes the player already made
+            # existing = self.board.get_notes(r, c)
+            # if existing:
+            #     continue
+            self.board.notes[r][c] = candidates
+            self.grid_manager.cells[r][c].update_notes(candidates)
+        self.board.save()
+
     def _focus_cell(self, row, col):
         cell = self.grid_manager.cells[row][col]
         cell.grab_focus()
@@ -265,7 +277,7 @@ class CoreSudokuController:
     def _handle_correct_input(self, cell):
         cell.set_editable(False)
         cell.highlight("correct")
-        cell.set_tooltip_text("Correct")
+        cell.set_tooltip_text("Correct Entry")
 
         def _clear():
             clear_cell_feedback(cell, "correct")
@@ -286,13 +298,14 @@ class CoreSudokuController:
 
     def _handle_wrong_input(self, cell, number, conflicts=None):
         cell.highlight("wrong")
-        cell.set_tooltip_text("Wrong")
+        cell.set_tooltip_text("Wrong Entry")
 
         prefs = PreferencesManager.get_preferences()
         mistake_limit = prefs.general_counted_entry("mistake_limit") if prefs else None
         if mistake_limit and mistake_limit.get("enabled"):
             self.board.mistakes += 1
-            self.check_mistakes_limit()
+            if self.check_mistakes_limit():
+                return
 
         self.board.save()
         self._update_subtitle()
@@ -306,11 +319,13 @@ class CoreSudokuController:
 
         cell.start_feedback_timeout(self._clear_conflicts, delay=4000)
 
-    def check_mistakes_limit(self):
+    def check_mistakes_limit(self) -> bool:
         prefs = PreferencesManager.get_preferences()
         limit = prefs.general_counted_entry("mistake_limit") if prefs else None
         if limit and self.board.mistakes > limit.get("count", 3):
             self._show_puzzle_finished_dialog(self.window.game_over_page)
+            return True
+        return False
 
     def _update_subtitle(self):
         base = f"{self.board.variant.capitalize()} • {self.board.difficulty_label}"
@@ -328,8 +343,11 @@ class CoreSudokuController:
     #  Game over / finished
 
     def _show_puzzle_finished_dialog(self, page=None):
+        from .persistence import clear_save
+
         self.popover_manager.invalidate()
         self.window.pencil_toggle_button.set_visible(False)
+        clear_save()
         if self.grid_manager.cells:
             for row in self.grid_manager.cells:
                 for cell in row:

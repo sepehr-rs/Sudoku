@@ -17,9 +17,15 @@ Adw.ShortcutsDialog shortcuts_dialog {
   }
 
   Adw.ShortcutsSection {
+    title: C_("shortcut window", "Pencil");
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Pencil Mode");
       accelerator: "P";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Auto Pencil Marks");
+      accelerator: "<Shift>P";
     }
 
     Adw.ShortcutsItem {
@@ -29,6 +35,7 @@ Adw.ShortcutsDialog shortcuts_dialog {
   }
 
   Adw.ShortcutsSection {
+    title: C_("shortcut window", "Input");
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Open Number Pop-Up");
       accelerator: "Return";

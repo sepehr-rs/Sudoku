@@ -5,8 +5,7 @@
 from abc import ABC
 from typing import Any
 from ..shared import sudoku_cell
-from .persistence import load_game, save_game
-from .preferences import PreferencesManager
+from .persistence import load_game, save_game, load_variant_preferences
 
 
 class CoreSudokuBoard(ABC):
@@ -20,8 +19,6 @@ class CoreSudokuBoard(ABC):
         difficulty_label: str,
         variant: str,
         block_size: int,
-        variant_preferences: dict[str, Any] | None = None,
-        general_preferences: dict[str, Any] | None = None,
     ):
         self.generator = generator
         self.difficulty = difficulty
@@ -32,16 +29,7 @@ class CoreSudokuBoard(ABC):
         self.solution = solution
         self.mistakes = 0
 
-        prefs = PreferencesManager.get_preferences()
-        if prefs is None:
-            raise RuntimeError(
-                "Preferences are not initialized. Please report as a bug. [id=1]"
-            )
-        self.variant_preferences = variant_preferences or prefs.variant_defaults
-        self.general_preferences = general_preferences or {
-            **prefs.general_toggles,
-            **prefs.general_counted,
-        }
+        self.variant_preferences = load_variant_preferences(variant)
 
         self.size = len(puzzle)
         self.user_inputs: list[list[int | None]] = [
@@ -89,6 +77,22 @@ class CoreSudokuBoard(ABC):
 
     def get_notes(self, row: int, col: int) -> set[str]:
         return self.notes[row][col]
+
+    def get_auto_pencil_marks(self) -> dict[tuple[int, int], set[str]]:
+        """Return valid candidates for every empty, unfilled cell."""
+        marks = {}
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.puzzle[r][c] is not None:
+                    continue
+                if self.user_inputs[r][c] is not None:
+                    continue
+                candidates = set()
+                for v in range(1, self.size + 1):
+                    if not self.has_conflict(r, c, v):
+                        candidates.add(str(v))
+                marks[(r, c)] = candidates
+        return marks
 
     def remove_note_from_related(
         self, row: int, col: int, value: int

@@ -55,6 +55,7 @@ class SudokuApplication(Adw.Application):
         self.set_accels_for_action("win.back-to-menu", ["<Ctrl>m"])
         self.set_accels_for_action("win.show-primary-menu", ["F10"])
         self.set_accels_for_action("win.show-preferences", ["<primary>comma"])
+        self.set_accels_for_action("win.auto-pencil-marks", ["<Shift>p"])
 
     def do_activate(self):
         """Called when the application is activated.

@@ -23,26 +23,26 @@
 
   <screenshots>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/dd82b1819691e9994fcb689bf465b5976454ce55/data/screenshots/sudoku.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/v1.8.0/data/screenshots/sudoku.png</image>
       <caption>Sudoku in light mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/dd82b1819691e9994fcb689bf465b5976454ce55/data/screenshots/sudoku-dark.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/v1.8.0/data/screenshots/sudoku-dark.png</image>
       <caption>Sudoku in dark mode</caption>
     </screenshot>
     <screenshot environment="gnome:dark">
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/c15d66297f2c887dac8d41e588794c97b30d1f4e/data/screenshots/landing-page-dark.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/v1.8.0/data/screenshots/landing-page-dark.png</image>
       <caption>Sudoku landing page in dark mode</caption>
     </screenshot>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/c15d66297f2c887dac8d41e588794c97b30d1f4e/data/screenshots/landing-page.png</image>
+      <image>https://raw.githubusercontent.com/sepehr-rs/Sudoku/refs/heads/v1.8.0/data/screenshots/landing-page.png</image>
       <caption>Sudoku landing page in light mode</caption>
     </screenshot>
   </screenshots>
 
   <branding>
-    <color type="primary" scheme_preference="light">#d2a56d</color>
-    <color type="primary" scheme_preference="dark">#5a3a29</color>
+    <color type="primary" scheme_preference="light">#e2b97d</color>
+    <color type="primary" scheme_preference="dark">#553525</color>
   </branding>
 
   <categories>
@@ -65,6 +65,8 @@
   <url type="homepage">https://github.com/sepehr-rs/Sudoku</url>
   <url type="bugtracker">https://github.com/sepehr-rs/Sudoku/issues</url>
   <url type="vcs-browser">https://github.com/sepehr-rs/Sudoku</url>
+  <url type="faq">https://github.com/sepehr-rs/Sudoku/blob/main/README.md</url>
+  <url type="contribute">https://github.com/sepehr-rs/Sudoku/</url>
   <update_contact>sepehrrasouli06_at_gmail.com</update_contact>
 
   <developer id="gmail.com">
@@ -73,6 +75,18 @@
   </developer>
 
   <releases translate="no">
+      <release version="1.8.0" date="2026-07-24">
+        <description>
+          <p>What's new in 1.8.0:</p>
+          <ul>
+            <li>You can now place pencil marks automatically with Shift + P</li>
+            <li>You can now set a mistake limit in Preferences</li>
+            <li>The Continue Game button is now disabled when the current game is complete</li>
+            <li>You can now disable popovers in Preferences</li>
+            <li>Plus many more improvements and bug fixes!</li>
+          </ul>
+        </description>
+      </release>
       <release version="1.7.0" date="2026-05-10">
         <description>
           <p>What's new in 1.7.0:</p>
