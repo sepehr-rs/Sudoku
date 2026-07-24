@@ -1,80 +1,29 @@
-# board.py
-#
+# diagonal_sudoku/board.py
 # Copyright 2025 sepehr-rs
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import List, Tuple, Iterable, Set
 from ..classic_sudoku.board import ClassicSudokuBoard
-from ...base.board_base import BoardBase
-from ...base.preferences_manager import PreferencesManager
-from .rules import DiagonalSudokuRules
-from .generator import DiagonalSudokuGenerator
 
 
 class DiagonalSudokuBoard(ClassicSudokuBoard):
-    def __init__(self, difficulty: float, difficulty_label: str, variant: str):
-        BoardBase.__init__(
-            self,
-            DiagonalSudokuRules(),
-            DiagonalSudokuGenerator(),
-            difficulty,
-            difficulty_label,
-            variant,
-        )
-        prefs = PreferencesManager.get_preferences()
-        self.variant_preferences = prefs.variant_defaults.copy()
-        self.general_preferences = prefs.general_defaults.copy()
 
-    @classmethod
-    def load_from_file(cls, filename: str | None = None):
-        return cls._load_from_file_common(
-            filename=filename,
-            rules=DiagonalSudokuRules(),
-            generator=DiagonalSudokuGenerator(),
-        )
-
-    def _iter_diagonal_cells(self, row: int, col: int) -> Iterable[Tuple[int, int]]:
-        size = self.rules.size
-        if row == col:
-            for i in range(size):
-                if i != row:
-                    yield (i, i)
-        if row + col == size - 1:
-            for i in range(size):
-                r, c = i, size - 1 - i
-                if r != row or c != col:
-                    yield (r, c)
-
-    def _get_existing_value(self, row: int, col: int):
-        val = self.puzzle[row][col]
-        return val if val is not None else self.user_inputs[row][col]
-
-    def has_conflict(self, row: int, col: int, value: str) -> List[Tuple[int, int]]:
+    def has_conflict(self, row: int, col: int, value: int) -> list[tuple[int, int]]:
         conflicts = super().has_conflict(row, col, value)
-        diagonal_conflicts: List[Tuple[int, int]] = []
-        seen_conflicts: Set[Tuple[int, int]] = set(conflicts)
+        existing = set(conflicts)
+        size = len(self.puzzle)
 
-        for r, c in self._iter_diagonal_cells(row, col):
-            if (r, c) in seen_conflicts:
-                continue
+        for i in range(size):
+            for j in range(size):
+                if (i, j) in existing or (i == row and j == col):
+                    continue
+                on_main = i == j and row == col
+                on_anti = i + j == size - 1 and row + col == size - 1
 
-            existing_value = self._get_existing_value(r, c)
-            if existing_value is not None and str(existing_value) == value:
-                diagonal_conflicts.append((r, c))
-                seen_conflicts.add((r, c))
+                if on_main or on_anti:
+                    cell_value = self.puzzle[i][j]
+                    if cell_value is None:
+                        cell_value = self.sudoku_cells[i][j].get_value()
+                    if cell_value is not None and cell_value == value:
+                        conflicts.append((i, j))
 
-        return conflicts + diagonal_conflicts
+        return conflicts
