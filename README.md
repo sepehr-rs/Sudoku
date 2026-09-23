@@ -7,6 +7,8 @@
 [installs-image]: https://img.shields.io/flathub/downloads/io.github.sepehr_rs.Sudoku?style=for-the-badge
 [persian-gnome-badge]: https://gnome-fa.github.io/assets/badges/persian-gnome.svg
 [persian-gnome-url]: https://gnome_fa.t.me/
+[circle-url]: https://apps.gnome.org/Sudoku/
+[circle-image]: https://circle.gnome.org/assets/button/badge.svg
 
 <div align="center">
   <img src="data/icons/hicolor/scalable/apps/io.github.sepehr_rs.Sudoku.svg" width="128" height="128">
@@ -15,7 +17,7 @@
 
   **Solve puzzles in style**
 
-  [![Persian GNOME][persian-gnome-badge]][persian-gnome-url]
+  [![GNOME Circle][circle-image]][circle-url] [![Persian GNOME][persian-gnome-badge]][persian-gnome-url]
 
 
   [![License][license-image]][license-url]

@@ -2,10 +2,11 @@ blueprint_compiler = find_program('blueprint-compiler', required: true)
 
 blueprint_files = files(
   'window.blp',
-  'shortcuts-overlay.blp',
+  'shortcuts-dialog.blp',
   'finished-page.blp',
   'how-to-play-dialog.blp',
-  'loading-screen.blp'
+  'loading-screen.blp',
+  'game-over-page.blp'
 )
 
 compiled_ui_files = []

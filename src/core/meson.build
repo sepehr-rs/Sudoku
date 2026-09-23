@@ -1,9 +1,11 @@
-modulesubdir = join_paths(moduledir, 'variants/classic_sudoku')
+modulesubdir = join_paths(moduledir, 'core')
 
 services_sources = [
     'board.py',
+    'constants.py',
     'controller.py',
     'generator.py',
+    'persistence.py',
     'preferences.py'
 ]
 
